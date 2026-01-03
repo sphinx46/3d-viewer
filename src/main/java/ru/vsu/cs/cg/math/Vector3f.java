@@ -1,7 +1,7 @@
 package ru.vsu.cs.cg.math;
 
 public class Vector3f {
-    private static final float EPSILON = 1e-7f;
+    private static final float EPSILON = 1e-4f;
     private final float x;
     private final float y;
     private final float z;
@@ -109,7 +109,7 @@ public class Vector3f {
 
     @Override
     public String toString() {
-        return String.format("Vector3(%.4f, %.4f, %.4f)", x, y, z);
+        return String.format("Vector3f(%.4f, %.4f, %.4f)", x, y, z);
     }
 
     @Override
