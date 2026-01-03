@@ -60,8 +60,8 @@ public final class ObjWriter {
         DecimalFormat decimalFormat = createDecimalFormat();
 
         for (Vector3f vertex : vertices) {
-            writer.write("v " + decimalFormat.format(vertex.x) + " " +
-                    decimalFormat.format(vertex.y) + " " + decimalFormat.format(vertex.z));
+            writer.write("v " + decimalFormat.format(vertex.getX()) + " " +
+                    decimalFormat.format(vertex.getY()) + " " + decimalFormat.format(vertex.getZ()));
             writer.newLine();
         }
     }
@@ -96,8 +96,8 @@ public final class ObjWriter {
         DecimalFormat decimalFormat = createDecimalFormat();
 
         for (Vector3f normal : normals) {
-            writer.write("vn " + decimalFormat.format(normal.x) + " "
-                    + decimalFormat.format(normal.y) + " " + decimalFormat.format(normal.z));
+            writer.write("vn " + decimalFormat.format(normal.getX()) + " "
+                    + decimalFormat.format(normal.getY()) + " " + decimalFormat.format(normal.getZ()));
             writer.newLine();
         }
     }
