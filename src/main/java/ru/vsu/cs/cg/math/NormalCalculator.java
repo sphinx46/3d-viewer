@@ -23,8 +23,11 @@ public class NormalCalculator {
         ArrayList<Vector3f> normals = model.normals;
         Map<Integer, Vector3f> sumNormals = new HashMap<>();
 
+        Vector3f[] sumNormalsArray = new Vector3f[vertices.size()];
+
         for (int i = 0; i < vertices.size(); i++) {
             sumNormals.put(i, new Vector3f());
+            sumNormalsArray[i] = new Vector3f();
         }
 
         for (Polygon polygon : model.polygons) {
@@ -40,24 +43,25 @@ public class NormalCalculator {
             Vector3f v1 = vertices.get(indices.get(1));
             Vector3f v2 = vertices.get(indices.get(2));
 
-            Vector3f edge1 = Vector3f.subtract(v1, v0);
-            Vector3f edge2 = Vector3f.subtract(v2, v0);
+            Vector3f edge1 = v1.subtract(v0);
+            Vector3f edge2 = v2.subtract(v0);
 
-            Vector3f polygonNormal = Vector3f.cross(edge1, edge2);
+            Vector3f polygonNormal = edge1.cross(edge2);
 
             for (int idx : indices) {
-                sumNormals.get(idx).sum(polygonNormal);
+                Vector3f normal = sumNormals.get(idx).add(polygonNormal);
+                sumNormalsArray[idx] = normal;
+                sumNormals.put(idx, normal);
             }
         }
 
         for (int i = 0; i < vertices.size(); i++) {
-            Vector3f normal = sumNormals.get(i);
+            Vector3f normal = sumNormalsArray[i];
 
             if (normal.length() == 0) {
                 normals.add(new Vector3f(0, 0, 0));
             } else {
-                normal.normalize();
-                normals.add(normal);
+                normals.add(normal.normalized());
             }
         }
     }
@@ -74,13 +78,12 @@ public class NormalCalculator {
     public static Vector3f calculatePolygonNormal(
             Vector3f v0, Vector3f v1, Vector3f v2) {
 
-        Vector3f edge1 = Vector3f.subtract(v1, v0);
-        Vector3f edge2 = Vector3f.subtract(v2, v0);
+        Vector3f edge1 = v1.subtract(v0);
+        Vector3f edge2 = v2.subtract(v0);
 
-        Vector3f normal = Vector3f.cross(edge1, edge2);
-        normal.normalize();
+        Vector3f polygonNormal = edge1.cross(edge2);
 
-        return normal;
+        return polygonNormal.normalized();
     }
 }
 
