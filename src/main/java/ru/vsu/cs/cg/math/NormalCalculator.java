@@ -1,6 +1,5 @@
 package ru.vsu.cs.cg.math;
 
-
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.model.Polygon;
 
@@ -72,7 +71,6 @@ public class NormalCalculator {
      * @param v2 3 вектор
      * @return посчитанную нормаль полигона
      */
-
     public static Vector3f calculatePolygonNormal(
             Vector3f v0, Vector3f v1, Vector3f v2) {
 
