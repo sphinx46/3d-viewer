@@ -57,8 +57,10 @@ public final class Polygon {
                 trN.add(normalIndices.get(0));
                 trN.add(normalIndices.get(i));
                 trN.add(normalIndices.get(i + 1));
-                setNormalIndices(trN);
+                polygon.setNormalIndices(trN);
             }
+
+            triangles.add(polygon);
         }
 
         return triangles;
