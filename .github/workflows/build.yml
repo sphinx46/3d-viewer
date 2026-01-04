@@ -2,18 +2,15 @@ name: Test & Build
 
 on:
   push:
-    branches: [main, develop-main, develop/**]
+    branches: [main, develop-main, develop/**, feature/**]
   pull_request:
     branches: [main, develop-main]
   workflow_dispatch:
 
 jobs:
-  unit-tests:
-    name: Unit Tests
+  test:
+    name: Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        module: [core-engine, gui-engine]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,43 +29,14 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2-
 
-      - name: Run unit tests for ${{ matrix.module }}
-        run: mvn -B clean verify -pl ${{ matrix.module }}
-
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: [unit-tests]
-    if: ${{ !contains(github.ref, 'feature/') }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2-
-
-      - name: Run all tests
+      - name: Run tests
         run: mvn -B clean verify
 
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [integration-tests]
+    needs: [test]
     if: github.event_name == 'push' && !contains(github.ref, 'feature/')
-    strategy:
-      matrix:
-        module: [core-engine, gui-engine]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,12 +48,14 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build ${{ matrix.module }}
-        run: mvn -B clean package -DskipTests -pl ${{ matrix.module }}
+      - name: Build all modules
+        run: mvn -B clean package -DskipTests
 
-      - name: Upload JAR artifact for ${{ matrix.module }}
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.module }}-jar
-          path: ${{ matrix.module }}/target/*.jar
+          name: build-artifacts
+          path: |
+            gui-engine/target/*.jar
+            core-engine/target/*.jar
           retention-days: 7
