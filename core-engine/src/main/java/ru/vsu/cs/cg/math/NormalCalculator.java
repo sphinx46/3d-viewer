@@ -14,28 +14,20 @@ public class NormalCalculator {
      * Высчитывает нормали вершин объекта
      * (при необходимости пересчитывает)
      *
-     * @param model объект
+     *
      */
-    public static void calculateVerticesNormals(Model model) {
-        ArrayList<Vector3f> vertices =  model.vertices;
-        model.normals.clear();
+    public static List<Vector3f> computeVertexNormals(List<Vector3f> vertices, List<Polygon> polygons) {
 
-        ArrayList<Vector3f> normals = model.normals;
-        Map<Integer, Vector3f> sumNormals = new HashMap<>();
+        List<Vector3f> normals = new ArrayList<>();
 
         Vector3f[] sumNormalsArray = new Vector3f[vertices.size()];
 
         for (int i = 0; i < vertices.size(); i++) {
-            sumNormals.put(i, new Vector3f());
             sumNormalsArray[i] = new Vector3f();
         }
 
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : polygons) {
             List<Integer> indices = polygon.getVertexIndices();
-
-            List<Integer> normalIndices = polygon.getNormalIndices();
-            normalIndices.clear();
-            normalIndices.addAll(indices);
 
             if (indices.size() < 3) continue;
 
@@ -49,9 +41,7 @@ public class NormalCalculator {
             Vector3f polygonNormal = edge1.cross(edge2);
 
             for (int idx : indices) {
-                Vector3f normal = sumNormals.get(idx).add(polygonNormal);
-                sumNormalsArray[idx] = normal;
-                sumNormals.put(idx, normal);
+                sumNormalsArray[idx] = sumNormalsArray[idx].add(polygonNormal);
             }
         }
 
@@ -64,6 +54,7 @@ public class NormalCalculator {
                 normals.add(normal.normalized());
             }
         }
+        return normals;
     }
 
     /**
