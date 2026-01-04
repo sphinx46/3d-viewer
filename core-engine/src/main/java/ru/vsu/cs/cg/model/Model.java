@@ -57,10 +57,20 @@ public final class Model {
         return Collections.unmodifiableList(triangulationPolygons);
     }
 
+    /**
+     * Пересчет нормалей полигонов
+     * (при пересчете может изменить индексацию вершин)
+     */
     public void recomputeNormals(){
         List<Vector3f> newNormals = NormalCalculator.computeVertexNormals(vertices, polygons);
         normals.clear();
-        normals = newNormals;
+        normals.addAll(newNormals);
+
+        for(Polygon polygon: polygons){
+            List<Integer> normalIndices = polygon.getNormalIndices();
+            normalIndices.clear();
+            normalIndices.addAll(polygon.getVertexIndices());
+        }
     }
 
     private void invalidateTriangulation() {
