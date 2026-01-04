@@ -4,15 +4,18 @@ package ru.vsu.cs.cg.model;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
 
+import java.nio.channels.Pipe;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class Model {
-    public ArrayList<Vector3f> vertices = new ArrayList<Vector3f>();
-    public ArrayList<Vector2f> textureVertices = new ArrayList<Vector2f>();
-    public ArrayList<Vector3f> normals = new ArrayList<Vector3f>();
-    public ArrayList<Polygon> polygons = new ArrayList<Polygon>();
+    private List<Vector3f> vertices = new ArrayList<Vector3f>();
+    private List<Vector2f> textureVertices = new ArrayList<Vector2f>();
+    private List<Vector3f> normals = new ArrayList<Vector3f>();
+    private List<Polygon> polygons = new ArrayList<Polygon>();
 
-    private ArrayList<Polygon> triangulatedPolygon = null;
+    private volatile List<Polygon> triangulatedPolygonsCache = null;
     private boolean needsTriangulation = true;
 
     /**
@@ -30,24 +33,34 @@ public final class Model {
      * при необходимости пересчитывает их
      * @return полигоны после триангуляции
      */
-    public ArrayList<Polygon> getTriangulatedPolygon(){
-        if (needsTriangulation || triangulatedPolygon == null){
-            computeTriangulation();
+    public List<Polygon> getTriangulatedPolygonsCache(){
+        List<Polygon> cache = triangulatedPolygonsCache;
+
+        if (cache == null || needsTriangulation){
+            synchronized (this){
+                cache = triangulatedPolygonsCache;
+                if (cache == null || needsTriangulation){
+                    cache = computeTriangulation();
+                    triangulatedPolygonsCache = cache;
+                    needsTriangulation = false;
+                }
+            }
         }
-        return triangulatedPolygon;
+
+        return cache;
     }
 
     /**
      * Делает триангуляцию для каждого полигона
      */
-    private void computeTriangulation(){
-        triangulatedPolygon = new ArrayList<>();
+    private List<Polygon> computeTriangulation(){
+        List<Polygon> triangulationPolygons = new ArrayList<>();
 
         for(Polygon polygon: polygons){
-            triangulatedPolygon.addAll(polygon.triangulate());
+            triangulationPolygons.addAll(polygon.triangulate());
         }
 
-        needsTriangulation = false;
+        return Collections.unmodifiableList(triangulationPolygons);
     }
 
     /**
@@ -55,5 +68,37 @@ public final class Model {
      */
     public void markForTriangulation() {
         needsTriangulation = true;
+    }
+
+    public List<Vector3f> getVertices() {
+        return vertices;
+    }
+
+    public List<Vector2f> getTextureVertices() {
+        return textureVertices;
+    }
+
+    public List<Vector3f> getNormals() {
+        return normals;
+    }
+
+    public List<Polygon> getPolygons() {
+        return polygons;
+    }
+
+    public void setVertices(List<Vector3f> vertices) {
+        this.vertices = vertices;
+    }
+
+    public void setTextureVertices(List<Vector2f> textureVertices) {
+        this.textureVertices = textureVertices;
+    }
+
+    public void setNormals(List<Vector3f> normals) {
+        this.normals = normals;
+    }
+
+    public void setPolygons(List<Polygon> polygons) {
+        this.polygons = polygons;
     }
 }
