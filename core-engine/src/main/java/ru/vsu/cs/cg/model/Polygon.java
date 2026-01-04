@@ -1,6 +1,8 @@
 package ru.vsu.cs.cg.model;
 
 import ru.vsu.cs.cg.exceptions.ValidateVertexException;
+import ru.vsu.cs.cg.math.NormalCalculator;
+import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.utils.MessageConstants;
 
 import java.util.ArrayList;

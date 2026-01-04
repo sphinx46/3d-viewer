@@ -1,6 +1,7 @@
 package ru.vsu.cs.cg.model;
 
 
+import ru.vsu.cs.cg.math.NormalCalculator;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
 
@@ -15,8 +16,7 @@ public final class Model {
     private List<Vector3f> normals = new ArrayList<Vector3f>();
     private List<Polygon> polygons = new ArrayList<Polygon>();
 
-    private volatile List<Polygon> triangulatedPolygonsCache = null;
-    private boolean needsTriangulation = true;
+    private List<Polygon> triangulatedPolygonsCache = null;
 
     /**
      * Добавляет полигон в модель
@@ -25,7 +25,7 @@ public final class Model {
      */
     public void addPolygon(Polygon polygon){
         polygons.add(polygon);
-        needsTriangulation = true;
+        invalidateTriangulation();
     }
 
     /**
@@ -36,15 +36,9 @@ public final class Model {
     public List<Polygon> getTriangulatedPolygonsCache(){
         List<Polygon> cache = triangulatedPolygonsCache;
 
-        if (cache == null || needsTriangulation){
-            synchronized (this){
-                cache = triangulatedPolygonsCache;
-                if (cache == null || needsTriangulation){
-                    cache = computeTriangulation();
-                    triangulatedPolygonsCache = cache;
-                    needsTriangulation = false;
-                }
-            }
+        if (cache == null){
+            cache = computeTriangulation();
+            triangulatedPolygonsCache = cache;
         }
 
         return cache;
@@ -63,42 +57,29 @@ public final class Model {
         return Collections.unmodifiableList(triangulationPolygons);
     }
 
-    /**
-     * Если требуется произвести триангуляцию
-     */
-    public void markForTriangulation() {
-        needsTriangulation = true;
+    public void recomputeNormals(){
+        List<Vector3f> newNormals = NormalCalculator.computeVertexNormals(vertices, polygons);
+        normals.clear();
+        normals = newNormals;
+    }
+
+    private void invalidateTriangulation() {
+        triangulatedPolygonsCache = null;
     }
 
     public List<Vector3f> getVertices() {
-        return vertices;
+        return Collections.unmodifiableList(vertices);
     }
 
     public List<Vector2f> getTextureVertices() {
-        return textureVertices;
+        return Collections.unmodifiableList(textureVertices);
     }
 
     public List<Vector3f> getNormals() {
-        return normals;
+        return Collections.unmodifiableList(normals);
     }
 
     public List<Polygon> getPolygons() {
-        return polygons;
-    }
-
-    public void setVertices(List<Vector3f> vertices) {
-        this.vertices = vertices;
-    }
-
-    public void setTextureVertices(List<Vector2f> textureVertices) {
-        this.textureVertices = textureVertices;
-    }
-
-    public void setNormals(List<Vector3f> normals) {
-        this.normals = normals;
-    }
-
-    public void setPolygons(List<Polygon> polygons) {
-        this.polygons = polygons;
+        return Collections.unmodifiableList(polygons);
     }
 }
