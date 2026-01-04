@@ -1,7 +1,7 @@
 package ru.vsu.cs.cg.math;
 
 public class Vector3f {
-    private static final float EPSILON = 1e-4f;
+    private static final float EPSILON = 1e-7f;
     private final float x;
     private final float y;
     private final float z;
