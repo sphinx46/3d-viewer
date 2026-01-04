@@ -29,7 +29,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="800.0" prefWidth="1400.0" styleClass="root" stylesheets="@/static/css/theme-dark.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"  fx:controller="ru.vsu.cs.cg.controller.GuiController">
+<AnchorPane fx:id="anchorPane" prefHeight="800.0" prefWidth="1400.0" styleClass="root" stylesheets="@/static/css/theme-dark.css" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.GuiController">
     <MenuBar prefHeight="32.0" prefWidth="1400.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <Menu mnemonicParsing="false" text="Файл">
             <items>
@@ -198,7 +198,7 @@
     </MenuBar>
 
     <HBox layoutY="32.0" prefHeight="768.0" prefWidth="1400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
-        <VBox prefWidth="80.0" style="-fx-background-color: #252525;">
+        <VBox prefWidth="80.0" styleClass="left-panel">
             <padding>
                 <Insets top="200.0" />
             </padding>
@@ -483,14 +483,20 @@
                                     </ImageView>
                                     <Label style="-fx-font-weight: bold;" text="Освещение:" />
                                 </HBox>
-                                <VBox spacing="8">
+                                <VBox spacing="12">
                                     <HBox alignment="CENTER_LEFT" spacing="10">
                                         <Label text="Яркость:" />
-                                        <Slider fx:id="brightnessSlider" majorTickUnit="0.2" max="1.0" min="0.0" prefWidth="100.0" showTickLabels="true" showTickMarks="true" value="0.5" />
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Slider fx:id="brightnessSlider" max="1.0" min="0.0" value="0.5" prefWidth="80.0" />
+                                            <TextField fx:id="brightnessField" text="0.5" prefWidth="50.0" />
+                                        </HBox>
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT" spacing="10">
                                         <Label text="Отражение:" />
-                                        <Slider fx:id="reflectionSlider" majorTickUnit="0.2" max="1.0" min="0.0" prefWidth="100.0" showTickLabels="true" showTickMarks="true" value="0.3" />
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Slider fx:id="reflectionSlider" max="1.0" min="0.0" value="0.3" prefWidth="80.0" />
+                                            <TextField fx:id="reflectionField" text="0.3" prefWidth="50.0" />
+                                        </HBox>
                                     </HBox>
                                 </VBox>
                             </VBox>
@@ -545,14 +551,20 @@
                                     </rowConstraints>
                                 </GridPane>
 
-                                <VBox spacing="8">
+                                <VBox spacing="12">
                                     <HBox alignment="CENTER_LEFT" spacing="10">
-                                        <Label text="Фокусное расст.:" />
-                                        <Slider fx:id="focalLengthSlider" majorTickUnit="20" max="200" min="10" prefWidth="100.0" showTickLabels="true" showTickMarks="true" value="50" />
+                                        <Label text="Фокусное расстояние:" />
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Slider fx:id="focalLengthSlider" max="200" min="10" value="50" prefWidth="80.0" />
+                                            <TextField fx:id="focalLengthField" text="50" prefWidth="50.0" />
+                                        </HBox>
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT" spacing="10">
                                         <Label text="Чувствительность:" />
-                                        <Slider fx:id="sensitivitySlider" majorTickUnit="0.2" max="2.0" min="0.1" prefWidth="100.0" showTickLabels="true" showTickMarks="true" value="1.0" />
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Slider fx:id="sensitivitySlider" max="2.0" min="0.1" value="1.0" prefWidth="80.0" />
+                                            <TextField fx:id="sensitivityField" text="1.0" prefWidth="50.0" />
+                                        </HBox>
                                     </HBox>
                                 </VBox>
 
