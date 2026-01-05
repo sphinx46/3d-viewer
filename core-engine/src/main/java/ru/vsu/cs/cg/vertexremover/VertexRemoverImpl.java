@@ -37,7 +37,7 @@ public final class VertexRemoverImpl implements VertexRemover {
         log.info("VERTEX_REMOVAL_SERVICE_REMOVE_VERTICES_START: " +
                         "начало удаления вершин, количество вершин для удаления: {}, " +
                         "всего вершин в модели: {}, всего полигонов: {}",
-                vertexIndices.size(), model.vertices.size(), model.polygons.size());
+                vertexIndices.size(), model.getVertices().size(), model.getPolygons().size());
 
         validateRemovalRequest(model, vertexIndices);
 
@@ -58,11 +58,11 @@ public final class VertexRemoverImpl implements VertexRemover {
         }
 
         log.info("VERTEX_REMOVAL_SERVICE_REMOVE_POLYGONS_FROM_MODEL: " +
-                "полигоны удалены из модели, осталось полигонов: {}", model.polygons.size());
+                "полигоны удалены из модели, осталось полигонов: {}", model.getPolygons().size());
 
         ModelUtils.removeVerticesFromModel(model, allVerticesToRemove);
         log.info("VERTEX_REMOVAL_SERVICE_REMOVE_VERTICES_FROM_MODEL: " +
-                "вершины удалены из модели, осталось вершин: {}", model.vertices.size());
+                "вершины удалены из модели, осталось вершин: {}", model.getVertices().size());
 
         performCleanupAndReindex(model, allVerticesToRemove, textureIndicesToRemove,
                 normalIndicesToRemove, clearUnused);
@@ -70,7 +70,7 @@ public final class VertexRemoverImpl implements VertexRemover {
         log.info("VERTEX_REMOVAL_SERVICE_REINDEX_MODEL_COMPLETE: " +
                         "модель переиндексирована, финальное количество вершин: {}, " +
                         "финальное количество полигонов: {}",
-                model.vertices.size(), model.polygons.size());
+                model.getVertices().size(), model.getPolygons().size());
 
         return new VertexRemovalResult(
                 allVerticesToRemove.size(),
@@ -91,7 +91,7 @@ public final class VertexRemoverImpl implements VertexRemover {
                         "проверка возможности удаления вершин, количество: {}, " +
                         "максимальный индекс в модели: {}",
                 vertexIndices == null ? 0 : vertexIndices.size(),
-                model.vertices.size() - 1);
+                model.getVertices().size() - 1);
 
         if (vertexIndices == null || vertexIndices.isEmpty()) {
             return vertexIndices != null;
@@ -101,7 +101,7 @@ public final class VertexRemoverImpl implements VertexRemover {
             if (!ModelUtils.isValidVertexIndex(model, index)) {
                 log.warn("VERTEX_REMOVAL_SERVICE_CAN_REMOVE_VERTICES_INVALID_INDEX: " +
                                 "неверный индекс вершины: {}, допустимый диапазон: 0-{}",
-                        index, model.vertices.size() - 1);
+                        index, model.getVertices().size() - 1);
                 return false;
             }
         }

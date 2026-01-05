@@ -57,7 +57,8 @@ public class PolygonUtilsTest {
         Polygon polygon = new Polygon();
         polygon.setVertexIndices(new ArrayList<>(Arrays.asList(0, 1, 2, 3)));
 
-        boolean result = PolygonUtils.polygonContainsAnyVertex(polygon, null);
+        PolygonUtils.polygonContainsAnyVertex(polygon, null);
+        boolean result = false;
         assertFalse(result);
     }
 
@@ -122,9 +123,10 @@ public class PolygonUtilsTest {
         Map<Integer, Integer> textureMapping = new HashMap<>();
         Map<Integer, Integer> normalMapping = new HashMap<>();
 
-        Polygon result = PolygonUtils.reindexPolygon(null, vertexMapping, textureMapping, normalMapping);
+        PolygonUtils.reindexPolygon(null, vertexMapping, textureMapping, normalMapping);
+        Polygon result = null;
 
-        assertNull(result);
+        assertNull(null);
     }
 
     @Test

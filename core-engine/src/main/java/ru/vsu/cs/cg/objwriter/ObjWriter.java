@@ -39,10 +39,10 @@ public final class ObjWriter {
         }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writeVertices(writer, model.vertices);
-            writeTextureVertices(writer, model.textureVertices);
-            writeNormals(writer, model.normals);
-            writePolygons(writer, model.polygons);
+            writeVertices(writer, model.getVertices());
+            writeTextureVertices(writer, model.getTextureVertices());
+            writeNormals(writer, model.getNormals());
+            writePolygons(writer, model.getPolygons());
         } catch (IOException e) {
             throw new ObjWriterException(MessageConstants.FILE_WRITE_ERROR_MESSAGE + e.getMessage());
         }

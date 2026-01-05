@@ -27,7 +27,7 @@ public final class IndexUtils {
                                                  PolygonDataExtractor extractor) {
         Set<Integer> usedIndices = new HashSet<>();
 
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : model.getPolygons()) {
             if (polygon != null) {
                 usedIndices.addAll(extractor.extract(polygon));
             }

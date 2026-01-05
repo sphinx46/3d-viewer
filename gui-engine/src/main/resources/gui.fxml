@@ -323,7 +323,7 @@
                         <graphic>
                             <HBox alignment="CENTER_LEFT" spacing="5">
                                 <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
-                                    <Image url="@/static/images/icons/left-menu/move.png" />
+                                    <Image url="@/static/images/icons/right-menu/modify.png" />
                                 </ImageView>
                             </HBox>
                         </graphic>
@@ -447,7 +447,7 @@
                         <graphic>
                             <HBox alignment="CENTER_LEFT" spacing="5">
                                 <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
-                                    <Image url="@/static/images/icons/right-menu/palette.png" />
+                                    <Image url="@/static/images/icons/right-menu/material.png" />
                                 </ImageView>
                             </HBox>
                         </graphic>

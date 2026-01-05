@@ -83,7 +83,7 @@ public class ModelUtilsTest {
         Set<Integer> textureIndices = ModelUtils.collectTextureIndicesFromPolygons(cubeWithAdditionalVModel, polygonIndices);
 
         assertNotNull(textureIndices);
-        assertTrue(textureIndices.size() > 0);
+        assertFalse(textureIndices.isEmpty());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ModelUtilsTest {
         Set<Integer> normalIndices = ModelUtils.collectNormalIndicesFromPolygons(cubeWithAdditionalVModel, polygonIndices);
 
         assertNotNull(normalIndices);
-        assertTrue(normalIndices.size() > 0);
+        assertFalse(normalIndices.isEmpty());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ModelUtilsTest {
         Set<Integer> usedTextureIndices = ModelUtils.collectUsedTextureIndices(cubeWithAdditionalVModel);
 
         assertNotNull(usedTextureIndices);
-        assertTrue(usedTextureIndices.size() > 0);
+        assertFalse(usedTextureIndices.isEmpty());
     }
 
     @Test
@@ -123,29 +123,29 @@ public class ModelUtilsTest {
         Set<Integer> usedNormalIndices = ModelUtils.collectUsedNormalIndices(cubeWithAdditionalVModel);
 
         assertNotNull(usedNormalIndices);
-        assertTrue(usedNormalIndices.size() > 0);
+        assertFalse(usedNormalIndices.isEmpty());
     }
 
     @Test
     @DisplayName("Удаление вершин из модели")
     public void testRemoveVerticesFromModel() {
-        int initialVertexCount = simpleCubeModel.vertices.size();
+        int initialVertexCount = simpleCubeModel.getVertices().size();
         Set<Integer> verticesToRemove = new HashSet<>(Arrays.asList(0, 1));
 
         ModelUtils.removeVerticesFromModel(simpleCubeModel, verticesToRemove);
 
-        assertEquals(initialVertexCount - 2, simpleCubeModel.vertices.size());
+        assertEquals(initialVertexCount - 2, simpleCubeModel.getVertices().size());
     }
 
     @Test
     @DisplayName("Удаление полигонов из модели")
     public void testRemovePolygonsFromModel() {
-        int initialPolygonCount = simpleCubeModel.polygons.size();
+        int initialPolygonCount = simpleCubeModel.getPolygons().size();
         Set<Integer> polygonsToRemove = new HashSet<>(Arrays.asList(0, 1));
 
         ModelUtils.removePolygonsFromModel(simpleCubeModel, polygonsToRemove);
 
-        assertEquals(initialPolygonCount - 2, simpleCubeModel.polygons.size());
+        assertEquals(initialPolygonCount - 2, simpleCubeModel.getPolygons().size());
     }
 
     @Test
@@ -163,18 +163,16 @@ public class ModelUtilsTest {
     public void testPartialReindexModel() {
         Model testModel = createSimpleTestModel();
 
-        Set<Integer> removedVertexIndices = new HashSet<>(Arrays.asList(0));
+        Set<Integer> removedVertexIndices = new HashSet<>(List.of(0));
         Set<Integer> removedTextureIndices = new HashSet<>();
         Set<Integer> removedNormalIndices = new HashSet<>();
-
-        int initialPolygonCount = testModel.polygons.size();
 
         ModelUtils.partialReindexModel(testModel, removedVertexIndices,
                 removedTextureIndices, removedNormalIndices);
 
-        assertTrue(testModel.polygons.size() > 0);
+        assertFalse(testModel.getPolygons().isEmpty());
 
-        for (Polygon polygon : testModel.polygons) {
+        for (Polygon polygon : testModel.getPolygons()) {
             for (Integer vertexIndex : polygon.getVertexIndices()) {
                 assertTrue(vertexIndex >= 0);
             }
@@ -186,23 +184,21 @@ public class ModelUtilsTest {
     public void testFullReindexModel() {
         Model testModel = createSimpleTestModel();
 
-        Set<Integer> removedVertexIndices = new HashSet<>(Arrays.asList(0));
+        Set<Integer> removedVertexIndices = new HashSet<>(List.of(0));
         Set<Integer> removedTextureIndices = new HashSet<>();
         Set<Integer> removedNormalIndices = new HashSet<>();
-
-        int initialPolygonCount = testModel.polygons.size();
 
         ModelUtils.fullReindexModel(testModel, removedVertexIndices,
                 removedTextureIndices, removedNormalIndices);
 
-        assertTrue(testModel.polygons.size() > 0);
+        assertFalse(testModel.getPolygons().isEmpty());
 
         Set<Integer> usedIndices = new HashSet<>();
-        for (Polygon polygon : testModel.polygons) {
+        for (Polygon polygon : testModel.getPolygons()) {
             usedIndices.addAll(polygon.getVertexIndices());
         }
 
-        assertTrue(usedIndices.size() > 0);
+        assertFalse(usedIndices.isEmpty());
         for (Integer index : usedIndices) {
             assertTrue(index >= 0);
         }
@@ -212,7 +208,7 @@ public class ModelUtilsTest {
     @DisplayName("Частичная переиндексация пустой модели")
     public void testPartialReindexModelEmptyModel() {
         Model emptyModel = new Model();
-        emptyModel.polygons = new ArrayList<>();
+        emptyModel.setPolygons(new ArrayList<>());
         Set<Integer> removedVertexIndices = new HashSet<>(Arrays.asList(0, 1));
         Set<Integer> removedTextureIndices = new HashSet<>();
         Set<Integer> removedNormalIndices = new HashSet<>();
@@ -227,7 +223,7 @@ public class ModelUtilsTest {
     @DisplayName("Полная переиндексация пустой модели")
     public void testFullReindexModelEmptyModel() {
         Model emptyModel = new Model();
-        emptyModel.polygons = new ArrayList<>();
+        emptyModel.setPolygons(new ArrayList<>());
         Set<Integer> removedVertexIndices = new HashSet<>(Arrays.asList(0, 1));
         Set<Integer> removedTextureIndices = new HashSet<>();
         Set<Integer> removedNormalIndices = new HashSet<>();
@@ -242,15 +238,15 @@ public class ModelUtilsTest {
     @DisplayName("Сбор данных из невалидных индексов полигонов")
     public void testCollectDataFromInvalidPolygonIndices() {
         Model model = new Model();
-        model.polygons = new ArrayList<>();
+        model.setPolygons(new ArrayList<>());
 
         Polygon polygon1 = new Polygon();
         polygon1.setVertexIndices(new ArrayList<>(Arrays.asList(0, 1, 2)));
-        model.polygons.add(polygon1);
+        model.addPolygon(polygon1);
 
         Polygon polygon2 = new Polygon();
         polygon2.setVertexIndices(new ArrayList<>(Arrays.asList(3, 4, 5)));
-        model.polygons.add(polygon2);
+        model.addPolygon(polygon2);
 
         Set<Integer> invalidIndices = new HashSet<>(Arrays.asList(10, 20, -1));
         Set<Integer> vertices = ModelUtils.collectVerticesFromPolygons(model, invalidIndices);
@@ -263,26 +259,26 @@ public class ModelUtilsTest {
     @DisplayName("Частичная переиндексация после удаления полигонов")
     public void testPartialReindexModelAfterRemovingPolygons() {
         Model testModel = new Model();
-        testModel.polygons = new ArrayList<>();
+        testModel.setPolygons(new ArrayList<>());
 
         Polygon polygon1 = new Polygon();
         polygon1.setVertexIndices(new ArrayList<>(Arrays.asList(0, 1, 2)));
-        testModel.polygons.add(polygon1);
+        testModel.addPolygon(polygon1);
 
         Polygon polygon2 = new Polygon();
         polygon2.setVertexIndices(new ArrayList<>(Arrays.asList(3, 4, 5)));
-        testModel.polygons.add(polygon2);
+        testModel.addPolygon((polygon2));
 
-        Set<Integer> removedVertexIndices = new HashSet<>(Arrays.asList(0));
+        Set<Integer> removedVertexIndices = new HashSet<>(List.of(0));
         Set<Integer> removedTextureIndices = new HashSet<>();
         Set<Integer> removedNormalIndices = new HashSet<>();
 
         ModelUtils.partialReindexModel(testModel, removedVertexIndices,
                 removedTextureIndices, removedNormalIndices);
 
-        assertTrue(testModel.polygons.size() >= 1);
+        assertFalse(testModel.getPolygons().isEmpty());
 
-        for (Polygon polygon : testModel.polygons) {
+        for (Polygon polygon : testModel.getPolygons()) {
             for (Integer vertexIndex : polygon.getVertexIndices()) {
                 assertTrue(vertexIndex >= 0);
             }
@@ -292,7 +288,7 @@ public class ModelUtilsTest {
     @Test
     @DisplayName("Сбор данных из полигона с текстурами и нормалями")
     public void testCollectDataFromPolygonWithTexturesAndNormals() {
-        Set<Integer> polygonIndices = new HashSet<>(Arrays.asList(0));
+        Set<Integer> polygonIndices = new HashSet<>(List.of(0));
         Set<Integer> vertices = ModelUtils.collectVerticesFromPolygons(cubeWithAdditionalVModel, polygonIndices);
         Set<Integer> textures = ModelUtils.collectTextureIndicesFromPolygons(cubeWithAdditionalVModel, polygonIndices);
         Set<Integer> normals = ModelUtils.collectNormalIndicesFromPolygons(cubeWithAdditionalVModel, polygonIndices);
@@ -300,14 +296,14 @@ public class ModelUtilsTest {
         assertNotNull(vertices);
         assertNotNull(textures);
         assertNotNull(normals);
-        assertTrue(vertices.size() > 0);
-        assertTrue(textures.size() > 0);
-        assertTrue(normals.size() > 0);
+        assertFalse(vertices.isEmpty());
+        assertFalse(textures.isEmpty());
+        assertFalse(normals.isEmpty());
     }
 
     private Model createSimpleTestModel() {
         Model model = new Model();
-        model.polygons = new ArrayList<>();
+        model.setPolygons(new ArrayList<>());
 
         Polygon polygon1 = new Polygon();
         polygon1.setVertexIndices(new ArrayList<>(Arrays.asList(0, 1, 2)));
@@ -318,9 +314,9 @@ public class ModelUtilsTest {
         Polygon polygon3 = new Polygon();
         polygon3.setVertexIndices(new ArrayList<>(Arrays.asList(2, 3, 4)));
 
-        model.polygons.add(polygon1);
-        model.polygons.add(polygon2);
-        model.polygons.add(polygon3);
+        model.addPolygon(polygon1);
+        model.addPolygon(polygon2);
+        model.addPolygon(polygon3);
 
         return model;
     }
