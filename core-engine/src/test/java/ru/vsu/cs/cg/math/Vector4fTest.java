@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class Vector4fTest {
-    
+
     private static final float TEST_EPSILON = 1e-5f;
 
     @Test
@@ -56,7 +56,6 @@ class Vector4fTest {
     @Test
     void testDivideByZero() {
         Vector4f v = new Vector4f(1, 1, 1, 1);
-
         assertThrows(IllegalArgumentException.class, () -> {
             v.divide(0);
         });
@@ -64,7 +63,7 @@ class Vector4fTest {
         assertThrows(IllegalArgumentException.class, () -> {
             v.divide(1e-8f);
         });
-
+        
         assertDoesNotThrow(() -> {
             v.divide(1e-6f);
         });
@@ -73,7 +72,6 @@ class Vector4fTest {
     @Test
     void testLength() {
         Vector4f v = new Vector4f(1, 2, 2, 4);
-        // 1 + 4 + 4 + 16 = 25, sqrt(25) = 5
         assertEquals(5, v.length(), TEST_EPSILON);
     }
 
@@ -114,7 +112,7 @@ class Vector4fTest {
         assertThrows(IllegalArgumentException.class, () -> {
             v.normalize();
         });
-
+        
         Vector4f tiny = new Vector4f(1e-8f, 1e-8f, 1e-8f, 1e-8f);
         assertThrows(IllegalArgumentException.class, () -> {
             tiny.normalize();
