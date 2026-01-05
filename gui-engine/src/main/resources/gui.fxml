@@ -77,10 +77,10 @@
                     </graphic>
                 </MenuItem>
                 <SeparatorMenuItem />
-                <Menu mnemonicParsing="false" text="Недавно использованное">
+                <Menu fx:id="menuRecent" mnemonicParsing="false" text="Недавно использованное">
                     <items>
                         <SeparatorMenuItem />
-                        <MenuItem mnemonicParsing="false" text="Очистить список" />
+                        <MenuItem fx:id="menuRecentClear" mnemonicParsing="false" text="Очистить список" />
                     </items>
                 </Menu>
                 <SeparatorMenuItem />

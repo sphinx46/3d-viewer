@@ -4,11 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.exceptions.ModelLoadException;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.objreader.ObjReader;
 import ru.vsu.cs.cg.objwriter.ObjWriter;
 import ru.vsu.cs.cg.service.ModelService;
 import ru.vsu.cs.cg.utils.DefaultModelLoader;
 import ru.vsu.cs.cg.utils.MessageConstants;
 import ru.vsu.cs.cg.utils.PathValidator;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ModelServiceImpl implements ModelService {
 
@@ -30,6 +35,28 @@ public class ModelServiceImpl implements ModelService {
                 modelType.getDisplayName(), e.getMessage(), e);
             throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
         }
+    }
+
+    @Override
+    public Model loadModel(String filePath) {
+        LOG.info("Загрузка модели, путь: {}", filePath);
+
+        try {
+            String fileContent = readFileContent(filePath);
+            return ObjReader.read(fileContent);
+        } catch (ModelLoadException e) {
+            LOG.error("Ошибка загрузки модели '{}': {}",
+                filePath, e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}",
+                filePath, e.getMessage(), e);
+            throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
+        }
+    }
+
+    private String readFileContent(String filePath) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(filePath)));
     }
 
     @Override

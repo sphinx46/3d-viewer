@@ -59,6 +59,25 @@ public final class DialogManager {
         return Optional.ofNullable(file);
     }
 
+    public static Optional<File> showOpenModelDialog(Stage ownerStage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Открыть модель");
+
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("OBJ файлы", "*.obj"),
+            new FileChooser.ExtensionFilter("Все файлы", "*.*")
+        );
+
+        File file = fileChooser.showOpenDialog(ownerStage);
+
+        if (file != null) {
+            LOG.debug("Пользователь выбрал файл для открытия: {}", file.getName());
+        } else {
+            LOG.debug("Открытие файла отменено пользователем");
+        }
+        return Optional.ofNullable(file);
+    }
+
     public static Optional<File> showSaveModelDialog(Stage ownerStage) {
         return showSaveDialog(ownerStage, "Сохранить модель", MODEL_FILE_PREFIX, "*.obj");
     }

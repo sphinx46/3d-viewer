@@ -1,19 +1,23 @@
 package ru.vsu.cs.cg.controller;
 
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.service.ModelService;
+import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.service.impl.ModelServiceImpl;
+import ru.vsu.cs.cg.service.impl.RecentFilesCacheServiceImpl;
 import ru.vsu.cs.cg.utils.*;
 
 import java.awt.*;
@@ -21,9 +25,9 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 
 public class GuiController {
 
@@ -34,6 +38,7 @@ public class GuiController {
     private static final String GITHUB_DOCS_URL = "https://github.com/sphinx46/3d-viewer";
 
     private final ModelService modelService = new ModelServiceImpl();
+    private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
     private final Map<Slider, TextField> sliderBindings = new HashMap<>();
     private Model currentModel;
 
@@ -51,9 +56,14 @@ public class GuiController {
     @FXML private Slider sensitivitySlider;
     @FXML private TextField sensitivityField;
 
+    @FXML private MenuItem menuFileOpen;
+    @FXML private MenuItem menuFileSave;
     @FXML private MenuItem menuFileNewCustom;
     @FXML private MenuItem menuFileSaveAs;
     @FXML private MenuItem menuFileExit;
+
+    @FXML private MenuItem menuRecentClear;
+    @FXML private Menu menuRecent;
 
     @FXML private MenuItem menuCreatePlane;
     @FXML private MenuItem menuCreateCube;
@@ -73,19 +83,54 @@ public class GuiController {
     @FXML private MenuItem menuHelpBugReport;
     @FXML private MenuItem menuHelpAbout;
 
+    @FXML private Button selectToolButton;
+    @FXML private Button moveToolButton;
+    @FXML private Button rotateToolButton;
+    @FXML private Button scaleToolButton;
+
     @FXML
     private void initialize() {
         LOG.info("Инициализация GuiController");
 
         try {
+            initializeTooltips();
+            loadRecentFilesFromCache();
             initializeSliderBindings();
             initializeMenuActions();
+            updateRecentFilesMenu();
             registerCurrentStage();
             LOG.debug("GuiController успешно инициализирован");
         } catch (Exception e) {
             LOG.error("Ошибка инициализации GuiController", e);
             throw new RuntimeException("Ошибка инициализации контроллера", e);
         }
+    }
+
+    private void initializeTooltips() {
+        Tooltip selectTooltip = new Tooltip("Выделить объект");
+        Tooltip moveTooltip = new Tooltip("Переместить объект");
+        Tooltip rotateTooltip = new Tooltip("Повернуть объект");
+        Tooltip scaleTooltip = new Tooltip("Масштабировать объект");
+
+        selectTooltip.setShowDelay(javafx.util.Duration.millis(500));
+        moveTooltip.setShowDelay(javafx.util.Duration.millis(500));
+        rotateTooltip.setShowDelay(javafx.util.Duration.millis(500));
+        scaleTooltip.setShowDelay(javafx.util.Duration.millis(500));
+
+        Tooltip.install(selectToolButton, selectTooltip);
+        Tooltip.install(moveToolButton, moveTooltip);
+        Tooltip.install(rotateToolButton, rotateTooltip);
+        Tooltip.install(scaleToolButton, scaleTooltip);
+
+        LOG.debug("Инициализированы подсказки для инструментов левой панели");
+    }
+
+    private void loadRecentFilesFromCache() {
+        List<String> recentFiles = CachePersistenceManager.loadRecentFiles();
+        for (String filePath : recentFiles) {
+            recentFilesCacheService.addFile(filePath);
+        }
+        LOG.info("Загружено {} файлов из кеша", recentFiles.size());
     }
 
     private void initializeSliderBindings() {
@@ -130,9 +175,12 @@ public class GuiController {
         menuThemeDark.setOnAction(event -> applyTheme(DARK_THEME));
         menuThemeLight.setOnAction(event -> applyTheme(LIGHT_THEME));
 
+        menuFileOpen.setOnAction(event -> openModelFromFile());
         menuFileNewCustom.setOnAction(event -> createCustomObject());
         menuFileSaveAs.setOnAction(event -> saveModelToFile());
         menuFileExit.setOnAction(event -> handleExit());
+
+        menuRecentClear.setOnAction(event -> clearRecentFiles());
 
         menuCreatePlane.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.PLANE));
         menuCreateCube.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.CUBE));
@@ -179,6 +227,8 @@ public class GuiController {
     }
 
     private void handleExit() {
+        saveRecentFilesToCache();
+
         Optional<ButtonType> result = DialogManager.showConfirmation(
             "Подтверждение выхода",
             "Вы уверены, что хотите выйти из приложения?"
@@ -188,6 +238,11 @@ public class GuiController {
             LOG.info("Пользователь подтвердил выход из приложения");
             Platform.exit();
         }
+    }
+
+    private void saveRecentFilesToCache() {
+        List<String> recentFiles = recentFilesCacheService.getRecentFiles();
+        CachePersistenceManager.saveRecentFiles(recentFiles);
     }
 
     private void applyTheme(String themePath) {
@@ -241,7 +296,10 @@ public class GuiController {
                 Optional<File> fileOptional = DialogManager.showSaveModelDialog(stage);
                 fileOptional.ifPresent(file -> {
                     try {
-                        modelService.saveModelToFile(currentModel, file.getAbsolutePath());
+                        String filePath = file.getAbsolutePath();
+                        modelService.saveModelToFile(currentModel, filePath);
+                        recentFilesCacheService.addFile(filePath);
+                        updateRecentFilesMenu();
                         DialogManager.showSuccess(MessageConstants.OBJECT_SAVED + ": " + file.getName());
                     } catch (Exception e) {
                         LOG.error("Ошибка сохранения модели: {}", e.getMessage(), e);
@@ -251,6 +309,73 @@ public class GuiController {
             },
             () -> DialogManager.showError("Не удалось определить окно приложения")
         );
+    }
+
+    private void openModelFromFile() {
+        getStage().ifPresentOrElse(
+            stage -> {
+                Optional<File> fileOptional = DialogManager.showOpenModelDialog(stage);
+                fileOptional.ifPresent(file -> {
+                    try {
+                        String filePath = file.getAbsolutePath();
+                        currentModel = modelService.loadModel(filePath);
+                        recentFilesCacheService.addFile(filePath);
+                        updateRecentFilesMenu();
+                        DialogManager.showSuccess("Модель успешно загружена: " + file.getName());
+                    } catch (Exception e) {
+                        LOG.error("Ошибка загрузки модели: {}", e.getMessage(), e);
+                        DialogManager.showError("Ошибка загрузки модели: " + e.getMessage());
+                    }
+                });
+            },
+            () -> DialogManager.showError("Не удалось определить окно приложения")
+        );
+    }
+
+    private void updateRecentFilesMenu() {
+        menuRecent.getItems().removeIf(item -> !item.equals(menuRecentClear) && !(item instanceof SeparatorMenuItem));
+
+        List<String> recentFiles = recentFilesCacheService.getRecentFiles();
+        if (recentFiles.isEmpty()) {
+            MenuItem emptyItem = new MenuItem("Нет недавних файлов");
+            emptyItem.setDisable(true);
+            menuRecent.getItems().add(0, emptyItem);
+        } else {
+            for (String filePath : recentFiles) {
+                String fileName = new File(filePath).getName();
+                MenuItem fileItem = new MenuItem(fileName);
+                fileItem.setOnAction(event -> openRecentFile(filePath));
+                menuRecent.getItems().add(0, fileItem);
+            }
+        }
+
+        LOG.debug("Меню недавних файлов обновлено, файлов: {}", recentFiles.size());
+    }
+
+    private void openRecentFile(String filePath) {
+        try {
+            currentModel = modelService.loadModel(filePath);
+            recentFilesCacheService.addFile(filePath);
+            updateRecentFilesMenu();
+            DialogManager.showSuccess("Модель успешно загружена: " + new File(filePath).getName());
+        } catch (Exception e) {
+            LOG.error("Ошибка загрузки недавнего файла '{}': {}", filePath, e.getMessage(), e);
+            DialogManager.showError("Не удалось загрузить файл: " + new File(filePath).getName());
+        }
+    }
+
+    private void clearRecentFiles() {
+        Optional<ButtonType> result = DialogManager.showConfirmation(
+            "Очистка списка",
+            "Вы уверены, что хотите очистить список недавних файлов?"
+        );
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            recentFilesCacheService.clearCache();
+            updateRecentFilesMenu();
+            CachePersistenceManager.saveRecentFiles(recentFilesCacheService.getRecentFiles());
+            LOG.info("Список недавних файлов очищен пользователем");
+        }
     }
 
     private void openUrl(String url) {
