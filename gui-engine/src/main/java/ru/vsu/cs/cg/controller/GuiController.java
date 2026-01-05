@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
+
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,8 @@ public class GuiController {
     @FXML private TextField focalLengthField;
     @FXML private Slider sensitivitySlider;
     @FXML private TextField sensitivityField;
+
+    @FXML private MenuItem menuFileNew;
 
     private final Map<Slider, TextField> sliderBindings = new HashMap<>();
 
