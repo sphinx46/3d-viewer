@@ -78,8 +78,8 @@ public final class ObjWriter {
         DecimalFormat decimalFormat = createDecimalFormat();
 
         for (Vector2f textureVertex : textureVertices) {
-            writer.write("vt " + decimalFormat.format(textureVertex.x) + " "
-                    + decimalFormat.format(textureVertex.y));
+            writer.write("vt " + decimalFormat.format(textureVertex.getX()) + " "
+                    + decimalFormat.format(textureVertex.getY()));
             writer.newLine();
         }
     }
