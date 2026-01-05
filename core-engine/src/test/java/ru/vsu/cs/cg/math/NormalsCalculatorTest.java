@@ -4,21 +4,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.objreader.ObjReader;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NormalsCalculatorTest {
-    private ArrayList<Vector3f> trueNormals;
     private Model model;
+
+    private static final float TEST_EPSILON = 1e-4f;
 
     @BeforeEach
     void init() throws IOException {
@@ -28,20 +25,22 @@ public class NormalsCalculatorTest {
         model = ObjReader.read(fileContent);
     }
 
-    //При тестировании надо увеличить EPSILON в классе Vector3f иначе всегда будет false
     @Test
-    void normalTest(){
-
+    void normalTest() {
         ArrayList<Vector3f> trueNormal = (ArrayList<Vector3f>) model.normals.clone();
+
         NormalCalculator.calculateVerticesNormals(model);
 
-        for(int i = 0; i < model.normals.size(); i++){
-            System.out.println(trueNormal.get(i));
-            System.out.println(model.normals.get(i));
-            System.out.println("===========");
-            assertEquals(model.normals.get(i), trueNormal.get(i));
+        assertEquals(trueNormal.size(), model.normals.size(), "Количество нормалей не совпадает");
+
+        for (int i = 0; i < model.normals.size(); i++) {
+            Vector3f expected = trueNormal.get(i);
+            Vector3f actual = model.normals.get(i);
+
+            assertEquals(expected.getX(), actual.getX(), TEST_EPSILON, "Не совпадает X у вершины " + i);
+            assertEquals(expected.getY(), actual.getY(), TEST_EPSILON, "Не совпадает Y у вершины " + i);
+            assertEquals(expected.getZ(), actual.getZ(), TEST_EPSILON, "Не совпадает Z у вершины " + i);
         }
     }
 
 }
-
