@@ -29,17 +29,30 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="800.0" prefWidth="1400.0" styleClass="root" stylesheets="@/static/css/theme-dark.css" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.GuiController">
+<AnchorPane fx:id="anchorPane" prefHeight="800.0" prefWidth="1400.0" styleClass="root" stylesheets="@/static/css/theme-light.css" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.GuiController">
     <MenuBar prefHeight="32.0" prefWidth="1400.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <Menu mnemonicParsing="false" text="Файл">
             <items>
-                <MenuItem fx:id="menuFileNew" mnemonicParsing="false" text="Создать">
+                <Menu mnemonicParsing="false" text="Создать">
                     <graphic>
                         <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                             <Image url="@/static/images/icons/top-menu/create.png" />
                         </ImageView>
                     </graphic>
-                </MenuItem>
+                    <items>
+                        <Menu mnemonicParsing="false" text="Стандартные объекты">
+                            <items>
+                                <MenuItem fx:id="menuCreatePlane" mnemonicParsing="false" text="Плоскость" />
+                                <MenuItem fx:id="menuCreateCube" mnemonicParsing="false" text="Куб" />
+                                <MenuItem fx:id="menuCreateCone" mnemonicParsing="false" text="Конус" />
+                                <MenuItem fx:id="menuCreateCylinder" mnemonicParsing="false" text="Цилиндр" />
+                                <MenuItem fx:id="menuCreateSphere" mnemonicParsing="false" text="Сфера" />
+                                <MenuItem fx:id="menuCreateTeapot" mnemonicParsing="false" text="Чайник" />
+                            </items>
+                        </Menu>
+                        <MenuItem fx:id="menuFileNewCustom" mnemonicParsing="false" text="Пользовательский объект" />
+                    </items>
+                </Menu>
                 <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" text="Открыть">
                     <graphic>
                         <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
