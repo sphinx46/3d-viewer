@@ -1,5 +1,7 @@
 package ru.vsu.cs.cg.objreader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.exceptions.ObjReaderException;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
@@ -13,18 +15,15 @@ import java.util.Scanner;
 
 public final class ObjReader {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ObjReader.class);
     private static final String OBJ_VERTEX_TOKEN = "v";
     private static final String OBJ_TEXTURE_TOKEN = "vt";
     private static final String OBJ_NORMAL_TOKEN = "vn";
     private static final String OBJ_FACE_TOKEN = "f";
 
-    /**
-     * Читает содержимое файла OBJ и создает модель.
-     *
-     * @param fileContent содержимое файла OBJ
-     * @return созданная модель
-     */
     public static Model read(String fileContent) {
+        LOG.debug("Начало парсинга OBJ файла");
+
         Model result = new Model();
 
         int lineInd = 0;
@@ -54,92 +53,83 @@ public final class ObjReader {
                 case OBJ_FACE_TOKEN:
                     result.addPolygon(parseFace(wordsInLine, lineInd));
                     break;
+                default:
+                    LOG.trace("Неизвестный токен '{}' в строке {}", token, lineInd);
             }
         }
 
         scanner.close();
+
+        LOG.info("OBJ файл успешно прочитан: вершин={}, текстур={}, нормалей={}, полигонов={}",
+            result.getVertices().size(),
+            result.getTextureVertices().size(),
+            result.getNormals().size(),
+            result.getPolygons().size());
+
         return result;
     }
 
-    /**
-     * Парсит координаты вершины из списка слов.
-     *
-     * @param wordsInLineWithoutToken список слов без токена
-     * @param lineInd                 номер строки для сообщений об ошибках
-     * @return вектор с координатами вершины
-     * @throws ObjReaderException если возникает ошибка парсинга
-     */
     private static Vector3f parseVertex(final ArrayList<String> wordsInLineWithoutToken,
                                         int lineInd) {
         try {
-            return new Vector3f(
-                    Float.parseFloat(wordsInLineWithoutToken.get(0)),
-                    Float.parseFloat(wordsInLineWithoutToken.get(1)),
-                    Float.parseFloat(wordsInLineWithoutToken.get(2)));
+            float x = Float.parseFloat(wordsInLineWithoutToken.get(0));
+            float y = Float.parseFloat(wordsInLineWithoutToken.get(1));
+            float z = Float.parseFloat(wordsInLineWithoutToken.get(2));
+
+            LOG.trace("Прочитана вершина: [{}, {}, {}] в строке {}", x, y, z, lineInd);
+            return new Vector3f(x, y, z);
 
         } catch (NumberFormatException e) {
+            LOG.error("Ошибка парсинга float в строке {}: {}", lineInd, e.getMessage());
             throw new ObjReaderException(MessageConstants.FLOAT_PARSE_ERROR_MESSAGE, lineInd);
 
         } catch (IndexOutOfBoundsException e) {
+            LOG.error("Слишком мало аргументов для вершины в строке {}", lineInd);
             throw new ObjReaderException(MessageConstants.TOO_FEW_VERTEX_ARGUMENTS_MESSAGE, lineInd);
         }
     }
 
-    /**
-     * Парсит текстурные координаты из списка слов.
-     *
-     * @param wordsInLineWithoutToken список слов без токена
-     * @param lineInd                 номер строки для сообщений об ошибках
-     * @return вектор с текстурными координатами
-     * @throws ObjReaderException если возникает ошибка парсинга
-     */
     private static Vector2f parseTextureVertex(final ArrayList<String> wordsInLineWithoutToken,
                                                int lineInd) {
         try {
-            return new Vector2f(
-                    Float.parseFloat(wordsInLineWithoutToken.get(0)),
-                    Float.parseFloat(wordsInLineWithoutToken.get(1)));
+            float u = Float.parseFloat(wordsInLineWithoutToken.get(0));
+            float v = Float.parseFloat(wordsInLineWithoutToken.get(1));
+
+            LOG.trace("Прочитаны текстурные координаты: [{}, {}] в строке {}", u, v, lineInd);
+            return new Vector2f(u, v);
 
         } catch (NumberFormatException e) {
+            LOG.error("Ошибка парсинга float в строке {}: {}", lineInd, e.getMessage());
             throw new ObjReaderException(MessageConstants.FLOAT_PARSE_ERROR_MESSAGE, lineInd);
 
         } catch (IndexOutOfBoundsException e) {
+            LOG.error("Слишком мало аргументов для текстурных координат в строке {}", lineInd);
             throw new ObjReaderException(MessageConstants.TOO_FEW_VERTEX_ARGUMENTS_MESSAGE, lineInd);
         }
     }
 
-    /**
-     * Парсит нормали из списка слов.
-     *
-     * @param wordsInLineWithoutToken список слов без токена
-     * @param lineInd                 номер строки для сообщений об ошибках
-     * @return вектор с нормалью
-     * @throws ObjReaderException если возникает ошибка парсинга
-     */
     private static Vector3f parseNormal(final ArrayList<String> wordsInLineWithoutToken, int lineInd) {
         try {
-            return new Vector3f(
-                    Float.parseFloat(wordsInLineWithoutToken.get(0)),
-                    Float.parseFloat(wordsInLineWithoutToken.get(1)),
-                    Float.parseFloat(wordsInLineWithoutToken.get(2)));
+            float x = Float.parseFloat(wordsInLineWithoutToken.get(0));
+            float y = Float.parseFloat(wordsInLineWithoutToken.get(1));
+            float z = Float.parseFloat(wordsInLineWithoutToken.get(2));
+
+            LOG.trace("Прочитана нормаль: [{}, {}, {}] в строке {}", x, y, z, lineInd);
+            return new Vector3f(x, y, z);
 
         } catch (NumberFormatException e) {
+            LOG.error("Ошибка парсинга float в строке {}: {}", lineInd, e.getMessage());
             throw new ObjReaderException(MessageConstants.FLOAT_PARSE_ERROR_MESSAGE, lineInd);
 
         } catch (IndexOutOfBoundsException e) {
+            LOG.error("Слишком мало аргументов для нормали в строке {}", lineInd);
             throw new ObjReaderException(MessageConstants.TOO_FEW_NORMAL_ARGUMENTS_MESSAGE, lineInd);
         }
     }
 
-    /**
-     * Парсит полигон из списка слов.
-     *
-     * @param wordsInLineWithoutToken список слов без токена
-     * @param lineInd                 номер строки для сообщений об ошибках
-     * @return полигон с индексами вершин, текстурных координат и нормалей
-     * @throws ObjReaderException если возникает ошибка парсинга
-     */
     private static Polygon parseFace(final ArrayList<String> wordsInLineWithoutToken, int lineInd) {
+        LOG.trace("Парсинг полигона в строке {}", lineInd);
+
         ArrayList<Integer> vertexIndices = new ArrayList<>();
         ArrayList<Integer> textureVertexIndices = new ArrayList<>();
         ArrayList<Integer> normalIndices = new ArrayList<>();
@@ -149,6 +139,7 @@ public final class ObjReader {
         }
 
         if (vertexIndices.size() < 3) {
+            LOG.error("Полигон содержит менее 3 вершин в строке {}", lineInd);
             throw new ObjReaderException(MessageConstants.POLYGON_TOO_FEW_VERTICES_MESSAGE, lineInd);
         }
 
@@ -156,52 +147,59 @@ public final class ObjReader {
         result.setVertexIndices(vertexIndices);
         result.setTextureVertexIndices(textureVertexIndices);
         result.setNormalIndices(normalIndices);
+
+        LOG.trace("Создан полигон с {} вершинами в строке {}", vertexIndices.size(), lineInd);
         return result;
     }
 
-    /**
-     * Парсит одно слово в описании полигона.
-     *
-     * @param wordInLine           слово для парсинга
-     * @param vertexIndices        список индексов вершин
-     * @param textureVertexIndices список индексов текстурных координат
-     * @param normalIndices        список индексов нормалей
-     * @param lineInd              номер строки для сообщений об ошибках
-     * @throws ObjReaderException если возникает ошибка парсинга
-     */
     private static void parseFaceWord(
-            String wordInLine,
-            ArrayList<Integer> vertexIndices,
-            ArrayList<Integer> textureVertexIndices,
-            ArrayList<Integer> normalIndices,
-            int lineInd) {
+        String wordInLine,
+        ArrayList<Integer> vertexIndices,
+        ArrayList<Integer> textureVertexIndices,
+        ArrayList<Integer> normalIndices,
+        int lineInd) {
         try {
             String[] wordIndices = wordInLine.split("/");
             int length = wordIndices.length;
 
             switch (length) {
                 case 1:
-                    vertexIndices.add(Integer.parseInt(wordIndices[0]) - 1);
+                    int vertexIndex = Integer.parseInt(wordIndices[0]) - 1;
+                    vertexIndices.add(vertexIndex);
+                    LOG.trace("Вершина с индексом {} в строке {}", vertexIndex, lineInd);
                     break;
                 case 2:
-                    vertexIndices.add(Integer.parseInt(wordIndices[0]) - 1);
-                    textureVertexIndices.add(Integer.parseInt(wordIndices[1]) - 1);
+                    vertexIndex = Integer.parseInt(wordIndices[0]) - 1;
+                    int textureIndex = Integer.parseInt(wordIndices[1]) - 1;
+                    vertexIndices.add(vertexIndex);
+                    textureVertexIndices.add(textureIndex);
+                    LOG.trace("Вершина {} с текстурой {} в строке {}", vertexIndex, textureIndex, lineInd);
                     break;
                 case 3:
-                    vertexIndices.add(Integer.parseInt(wordIndices[0]) - 1);
-                    normalIndices.add(Integer.parseInt(wordIndices[2]) - 1);
+                    vertexIndex = Integer.parseInt(wordIndices[0]) - 1;
+                    int normalIndex = Integer.parseInt(wordIndices[2]) - 1;
+                    vertexIndices.add(vertexIndex);
+                    normalIndices.add(normalIndex);
                     if (!wordIndices[1].isEmpty()) {
-                        textureVertexIndices.add(Integer.parseInt(wordIndices[1]) - 1);
+                        textureIndex = Integer.parseInt(wordIndices[1]) - 1;
+                        textureVertexIndices.add(textureIndex);
+                        LOG.trace("Вершина {} с текстурой {} и нормалью {} в строке {}",
+                            vertexIndex, textureIndex, normalIndex, lineInd);
+                    } else {
+                        LOG.trace("Вершина {} с нормалью {} в строке {}", vertexIndex, normalIndex, lineInd);
                     }
                     break;
                 default:
+                    LOG.error("Неверный размер элемента в строке {}: '{}'", lineInd, wordInLine);
                     throw new ObjReaderException(MessageConstants.INVALID_ELEMENT_SIZE_MESSAGE, lineInd);
             }
 
         } catch (NumberFormatException e) {
+            LOG.error("Ошибка парсинга int в строке {}: '{}'", lineInd, wordInLine);
             throw new ObjReaderException(MessageConstants.INT_PARSE_ERROR_MESSAGE, lineInd);
 
         } catch (IndexOutOfBoundsException e) {
+            LOG.error("Слишком мало аргументов в строке {}: '{}'", lineInd, wordInLine);
             throw new ObjReaderException(MessageConstants.TOO_FEW_ARGUMENTS_MESSAGE, lineInd);
         }
     }

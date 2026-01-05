@@ -18,10 +18,12 @@
     <description>Графический интерфейс для 3D Viewer на основе JavaFX</description>
 
     <properties>
-        <javafx.version>21.0.1</javafx.version>
+        <javafx.version>21.0.2</javafx.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
         <controlsfx.version>11.1.2</controlsfx.version>
         <junit.jupiter.version>5.10.0</junit.jupiter.version>
+        <logback.version>1.5.23</logback.version>
+        <slf4j.version>2.0.17</slf4j.version>
     </properties>
 
     <dependencies>
@@ -66,6 +68,19 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
         </dependency>
 
         <dependency>
