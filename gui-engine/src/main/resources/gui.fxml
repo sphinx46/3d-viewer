@@ -46,7 +46,6 @@
                                 <MenuItem fx:id="menuCreateCube" mnemonicParsing="false" text="Куб" />
                                 <MenuItem fx:id="menuCreateCone" mnemonicParsing="false" text="Конус" />
                                 <MenuItem fx:id="menuCreateCylinder" mnemonicParsing="false" text="Цилиндр" />
-                                <MenuItem fx:id="menuCreateSphere" mnemonicParsing="false" text="Сфера" />
                                 <MenuItem fx:id="menuCreateTeapot" mnemonicParsing="false" text="Чайник" />
                             </items>
                         </Menu>

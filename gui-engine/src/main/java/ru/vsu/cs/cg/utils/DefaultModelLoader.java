@@ -23,8 +23,7 @@ public final class DefaultModelLoader {
         CONE("Конус"),
         CYLINDER("Цилиндр"),
         TEAPOT("Чайник"),
-        PLANE("Плоскость"),
-        SPHERE("Сфера");
+        PLANE("Плоскость");
 
         private final String displayName;
 
@@ -43,7 +42,6 @@ public final class DefaultModelLoader {
         MODEL_PATHS.put(ModelType.CYLINDER, MODELS_BASE_PATH + "cylinder.obj");
         MODEL_PATHS.put(ModelType.TEAPOT, MODELS_BASE_PATH + "teapot.obj");
         MODEL_PATHS.put(ModelType.PLANE, MODELS_BASE_PATH + "plane.obj");
-        MODEL_PATHS.put(ModelType.SPHERE, MODELS_BASE_PATH + "sphere.obj");
     }
 
     public static Model loadModel(ModelType modelType) {
@@ -52,7 +50,7 @@ public final class DefaultModelLoader {
         if (path == null) {
             LOG.error("Неизвестный тип модели: {}", modelType);
             throw new ModelLoadException(
-                MessageConstants.UNKNOWN_MODEL_TYPE_MESSAGE + modelType
+                MessageConstants.UNKNOWN_MODEL_TYPE + " " + modelType
             );
         }
 
@@ -62,7 +60,7 @@ public final class DefaultModelLoader {
             if (inputStream == null) {
                 LOG.error("Файл модели не найден: {}", path);
                 throw new IOException(
-                    MessageConstants.MODEL_FILE_NOT_FOUND_MESSAGE + path
+                    MessageConstants.MODEL_FILE_NOT_FOUND + " " + path
                 );
             }
 
@@ -85,7 +83,7 @@ public final class DefaultModelLoader {
         } catch (IOException e) {
             LOG.error("Ошибка загрузки модели '{}': {}", modelType.getDisplayName(), e.getMessage(), e);
             throw new ModelLoadException(
-                MessageConstants.MODEL_LOAD_ERROR_MESSAGE +
+                MessageConstants.MODEL_LOAD_ERROR + " " +
                     modelType.getDisplayName(),
                 e
             );

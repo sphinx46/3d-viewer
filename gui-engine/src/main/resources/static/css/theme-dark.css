@@ -16,15 +16,28 @@
 }
 
 .menu:hover {
-    -fx-background-color: derive(-fx-base, 30%);
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
+}
+
+.menu:showing {
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
 }
 
 .menu-item {
     -fx-text-fill: lightgray;
+    -fx-background-color: derive(-fx-base, 20%);
 }
 
 .menu-item:hover {
-    -fx-background-color: derive(-fx-base, 30%);
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
+}
+
+.menu-item:focused {
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
 }
 
 .tool-button {

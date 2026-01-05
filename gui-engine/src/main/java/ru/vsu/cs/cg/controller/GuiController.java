@@ -7,20 +7,30 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.NumberStringConverter;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.service.ModelService;
+import ru.vsu.cs.cg.service.impl.ModelServiceImpl;
 import ru.vsu.cs.cg.utils.DefaultModelLoader;
+import ru.vsu.cs.cg.utils.DialogManager;
+import ru.vsu.cs.cg.utils.MessageConstants;
 
+import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class GuiController {
 
     private static final Logger LOG = LoggerFactory.getLogger(GuiController.class);
     private static final String DARK_THEME = "/static/css/theme-dark.css";
     private static final String LIGHT_THEME = "/static/css/theme-light.css";
+
+    private final ModelService modelService = new ModelServiceImpl();
+    private Model currentModel;
 
     @FXML private AnchorPane anchorPane;
     @FXML private MenuItem menuThemeDark;
@@ -36,11 +46,11 @@ public class GuiController {
     @FXML private TextField sensitivityField;
 
     @FXML private MenuItem menuFileNewCustom;
+    @FXML private MenuItem menuFileSaveAs;
     @FXML private MenuItem menuCreatePlane;
     @FXML private MenuItem menuCreateCube;
     @FXML private MenuItem menuCreateCone;
     @FXML private MenuItem menuCreateCylinder;
-    @FXML private MenuItem menuCreateSphere;
     @FXML private MenuItem menuCreateTeapot;
 
     private final Map<Slider, TextField> sliderBindings = new HashMap<>();
@@ -50,10 +60,20 @@ public class GuiController {
         LOG.info("Инициализация GuiController");
 
         try {
-            setupThemeHandlers();
-            setupModelCreationHandlers();
+            menuThemeDark.setOnAction(event -> applyTheme(DARK_THEME));
+            menuThemeLight.setOnAction(event -> applyTheme(LIGHT_THEME));
+
+            menuFileNewCustom.setOnAction(event -> createCustomObject());
+            menuFileSaveAs.setOnAction(event -> saveModelToFile());
+
+            menuCreateCube.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.CUBE));
+            menuCreateCone.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.CONE));
+            menuCreateCylinder.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.CYLINDER));
+            menuCreateTeapot.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.TEAPOT));
+            menuCreatePlane.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.PLANE));
+
             collectSliderBindings();
-            setupAllSliderBindings();
+            setupSliderBindings();
 
             LOG.debug("GuiController успешно инициализирован");
         } catch (Exception e) {
@@ -62,42 +82,49 @@ public class GuiController {
         }
     }
 
-    private void setupThemeHandlers() {
-        menuThemeDark.setOnAction(event -> applyTheme(DARK_THEME));
-        menuThemeLight.setOnAction(event -> applyTheme(LIGHT_THEME));
-    }
-
-    private void setupModelCreationHandlers() {
-        menuCreateCube.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.CUBE));
-        menuCreateCone.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.CONE));
-        menuCreateCylinder.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.CYLINDER));
-        menuCreateTeapot.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.TEAPOT));
-        menuCreatePlane.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.PLANE));
-        menuCreateSphere.setOnAction(event -> createDefaultModel(DefaultModelLoader.ModelType.SPHERE));
-    }
-
-    private void createDefaultModel(DefaultModelLoader.ModelType modelType) {
-        LOG.info("Создание модели: {}", modelType.getDisplayName());
+    private void createCustomObject() {
+        LOG.info("Обработка создания пользовательского объекта");
 
         try {
-            final Model model = DefaultModelLoader.loadModel(modelType);
-            handleLoadedModel(model, modelType);
+            currentModel = modelService.createCustomObject();
+            DialogManager.showInfo(MessageConstants.EMPTY_OBJECT_CREATED,
+                MessageConstants.EMPTY_OBJECT_DETAILS);
         } catch (Exception e) {
-            LOG.error("Ошибка при создании модели '{}'", modelType.getDisplayName(), e);
-            handleModelLoadError(e);
+            LOG.error("Ошибка создания пользовательского объекта: {}", e.getMessage(), e);
+            DialogManager.showError("Ошибка создания пользовательского объекта: " + e.getMessage());
         }
     }
 
-    private void handleLoadedModel(Model model, DefaultModelLoader.ModelType modelType) {
-        final int vertexCount = model.getVertices().size();
-        final int polygonCount = model.getPolygons().size();
+    private void createDefaultModel(DefaultModelLoader.ModelType modelType) {
+        LOG.info("Обработка создания стандартной модели: {}", modelType.getDisplayName());
 
-        LOG.info("Модель '{}' обработана (вершин: {}, полигонов: {})",
-            modelType.getDisplayName(), vertexCount, polygonCount);
+        try {
+            currentModel = modelService.loadDefaultModel(modelType);
+            DialogManager.showSuccess("Модель '" + modelType.getDisplayName() + "' успешно загружена");
+        } catch (Exception e) {
+            LOG.error("Ошибка загрузки модели '{}': {}", modelType.getDisplayName(), e.getMessage(), e);
+            DialogManager.showError("Ошибка загрузки модели '" + modelType.getDisplayName() + "': " + e.getMessage());
+        }
     }
 
-    private void handleModelLoadError(Exception e) {
-        LOG.error("Обработка ошибки загрузки модели: {}", e.getMessage());
+    private void saveModelToFile() {
+        if (currentModel == null) {
+            DialogManager.showError(MessageConstants.NO_MODEL_TO_SAVE);
+            return;
+        }
+
+        Stage stage = (Stage) anchorPane.getScene().getWindow();
+        Optional<File> fileOptional = DialogManager.showSaveDialog(stage);
+
+        fileOptional.ifPresent(file -> {
+            try {
+                String filePath = file.getAbsolutePath();
+                modelService.saveModelToFile(currentModel, filePath);
+                DialogManager.showSuccess(MessageConstants.OBJECT_SAVED + ": " + file.getName());
+            } catch (Exception e) {
+                DialogManager.showError(MessageConstants.OBJECT_SAVE_ERROR + ": " + e.getMessage());
+            }
+        });
     }
 
     private void applyTheme(String themePath) {
@@ -122,47 +149,33 @@ public class GuiController {
         LOG.debug("Собрано {} привязок слайдеров к текстовым полям", sliderBindings.size());
     }
 
-    private void setupAllSliderBindings() {
-        sliderBindings.forEach(this::bindSliderToTextField);
+    private void setupSliderBindings() {
+        sliderBindings.forEach((slider, textField) -> {
+            StringConverter<Number> converter = new NumberStringConverter() {
+                @Override
+                public String toString(Number value) {
+                    return slider == focalLengthSlider ?
+                        String.format("%.0f", value.doubleValue()) :
+                        String.format("%.2f", value.doubleValue());
+                }
+
+                @Override
+                public Number fromString(String string) {
+                    try {
+                        double value = Double.parseDouble(string.replace(',', '.'));
+                        double min = slider.getMin();
+                        double max = slider.getMax();
+                        return Math.max(min, Math.min(value, max));
+                    } catch (NumberFormatException e) {
+                        LOG.warn("Неверный формат числа: '{}'", string);
+                        return slider.getValue();
+                    }
+                }
+            };
+
+            textField.textProperty().bindBidirectional(slider.valueProperty(), converter);
+        });
+
         LOG.debug("Привязки слайдеров настроены");
-    }
-
-    private void bindSliderToTextField(Slider slider, TextField textField) {
-        StringConverter<Number> converter = createConverterForSlider(slider);
-        textField.textProperty().bindBidirectional(slider.valueProperty(), converter);
-    }
-
-    private StringConverter<Number> createConverterForSlider(Slider slider) {
-        return new NumberStringConverter() {
-            @Override
-            public String toString(Number value) {
-                return formatValue(value.doubleValue(), slider);
-            }
-
-            @Override
-            public Number fromString(String string) {
-                return parseValue(string, slider);
-            }
-        };
-    }
-
-    private String formatValue(double value, Slider slider) {
-        return slider == focalLengthSlider ?
-            String.format("%.0f", value) :
-            String.format("%.2f", value);
-    }
-
-    private double parseValue(String input, Slider slider) {
-        try {
-            double value = Double.parseDouble(input.replace(',', '.'));
-            return clamp(value, slider.getMin(), slider.getMax());
-        } catch (NumberFormatException e) {
-            LOG.warn("Неверный формат числа в слайдере: '{}'", input);
-            return slider.getValue();
-        }
-    }
-
-    private double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(value, max));
     }
 }

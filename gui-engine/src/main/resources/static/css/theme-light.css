@@ -17,15 +17,28 @@
 }
 
 .menu:hover {
-    -fx-background-color: #f8f8f8;
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
+}
+
+.menu:showing {
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
 }
 
 .menu-item {
     -fx-text-fill: #333333;
+    -fx-background-color: #ffffff;
 }
 
 .menu-item:hover {
-    -fx-background-color: #f8f8f8;
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
+}
+
+.menu-item:focused {
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
 }
 
 .tool-button {
