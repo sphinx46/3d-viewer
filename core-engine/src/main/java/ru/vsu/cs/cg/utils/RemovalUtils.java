@@ -47,7 +47,7 @@ public final class RemovalUtils {
                         "удаление вершин из массивов модели, количество: {}",
                 vertexIndices == null ? 0 : vertexIndices.size());
 
-        removeElementsByIndices(model.vertices, vertexIndices);
+        removeElementsByIndices(model.getVerticesMutable(), vertexIndices);
     }
 
     /**
@@ -61,7 +61,7 @@ public final class RemovalUtils {
                         "удаление полигонов из модели, количество: {}",
                 polygonIndices == null ? 0 : polygonIndices.size());
 
-        removeElementsByIndices(model.polygons, polygonIndices);
+        removeElementsByIndices(model.getPolygonsMutable(), polygonIndices);
     }
 
     /**
@@ -76,7 +76,7 @@ public final class RemovalUtils {
                 usedTextureIndices == null ? 0 : usedTextureIndices.size());
 
         removeUnusedElements(
-                model.textureVertices,
+            model.getTextureVerticesMutable(),
                 usedTextureIndices
         );
     }
@@ -93,7 +93,7 @@ public final class RemovalUtils {
                 usedNormalIndices == null ? 0 : usedNormalIndices.size());
 
         removeUnusedElements(
-                model.normals,
+            model.getNormalsMutable(),
                 usedNormalIndices
         );
     }

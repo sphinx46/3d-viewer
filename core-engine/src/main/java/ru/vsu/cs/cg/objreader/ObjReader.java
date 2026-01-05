@@ -43,16 +43,16 @@ public final class ObjReader {
 
             switch (token) {
                 case OBJ_VERTEX_TOKEN:
-                    result.vertices.add(parseVertex(wordsInLine, lineInd));
+                    result.addVertex(parseVertex(wordsInLine, lineInd));
                     break;
                 case OBJ_TEXTURE_TOKEN:
-                    result.textureVertices.add(parseTextureVertex(wordsInLine, lineInd));
+                    result.addTextureVertex(parseTextureVertex(wordsInLine, lineInd));
                     break;
                 case OBJ_NORMAL_TOKEN:
-                    result.normals.add(parseNormal(wordsInLine, lineInd));
+                    result.addNormal(parseNormal(wordsInLine, lineInd));
                     break;
                 case OBJ_FACE_TOKEN:
-                    result.polygons.add(parseFace(wordsInLine, lineInd));
+                    result.addPolygon(parseFace(wordsInLine, lineInd));
                     break;
             }
         }

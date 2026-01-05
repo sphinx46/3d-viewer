@@ -46,7 +46,7 @@ public class IndexUtilsTest {
         Set<Integer> textureIndices = IndexUtils.getAllUsedTextureVertexIndices(cubeWithAdditionalVModel);
 
         assertNotNull(textureIndices);
-        assertTrue(textureIndices.size() > 0);
+        assertFalse(textureIndices.isEmpty());
     }
 
     @Test
@@ -55,7 +55,7 @@ public class IndexUtilsTest {
         Set<Integer> normalIndices = IndexUtils.getAllUsedNormalIndices(cubeWithAdditionalVModel);
 
         assertNotNull(normalIndices);
-        assertTrue(normalIndices.size() > 0);
+        assertFalse(normalIndices.isEmpty());
     }
 
     @Test
@@ -204,7 +204,7 @@ public class IndexUtilsTest {
     @DisplayName("Создание полного маппинга индексов с неиспользуемыми промежуточными индексами")
     public void testCreateFullIndexMappingWithUnusedIntermediate() {
         Set<Integer> usedIndices = new HashSet<>(Arrays.asList(0, 5, 10));
-        Set<Integer> removedIndices = new HashSet<>(Arrays.asList(5));
+        Set<Integer> removedIndices = new HashSet<>(List.of(5));
 
         Map<Integer, Integer> mapping = IndexUtils.createFullIndexMapping(usedIndices, removedIndices);
 
@@ -218,7 +218,7 @@ public class IndexUtilsTest {
     @Test
     @DisplayName("Создание полного маппинга для одного индекса")
     public void testCreateFullIndexMappingSingleIndex() {
-        Set<Integer> usedIndices = new HashSet<>(Arrays.asList(5));
+        Set<Integer> usedIndices = new HashSet<>(List.of(5));
         Set<Integer> removedIndices = new HashSet<>();
 
         Map<Integer, Integer> mapping = IndexUtils.createFullIndexMapping(usedIndices, removedIndices);
@@ -232,7 +232,7 @@ public class IndexUtilsTest {
     @DisplayName("Сравнение createIndexMappingExcluding и createFullIndexMapping")
     public void testCompareMappingMethods() {
         Set<Integer> usedIndices = new HashSet<>(Arrays.asList(0, 5, 10));
-        Set<Integer> removedIndices = new HashSet<>(Arrays.asList(5));
+        Set<Integer> removedIndices = new HashSet<>(List.of(5));
 
         Map<Integer, Integer> mappingExcluding = IndexUtils.createIndexMappingExcluding(usedIndices, removedIndices);
         Map<Integer, Integer> mappingFull = IndexUtils.createFullIndexMapping(usedIndices, removedIndices);
@@ -257,9 +257,9 @@ public class IndexUtilsTest {
         assertNotNull(vertexIndices);
         assertNotNull(textureIndices);
         assertNotNull(normalIndices);
-        assertTrue(vertexIndices.size() > 0);
-        assertTrue(textureIndices.size() > 0);
-        assertTrue(normalIndices.size() > 0);
+        assertFalse(vertexIndices.isEmpty());
+        assertFalse(textureIndices.isEmpty());
+        assertFalse(normalIndices.isEmpty());
     }
 
     @Test

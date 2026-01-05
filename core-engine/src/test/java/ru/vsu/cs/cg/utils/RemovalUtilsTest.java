@@ -88,72 +88,72 @@ public class RemovalUtilsTest {
     @Test
     @DisplayName("Удаление вершин из модели")
     public void testRemoveVerticesFromModel() {
-        int initialVertexCount = simpleCubeModel.vertices.size();
+        int initialVertexCount = simpleCubeModel.getVertices().size();
         Set<Integer> verticesToRemove = new HashSet<>(Arrays.asList(0, 1));
 
         RemovalUtils.removeVerticesFromModel(simpleCubeModel, verticesToRemove);
 
-        assertEquals(initialVertexCount - 2, simpleCubeModel.vertices.size());
+        assertEquals(initialVertexCount - 2, simpleCubeModel.getVertices().size());
     }
 
     @Test
     @DisplayName("Удаление вершин из модели с null набором индексов")
     public void testRemoveVerticesFromModelWithNullSet() {
-        int initialVertexCount = simpleCubeModel.vertices.size();
+        int initialVertexCount = simpleCubeModel.getVertices().size();
 
         RemovalUtils.removeVerticesFromModel(simpleCubeModel, null);
 
-        assertEquals(initialVertexCount, simpleCubeModel.vertices.size());
+        assertEquals(initialVertexCount, simpleCubeModel.getVertices().size());
     }
 
     @Test
     @DisplayName("Удаление вершин из модели с пустым набором индексов")
     public void testRemoveVerticesFromModelWithEmptySet() {
-        int initialVertexCount = simpleCubeModel.vertices.size();
+        int initialVertexCount = simpleCubeModel.getVertices().size();
         Set<Integer> verticesToRemove = new HashSet<>();
 
         RemovalUtils.removeVerticesFromModel(simpleCubeModel, verticesToRemove);
 
-        assertEquals(initialVertexCount, simpleCubeModel.vertices.size());
+        assertEquals(initialVertexCount, simpleCubeModel.getVertices().size());
     }
 
     @Test
     @DisplayName("Удаление полигонов из модели")
     public void testRemovePolygonsFromModel() {
-        int initialPolygonCount = simpleCubeModel.polygons.size();
+        int initialPolygonCount = simpleCubeModel.getPolygons().size();
         Set<Integer> polygonsToRemove = new HashSet<>(Arrays.asList(0, 1));
 
         RemovalUtils.removePolygonsFromModel(simpleCubeModel, polygonsToRemove);
 
-        assertEquals(initialPolygonCount - 2, simpleCubeModel.polygons.size());
+        assertEquals(initialPolygonCount - 2, simpleCubeModel.getPolygons().size());
     }
 
     @Test
     @DisplayName("Удаление полигонов из модели с null набором индексов")
     public void testRemovePolygonsFromModelWithNullSet() {
-        int initialPolygonCount = simpleCubeModel.polygons.size();
+        int initialPolygonCount = simpleCubeModel.getPolygons().size();
 
         RemovalUtils.removePolygonsFromModel(simpleCubeModel, null);
 
-        assertEquals(initialPolygonCount, simpleCubeModel.polygons.size());
+        assertEquals(initialPolygonCount, simpleCubeModel.getPolygons().size());
     }
 
     @Test
     @DisplayName("Удаление полигонов из модели с пустым набором индексов")
     public void testRemovePolygonsFromModelWithEmptySet() {
-        int initialPolygonCount = simpleCubeModel.polygons.size();
+        int initialPolygonCount = simpleCubeModel.getPolygons().size();
         Set<Integer> polygonsToRemove = new HashSet<>();
 
         RemovalUtils.removePolygonsFromModel(simpleCubeModel, polygonsToRemove);
 
-        assertEquals(initialPolygonCount, simpleCubeModel.polygons.size());
+        assertEquals(initialPolygonCount, simpleCubeModel.getPolygons().size());
     }
 
     @Test
     @DisplayName("Удаление неиспользуемых текстурных координат")
     public void testRemoveUnusedTextureVertices() {
         Model testModel = new Model();
-        testModel.textureVertices = new ArrayList<>(Arrays.asList(
+        testModel.setTextureVertices(Arrays.asList(
                 new Vector2f(0.0f, 0.0f),
                 new Vector2f(1.0f, 0.0f),
                 new Vector2f(1.0f, 1.0f),
@@ -164,118 +164,118 @@ public class RemovalUtilsTest {
 
         RemovalUtils.removeUnusedTextureVertices(testModel, usedTextureIndices);
 
-        assertEquals(2, testModel.textureVertices.size());
+        assertEquals(2, testModel.getTextureVertices().size());
     }
 
     @Test
     @DisplayName("Удаление всех текстурных координат при null наборе используемых индексов")
     public void testRemoveUnusedTextureVerticesWithNullUsedIndices() {
         Model testModel = new Model();
-        testModel.textureVertices = new ArrayList<>(Arrays.asList(
+        testModel.setTextureVertices(Arrays.asList(
                 new Vector2f(0.0f, 0.0f),
                 new Vector2f(1.0f, 0.0f)
         ));
 
         RemovalUtils.removeUnusedTextureVertices(testModel, null);
 
-        assertEquals(0, testModel.textureVertices.size());
+        assertEquals(0, testModel.getTextureVertices().size());
     }
 
     @Test
     @DisplayName("Удаление всех текстурных координат при пустом наборе используемых индексов")
     public void testRemoveUnusedTextureVerticesWithEmptyUsedIndices() {
         Model testModel = new Model();
-        testModel.textureVertices = new ArrayList<>(Arrays.asList(
-                new Vector2f(0.0f, 0.0f),
-                new Vector2f(1.0f, 0.0f)
+        testModel.setTextureVertices(Arrays.asList(
+            new Vector2f(0.0f, 0.0f),
+            new Vector2f(1.0f, 0.0f)
         ));
 
         Set<Integer> usedTextureIndices = new HashSet<>();
 
         RemovalUtils.removeUnusedTextureVertices(testModel, usedTextureIndices);
 
-        assertEquals(0, testModel.textureVertices.size());
+        assertEquals(0, testModel.getTextureVertices().size());
     }
 
     @Test
     @DisplayName("Удаление неиспользуемых нормалей")
     public void testRemoveUnusedNormals() {
         Model testModel = new Model();
-        testModel.normals = new ArrayList<>(Arrays.asList(
-                new Vector3f(0.0f, 0.0f, 1.0f),
-                new Vector3f(0.0f, 1.0f, 0.0f),
-                new Vector3f(1.0f, 0.0f, 0.0f),
-                new Vector3f(0.0f, 0.0f, -1.0f)
-        ));
+        testModel.setNormals(new ArrayList<>(Arrays.asList(
+            new Vector3f(0.0f, 0.0f, 1.0f),
+            new Vector3f(0.0f, 1.0f, 0.0f),
+            new Vector3f(1.0f, 0.0f, 0.0f),
+            new Vector3f(0.0f, 0.0f, -1.0f)
+        )));
 
         Set<Integer> usedNormalIndices = new HashSet<>(Arrays.asList(1, 3));
 
         RemovalUtils.removeUnusedNormals(testModel, usedNormalIndices);
 
-        assertEquals(2, testModel.normals.size());
+        assertEquals(2, testModel.getNormals().size());
     }
 
     @Test
     @DisplayName("Удаление всех нормалей при null наборе используемых индексов")
     public void testRemoveUnusedNormalsWithNullUsedIndices() {
         Model testModel = new Model();
-        testModel.normals = new ArrayList<>(Arrays.asList(
+        testModel.setNormals(Arrays.asList(
                 new Vector3f(0.0f, 0.0f, 1.0f),
                 new Vector3f(0.0f, 1.0f, 0.0f)
         ));
 
         RemovalUtils.removeUnusedNormals(testModel, null);
 
-        assertEquals(0, testModel.normals.size());
+        assertEquals(0, testModel.getNormals().size());
     }
 
     @Test
     @DisplayName("Удаление всех нормалей при пустом наборе используемых индексов")
     public void testRemoveUnusedNormalsWithEmptyUsedIndices() {
         Model testModel = new Model();
-        testModel.normals = new ArrayList<>(Arrays.asList(
-                new Vector3f(0.0f, 0.0f, 1.0f),
-                new Vector3f(0.0f, 1.0f, 0.0f)
-        ));
+        testModel.setNormals(new ArrayList<>(Arrays.asList(
+            new Vector3f(0.0f, 0.0f, 1.0f),
+            new Vector3f(0.0f, 1.0f, 0.0f)
+        )));
 
         Set<Integer> usedNormalIndices = new HashSet<>();
 
         RemovalUtils.removeUnusedNormals(testModel, usedNormalIndices);
 
-        assertEquals(0, testModel.normals.size());
+        assertEquals(0, testModel.getNormals().size());
     }
 
     @Test
     @DisplayName("Удаление неиспользуемых текстурных координат из пустого списка")
     public void testRemoveUnusedTextureVerticesFromEmptyList() {
         Model testModel = new Model();
-        testModel.textureVertices = new ArrayList<>();
+        testModel.setTextureVertices(new ArrayList<>());
 
         Set<Integer> usedTextureIndices = new HashSet<>(Arrays.asList(0, 1));
 
         RemovalUtils.removeUnusedTextureVertices(testModel, usedTextureIndices);
 
-        assertEquals(0, testModel.textureVertices.size());
+        assertEquals(0, testModel.getTextureVertices().size());
     }
 
     @Test
     @DisplayName("Удаление неиспользуемых нормалей из пустого списка")
     public void testRemoveUnusedNormalsFromEmptyList() {
         Model testModel = new Model();
-        testModel.normals = new ArrayList<>();
+        testModel.setNormals(new ArrayList<>());
 
         Set<Integer> usedNormalIndices = new HashSet<>(Arrays.asList(0, 1));
 
         RemovalUtils.removeUnusedNormals(testModel, usedNormalIndices);
 
-        assertEquals(0, testModel.normals.size());
+        assertEquals(0, testModel.getNormals().size());
     }
 
     @Test
     @DisplayName("Удаление неиспользуемых текстурных координат с невалидными индексами")
     public void testRemoveUnusedTextureVerticesWithInvalidIndices() {
         Model testModel = new Model();
-        testModel.textureVertices = new ArrayList<>(Arrays.asList(
+        testModel.setTextureVertices(Arrays.asList(
                 new Vector2f(0.0f, 0.0f),
                 new Vector2f(1.0f, 0.0f)
         ));
@@ -284,22 +284,22 @@ public class RemovalUtilsTest {
 
         RemovalUtils.removeUnusedTextureVertices(testModel, usedTextureIndices);
 
-        assertEquals(0, testModel.textureVertices.size());
+        assertEquals(0, testModel.getTextureVertices().size());
     }
 
     @Test
     @DisplayName("Удаление неиспользуемых нормалей с невалидными индексами")
     public void testRemoveUnusedNormalsWithInvalidIndices() {
         Model testModel = new Model();
-        testModel.normals = new ArrayList<>(Arrays.asList(
-                new Vector3f(0.0f, 0.0f, 1.0f),
-                new Vector3f(0.0f, 1.0f, 0.0f)
-        ));
+        testModel.setNormals(new ArrayList<>(Arrays.asList(
+            new Vector3f(0.0f, 0.0f, 1.0f),
+            new Vector3f(0.0f, 1.0f, 0.0f)
+        )));
 
         Set<Integer> usedNormalIndices = new HashSet<>(Arrays.asList(-1, 5, 10));
 
         RemovalUtils.removeUnusedNormals(testModel, usedNormalIndices);
 
-        assertEquals(0, testModel.normals.size());
+        assertEquals(0, testModel.getNormals().size());
     }
 }

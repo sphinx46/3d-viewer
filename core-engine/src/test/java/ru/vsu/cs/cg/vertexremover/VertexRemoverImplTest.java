@@ -37,10 +37,10 @@ public class VertexRemoverImplTest {
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, true);
 
-        assertEquals(0, model.vertices.size());
+        assertEquals(0, model.getVertices().size());
         assertEquals(8, result.getRemovedVerticesCount());
         assertEquals(6, result.getRemovedPolygonsCount());
-        assertEquals(0, model.polygons.size());
+        assertEquals(0, model.getPolygons().size());
     }
 
     @Test
@@ -53,10 +53,10 @@ public class VertexRemoverImplTest {
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, false);
 
-        assertEquals(0, model.vertices.size());
+        assertEquals(0, model.getVertices().size());
         assertEquals(8, result.getRemovedVerticesCount());
         assertEquals(6, result.getRemovedPolygonsCount());
-        assertEquals(0, model.polygons.size());
+        assertEquals(0, model.getPolygons().size());
     }
 
     @Test
@@ -65,15 +65,15 @@ public class VertexRemoverImplTest {
                 "/simpleCube.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
         List<Integer> check = List.of(0);
 
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, true);
 
-        assertEquals(initialVertexCount - 1, model.vertices.size());
-        assertEquals(initialPolygonCount - 3, model.polygons.size());
+        assertEquals(initialVertexCount - 1, model.getVertices().size());
+        assertEquals(initialPolygonCount - 3, model.getPolygons().size());
         assertEquals(1, result.getRemovedVerticesCount());
         assertEquals(3, result.getRemovedPolygonsCount());
     }
@@ -84,15 +84,15 @@ public class VertexRemoverImplTest {
                 "/simpleCube.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
         List<Integer> check = List.of(0);
 
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, false);
 
-        assertEquals(initialVertexCount - 1, model.vertices.size());
-        assertEquals(initialPolygonCount - 3, model.polygons.size());
+        assertEquals(initialVertexCount - 1, model.getVertices().size());
+        assertEquals(initialPolygonCount - 3, model.getPolygons().size());
         assertEquals(1, result.getRemovedVerticesCount());
         assertEquals(3, result.getRemovedPolygonsCount());
     }
@@ -103,15 +103,15 @@ public class VertexRemoverImplTest {
                 "/plane.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
         List<Integer> check = List.of(0);
 
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, true);
 
-        assertEquals(initialVertexCount - 1, model.vertices.size());
-        assertEquals(initialPolygonCount - 1, model.polygons.size());
+        assertEquals(initialVertexCount - 1, model.getVertices().size());
+        assertEquals(initialPolygonCount - 1, model.getPolygons().size());
         assertEquals(1, result.getRemovedVerticesCount());
         assertEquals(1, result.getRemovedPolygonsCount());
     }
@@ -122,15 +122,15 @@ public class VertexRemoverImplTest {
                 "/plane.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
         List<Integer> check = List.of(0);
 
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, false);
 
-        assertEquals(initialVertexCount - 1, model.vertices.size());
-        assertEquals(initialPolygonCount - 1, model.polygons.size());
+        assertEquals(initialVertexCount - 1, model.getVertices().size());
+        assertEquals(initialPolygonCount - 1, model.getPolygons().size());
         assertEquals(1, result.getRemovedVerticesCount());
         assertEquals(1, result.getRemovedPolygonsCount());
     }
@@ -141,17 +141,17 @@ public class VertexRemoverImplTest {
                 "/plane.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
         List<Integer> check = List.of(12);
 
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, true);
 
-        assertEquals(initialVertexCount - 1, model.vertices.size());
+        assertEquals(initialVertexCount - 1, model.getVertices().size());
         assertEquals(1, result.getRemovedVerticesCount());
         assertEquals(4, result.getRemovedPolygonsCount());
-        assertEquals(initialPolygonCount - 4, model.polygons.size());
+        assertEquals(initialPolygonCount - 4, model.getPolygons().size());
     }
 
     @Test
@@ -160,17 +160,17 @@ public class VertexRemoverImplTest {
                 "/plane.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
         List<Integer> check = List.of(12);
 
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, false);
 
-        assertEquals(initialVertexCount - 1, model.vertices.size());
+        assertEquals(initialVertexCount - 1, model.getVertices().size());
         assertEquals(1, result.getRemovedVerticesCount());
         assertEquals(4, result.getRemovedPolygonsCount());
-        assertEquals(initialPolygonCount - 4, model.polygons.size());
+        assertEquals(initialPolygonCount - 4, model.getPolygons().size());
     }
 
     @Test
@@ -179,15 +179,15 @@ public class VertexRemoverImplTest {
                 "/cubeWithAdditionalV.obj"));
         Model model = ObjReader.read(fileContent);
 
-        assertEquals(9, model.vertices.size());
-        assertEquals(7, model.polygons.size());
+        assertEquals(9, model.getVertices().size());
+        assertEquals(7, model.getPolygons().size());
 
         List<Integer> check = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7);
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, true);
 
-        assertEquals(0, model.vertices.size());
-        assertEquals(0, model.polygons.size());
+        assertEquals(0, model.getVertices().size());
+        assertEquals(0, model.getPolygons().size());
         assertEquals(9, result.getRemovedVerticesCount());
         assertEquals(7, result.getRemovedPolygonsCount());
     }
@@ -198,15 +198,15 @@ public class VertexRemoverImplTest {
                 "/cubeWithAdditionalV.obj"));
         Model model = ObjReader.read(fileContent);
 
-        assertEquals(9, model.vertices.size());
-        assertEquals(7, model.polygons.size());
+        assertEquals(9, model.getVertices().size());
+        assertEquals(7, model.getPolygons().size());
 
         List<Integer> check = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7);
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, false);
 
-        assertEquals(1, model.vertices.size());
-        assertEquals(0, model.polygons.size());
+        assertEquals(1, model.getVertices().size());
+        assertEquals(0, model.getPolygons().size());
         assertEquals(8, result.getRemovedVerticesCount());
         assertEquals(7, result.getRemovedPolygonsCount());
     }
@@ -220,8 +220,8 @@ public class VertexRemoverImplTest {
         Set<Integer> emptySet = new HashSet<>();
         VertexRemovalResult result = vertexRemover.removeVertices(model, emptySet, true);
 
-        assertEquals(8, model.vertices.size());
-        assertEquals(6, model.polygons.size());
+        assertEquals(8, model.getVertices().size());
+        assertEquals(6, model.getPolygons().size());
         assertEquals(0, result.getRemovedVerticesCount());
         assertEquals(0, result.getRemovedPolygonsCount());
     }
@@ -235,8 +235,8 @@ public class VertexRemoverImplTest {
         Set<Integer> emptySet = new HashSet<>();
         VertexRemovalResult result = vertexRemover.removeVertices(model, emptySet, false);
 
-        assertEquals(8, model.vertices.size());
-        assertEquals(6, model.polygons.size());
+        assertEquals(8, model.getVertices().size());
+        assertEquals(6, model.getPolygons().size());
         assertEquals(0, result.getRemovedVerticesCount());
         assertEquals(0, result.getRemovedPolygonsCount());
     }
@@ -247,15 +247,15 @@ public class VertexRemoverImplTest {
                 "/simpleCube.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
         List<Integer> check = Arrays.asList(0, 3, 4);
 
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, true);
 
-        assertTrue(model.vertices.size() < initialVertexCount);
-        assertTrue(model.polygons.size() < initialPolygonCount);
+        assertTrue(model.getVertices().size() < initialVertexCount);
+        assertTrue(model.getPolygons().size() < initialPolygonCount);
         assertTrue(result.getRemovedVerticesCount() > 0);
         assertTrue(result.getRemovedPolygonsCount() > 0);
     }
@@ -266,15 +266,15 @@ public class VertexRemoverImplTest {
                 "/simpleCube.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
         List<Integer> check = Arrays.asList(0, 3, 4);
 
         Set<Integer> vertexIndices = new HashSet<>(check);
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, false);
 
-        assertTrue(model.vertices.size() < initialVertexCount);
-        assertTrue(model.polygons.size() < initialPolygonCount);
+        assertTrue(model.getVertices().size() < initialVertexCount);
+        assertTrue(model.getPolygons().size() < initialPolygonCount);
         assertTrue(result.getRemovedVerticesCount() > 0);
         assertTrue(result.getRemovedPolygonsCount() > 0);
     }
@@ -318,16 +318,14 @@ public class VertexRemoverImplTest {
                 "/cubeWithAdditionalV.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialTextureCount = model.textureVertices.size();
-        int initialNormalCount = model.normals.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
 
         Set<Integer> vertexIndices = new HashSet<>(Arrays.asList(0, 1, 2));
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, true);
 
-        assertTrue(model.vertices.size() < initialVertexCount);
-        assertTrue(model.polygons.size() < initialPolygonCount);
+        assertTrue(model.getVertices().size() < initialVertexCount);
+        assertTrue(model.getPolygons().size() < initialPolygonCount);
         assertTrue(result.getRemovedVerticesCount() > 0);
         assertTrue(result.getRemovedPolygonsCount() > 0);
     }
@@ -338,14 +336,14 @@ public class VertexRemoverImplTest {
                 "/cubeWithAdditionalV.obj"));
         Model model = ObjReader.read(fileContent);
 
-        int initialVertexCount = model.vertices.size();
-        int initialPolygonCount = model.polygons.size();
+        int initialVertexCount = model.getVertices().size();
+        int initialPolygonCount = model.getPolygons().size();
 
         Set<Integer> vertexIndices = new HashSet<>(Arrays.asList(0, 1, 2));
         VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, false);
 
-        assertTrue(model.vertices.size() < initialVertexCount);
-        assertTrue(model.polygons.size() < initialPolygonCount);
+        assertTrue(model.getVertices().size() < initialVertexCount);
+        assertTrue(model.getPolygons().size() < initialPolygonCount);
         assertTrue(result.getRemovedVerticesCount() > 0);
         assertTrue(result.getRemovedPolygonsCount() > 0);
     }

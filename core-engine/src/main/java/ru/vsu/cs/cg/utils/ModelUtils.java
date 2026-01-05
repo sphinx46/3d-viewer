@@ -32,8 +32,8 @@ public final class ModelUtils {
 
         Set<Integer> polygonsToRemove = new HashSet<>();
 
-        for (int polygonIndex = 0; polygonIndex < model.polygons.size(); polygonIndex++) {
-            Polygon polygon = model.polygons.get(polygonIndex);
+        for (int polygonIndex = 0; polygonIndex < model.getPolygons().size(); polygonIndex++) {
+            Polygon polygon = model.getPolygons().get(polygonIndex);
             boolean contains = PolygonUtils.polygonContainsAnyVertex(polygon, vertexIndices);
             if (contains) {
                 log.debug("VERTEX_REMOVAL_SERVICE_POLYGON_CONTAINS_VERTICES: " +
@@ -63,8 +63,8 @@ public final class ModelUtils {
         Set<Integer> data = new HashSet<>();
 
         for (Integer polygonIndex : polygonIndices) {
-            if (polygonIndex >= 0 && polygonIndex < model.polygons.size()) {
-                Polygon polygon = model.polygons.get(polygonIndex);
+            if (polygonIndex >= 0 && polygonIndex < model.getPolygons().size()) {
+                Polygon polygon = model.getPolygons().get(polygonIndex);
                 data.addAll(extractor.extract(polygon));
             } else {
                 log.warn("MODEL_UTILS_INVALID_POLYGON_INDEX: " +
@@ -119,7 +119,7 @@ public final class ModelUtils {
     public static Set<Integer> collectUsedData(Model model, PolygonDataExtractor extractor) {
         Set<Integer> usedData = new HashSet<>();
 
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : model.getPolygons()) {
             usedData.addAll(extractor.extract(polygon));
         }
 
@@ -169,7 +169,7 @@ public final class ModelUtils {
         RemovalUtils.removeVerticesFromModel(model, vertexIndices);
 
         log.info("MODEL_UTILS_REMOVE_VERTICES_COMPLETE: " +
-                "вершины удалены, осталось вершин: {}", model.vertices.size());
+                "вершины удалены, осталось вершин: {}", model.getVertices().size());
     }
 
     /**
@@ -185,7 +185,7 @@ public final class ModelUtils {
         RemovalUtils.removePolygonsFromModel(model, polygonIndices);
 
         log.info("MODEL_UTILS_REMOVE_POLYGONS_COMPLETE: " +
-                "полигоны удалены, осталось полигонов: {}", model.polygons.size());
+                "полигоны удалены, осталось полигонов: {}", model.getPolygons().size());
     }
 
     /**
@@ -196,7 +196,7 @@ public final class ModelUtils {
      * @return true если индекс допустим, false в противном случае
      */
     public static boolean isValidVertexIndex(Model model, int vertexIndex) {
-        return vertexIndex >= 0 && vertexIndex < model.vertices.size();
+        return vertexIndex >= 0 && vertexIndex < model.getVertices().size();
     }
 
     /**
@@ -215,7 +215,7 @@ public final class ModelUtils {
         log.info("MODEL_UTILS_PARTIAL_REINDEX_START: " +
                 "частичная переиндексация модели");
 
-        if (model.polygons.isEmpty()) {
+        if (model.getPolygons().isEmpty()) {
             log.info("MODEL_UTILS_PARTIAL_REINDEX_SKIP: " +
                     "модель не содержит полигонов, переиндексация не требуется");
             return;
@@ -234,7 +234,7 @@ public final class ModelUtils {
 
         List<Polygon> newPolygons = new ArrayList<>();
 
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : model.getPolygons()) {
             Polygon reindexedPolygon = PolygonUtils.reindexPolygon(polygon,
                     vertexIndexMapping, textureIndexMapping, normalIndexMapping);
             if (reindexedPolygon != null) {
@@ -242,8 +242,8 @@ public final class ModelUtils {
             }
         }
 
-        model.polygons.clear();
-        model.polygons.addAll(newPolygons);
+        model.clearPolygons();
+        model.addAllPolygons(newPolygons);
 
         log.info("MODEL_UTILS_PARTIAL_REINDEX_COMPLETE: " +
                 "частичная переиндексация завершена");
@@ -266,7 +266,7 @@ public final class ModelUtils {
         log.info("MODEL_UTILS_FULL_REINDEX_START: " +
                 "полная переиндексация модели");
 
-        if (model.polygons.isEmpty()) {
+        if (model.getPolygons().isEmpty()) {
             log.info("MODEL_UTILS_FULL_REINDEX_SKIP: " +
                     "модель не содержит полигонов, переиндексация не требуется");
             return;
@@ -293,7 +293,7 @@ public final class ModelUtils {
 
         List<Polygon> newPolygons = new ArrayList<>();
 
-        for (Polygon polygon : model.polygons) {
+        for (Polygon polygon : model.getPolygons()) {
             Polygon reindexedPolygon = PolygonUtils.reindexPolygon(polygon,
                     vertexIndexMapping, textureIndexMapping, normalIndexMapping);
             if (reindexedPolygon != null) {
@@ -301,8 +301,8 @@ public final class ModelUtils {
             }
         }
 
-        model.polygons.clear();
-        model.polygons.addAll(newPolygons);
+        model.clearPolygons();
+        model.addAllPolygons(newPolygons);
 
         log.info("MODEL_UTILS_FULL_REINDEX_COMPLETE: " +
                 "полная переиндексация завершена, " +
