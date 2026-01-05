@@ -154,10 +154,10 @@
                 <SeparatorMenuItem />
                 <Menu mnemonicParsing="false" text="Расположение окон">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="По умолчанию" />
-                        <MenuItem mnemonicParsing="false" text="Горизонтальное" />
-                        <MenuItem mnemonicParsing="false" text="Вертикальное" />
-                        <MenuItem mnemonicParsing="false" text="Каскадом" />
+                        <MenuItem fx:id="menuWindowDefault" mnemonicParsing="false" text="По умолчанию" />
+                        <MenuItem fx:id="menuWindowHorizontal" mnemonicParsing="false" text="Горизонтальное" />
+                        <MenuItem fx:id="menuWindowVertical" mnemonicParsing="false" text="Вертикальное" />
+                        <MenuItem fx:id="menuWindowCascade" mnemonicParsing="false" text="Каскадом" />
                     </items>
                 </Menu>
             </items>

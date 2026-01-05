@@ -79,7 +79,7 @@ public final class PathValidator {
         }
     }
 
-    private static void ensureDirectoryExists(String filePath) {
+    public static void ensureDirectoryExists(String filePath) {
         Path path = Paths.get(filePath);
         Path parentDir = path.getParent();
 
@@ -95,7 +95,7 @@ public final class PathValidator {
         }
     }
 
-    private static void checkWritePermissions(String filePath) {
+    public static void checkWritePermissions(String filePath) {
         Path path = Paths.get(filePath);
         Path parentDir = path.getParent();
 

@@ -2,17 +2,23 @@ package ru.vsu.cs.cg.utils;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 
 public final class DialogManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DialogManager.class);
+    private static final String DATE_FORMAT = "yyyyMMdd_HHmmss";
+    private static final String MODEL_FILE_PREFIX = "model_";
+    private static final String SCREENSHOT_FILE_PREFIX = "screenshot_";
 
     private DialogManager() {
     }
@@ -40,24 +46,48 @@ public final class DialogManager {
         return alert.showAndWait();
     }
 
-    public static Optional<File> showSaveDialog(Stage ownerStage) {
-        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
-        fileChooser.setTitle("Сохранить объект как");
-        fileChooser.getExtensionFilters().add(
-            new javafx.stage.FileChooser.ExtensionFilter("OBJ файлы", "*.obj")
-        );
-        fileChooser.setInitialFileName("custom_object.obj");
-
+    public static Optional<File> showSaveDialog(Stage ownerStage, String title, String filePrefix, String extension) {
+        FileChooser fileChooser = createFileChooser(title, filePrefix, extension);
         File file = fileChooser.showSaveDialog(ownerStage);
 
         if (file != null) {
-            String fileName = PathValidator.getFileNameWithoutExtension(file.getAbsolutePath());
-            LOG.debug("Пользователь выбрал файл для сохранения: {}", fileName);
+            LOG.debug("Пользователь выбрал файл для сохранения: {}", file.getName());
         } else {
             LOG.debug("Сохранение файла отменено пользователем");
         }
 
         return Optional.ofNullable(file);
+    }
+
+    public static Optional<File> showSaveModelDialog(Stage ownerStage) {
+        return showSaveDialog(ownerStage, "Сохранить модель", MODEL_FILE_PREFIX, "*.obj");
+    }
+
+    public static Optional<File> showSaveScreenshotDialog(Stage ownerStage) {
+        return showSaveDialog(ownerStage, "Сохранить скриншот", SCREENSHOT_FILE_PREFIX, "*.png");
+    }
+
+    private static FileChooser createFileChooser(String title, String filePrefix, String extension) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(title);
+
+        if ("*.obj".equals(extension)) {
+            fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("OBJ файлы", extension)
+            );
+        } else if ("*.png".equals(extension)) {
+            fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PNG изображения", extension)
+            );
+        }
+
+        fileChooser.setInitialFileName(generateFileName(filePrefix, extension));
+        return fileChooser;
+    }
+
+    private static String generateFileName(String prefix, String extension) {
+        String timestamp = new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        return prefix + timestamp + extension.substring(1);
     }
 
     private static void showDialog(Alert.AlertType type, String title, String message) {
