@@ -4,12 +4,21 @@ public class Matrix3x3 {
     private static final float EPSILON = 1e-7f;
     private float[][] data;
 
-
+    /**
+     * Конструктор по умолчанию.
+     * Создает единичную матрицу (на главной диагонали 1, остальные 0).
+     */
     public Matrix3x3() {
         data = new float[3][3];
         makeIdentity();
     }
 
+    /**
+     * Создает матрицу на основе переданного двумерного массива.
+     *
+     * @param values Массив 3x3 с значениями.
+     * @throws IllegalArgumentException Если передан null или размер массива не 3x3.
+     */
     public Matrix3x3(float[][] values) {
         if (values == null || values.length != 3 || values[0].length != 3) {
             throw new IllegalArgumentException("матрица должна быть 3x3");
@@ -21,7 +30,12 @@ public class Matrix3x3 {
     }
 
 
-
+    /**
+     * Приводит текущую матрицу к единичному виду.
+     * [1 0 0]
+     * [0 1 0]
+     * [0 0 1]
+     */
     public void makeIdentity() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -30,6 +44,9 @@ public class Matrix3x3 {
         }
     }
 
+    /**
+     * Заполняет матрицу нулями.
+     */
     public void makeZero() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -38,7 +55,14 @@ public class Matrix3x3 {
         }
     }
 
-
+    /**
+     * Возвращает элемент матрицы по заданным индексам.
+     *
+     * @param row Индекс строки (0-2).
+     * @param col Индекс столбца (0-2).
+     * @return Значение элемента.
+     * @throws IllegalArgumentException Если индексы выходят за пределы [0, 2].
+     */
     public float get(int row, int col) {
         if (row < 0 || row >= 3 || col < 0 || col >= 3) {
             throw new IllegalArgumentException("Нет индекса");
@@ -46,6 +70,14 @@ public class Matrix3x3 {
         return data[row][col];
     }
 
+    /**
+     * Устанавливает значение элемента матрицы.
+     *
+     * @param row Индекс строки (0-2).
+     * @param col Индекс столбца (0-2).
+     * @param value Новое значение.
+     * @throws IllegalArgumentException Если индексы выходят за пределы [0, 2].
+     */
     public void set(int row, int col, float value) {
         if (row < 0 || row >= 3 || col < 0 || col >= 3) {
             throw new IllegalArgumentException("нет индекса");
@@ -53,6 +85,12 @@ public class Matrix3x3 {
         data[row][col] = value;
     }
 
+    /**
+     * Складывает текущую матрицу с другой матрицей.
+     *
+     * @param other Матрица, которую нужно прибавить.
+     * @return Новая матрица, являющаяся результатом сложения.
+     */
     public Matrix3x3 add(Matrix3x3 other) {
         float[][] result = new float[3][3];
         for (int i = 0; i < 3; i++) {
@@ -63,6 +101,12 @@ public class Matrix3x3 {
         return new Matrix3x3(result);
     }
 
+    /**
+     * Вычитает из текущей матрицы другую матрицу.
+     *
+     * @param other Матрица, которую нужно вычесть.
+     * @return Новая матрица, являющаяся результатом вычитания.
+     */
     public Matrix3x3 subtract(Matrix3x3 other) {
         float[][] result = new float[3][3];
         for (int i = 0; i < 3; i++) {
@@ -73,6 +117,12 @@ public class Matrix3x3 {
         return new Matrix3x3(result);
     }
 
+    /**
+     * Умножает матрицу на вектор-столбец.
+     *
+     * @param vector Вектор для умножения.
+     * @return Новый вектор, являющийся результатом умножения.
+     */
     public Vector3f multiply(Vector3f vector) {
         float x = (data[0][0] * vector.getX() +
                 data[0][1] * vector.getY() +
@@ -89,6 +139,12 @@ public class Matrix3x3 {
         return new Vector3f(x, y, z);
     }
 
+    /**
+     * Умножает текущую матрицу на другую матрицу.
+     *
+     * @param other Матрица, на которую нужно умножить (справа).
+     * @return Новая матрица, являющаяся результатом умножения.
+     */
     public Matrix3x3 multiply(Matrix3x3 other) {
         float[][] result = new float[3][3];
 
@@ -105,6 +161,11 @@ public class Matrix3x3 {
         return new Matrix3x3(result);
     }
 
+    /**
+     * Транспонирует матрицу (строки становятся столбцами и наоборот).
+     *
+     * @return Новая транспонированная матрица.
+     */
     public Matrix3x3 transpose() {
         float[][] result = new float[3][3];
 
@@ -117,6 +178,12 @@ public class Matrix3x3 {
         return new Matrix3x3(result);
     }
 
+    /**
+     * Проверяет равенство двух матриц с учетом погрешности EPSILON.
+     *
+     * @param obj Объект для сравнения.
+     * @return true, если все элементы матриц совпадают с точностью до EPSILON.
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

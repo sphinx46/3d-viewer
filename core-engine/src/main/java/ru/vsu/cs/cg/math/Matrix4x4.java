@@ -4,13 +4,21 @@ public class Matrix4x4 {
     private static final float EPSILON = 1e-7f;
     private float[][] data;
 
-
+    /**
+     * Конструктор по умолчанию.
+     * Создает единичную матрицу.
+     */
     public Matrix4x4() {
         data = new float[4][4];
         makeIdentity();
     }
 
-
+    /**
+     * Создает матрицу на основе переданного двумерного массива.
+     *
+     * @param values Массив 4x4 с значениями.
+     * @throws IllegalArgumentException Если массив null или его размер не 4x4.
+     */
     public Matrix4x4(float[][] values) {
         if (values == null || values.length != 4 || values[0].length != 4) {
             throw new IllegalArgumentException("матрица должна быть 4x4");
@@ -21,8 +29,10 @@ public class Matrix4x4 {
         }
     }
 
-
-
+    /**
+     * Приводит текущую матрицу к единичному виду (Identity Matrix).
+     * Элементы на главной диагонали равны 1, остальные 0.
+     */
     public void makeIdentity() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -32,6 +42,9 @@ public class Matrix4x4 {
     }
 
 
+    /**
+     * Заполняет матрицу нулями.
+     */
     public void makeZero() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -40,7 +53,14 @@ public class Matrix4x4 {
         }
     }
 
-
+    /**
+     * Возвращает элемент матрицы по заданным индексам.
+     *
+     * @param row Индекс строки (0-3).
+     * @param col Индекс столбца (0-3).
+     * @return Значение элемента.
+     * @throws IllegalArgumentException Если индексы выходят за пределы [0, 3].
+     */
     public float get(int row, int col) {
         if (row < 0 || row >= 4 || col < 0 || col >= 4) {
             throw new IllegalArgumentException("Нет такого индекса");
@@ -48,7 +68,14 @@ public class Matrix4x4 {
         return data[row][col];
     }
 
-
+    /**
+     * Устанавливает значение элемента матрицы.
+     *
+     * @param row Индекс строки (0-3).
+     * @param col Индекс столбца (0-3).
+     * @param value Новое значение.
+     * @throws IllegalArgumentException Если индексы выходят за пределы [0, 3].
+     */
     public void set(int row, int col, float value) {
         if (row < 0 || row >= 4 || col < 0 || col >= 4) {
             throw new IllegalArgumentException("Нет такого индекса");
@@ -56,7 +83,12 @@ public class Matrix4x4 {
         data[row][col] = value;
     }
 
-
+    /**
+     * Складывает текущую матрицу с другой матрицей.
+     *
+     * @param other Матрица, которую нужно прибавить.
+     * @return Новая матрица, являющаяся результатом сложения.
+     */
     public Matrix4x4 add(Matrix4x4 other) {
         float[][] result = new float[4][4];
         for (int i = 0; i < 4; i++) {
@@ -67,7 +99,12 @@ public class Matrix4x4 {
         return new Matrix4x4(result);
     }
 
-
+    /**
+     * Вычитает из текущей матрицы другую матрицу.
+     *
+     * @param other Матрица, которую нужно вычесть.
+     * @return Новая матрица, являющаяся результатом вычитания.
+     */
     public Matrix4x4 subtract(Matrix4x4 other) {
         float[][] result = new float[4][4];
         for (int i = 0; i < 4; i++) {
@@ -78,7 +115,12 @@ public class Matrix4x4 {
         return new Matrix4x4(result);
     }
 
-
+    /**
+     * Умножает матрицу на вектор-столбец (Vector4f).
+     *
+     * @param vector Вектор для умножения.
+     * @return Новый трансформированный вектор.
+     */
     public Vector4f multiply(Vector4f vector) {
         float x = data[0][0] * vector.getX() +
                 data[0][1] * vector.getY() +
@@ -103,7 +145,12 @@ public class Matrix4x4 {
         return new Vector4f(x, y, z, w);
     }
 
-
+    /**
+     * Умножает текущую матрицу на другую матрицу.
+     *
+     * @param other Матрица (правый операнд).
+     * @return Новая матрица, являющаяся результатом умножения.
+     */
     public Matrix4x4 multiply(Matrix4x4 other) {
         float[][] result = new float[4][4];
 
@@ -120,7 +167,11 @@ public class Matrix4x4 {
         return new Matrix4x4(result);
     }
 
-
+    /**
+     * Транспонирует матрицу (меняет строки и столбцы местами).
+     *
+     * @return Новая транспонированная матрица.
+     */
     public Matrix4x4 transpose() {
         float[][] result = new float[4][4];
 
@@ -133,7 +184,12 @@ public class Matrix4x4 {
         return new Matrix4x4(result);
     }
 
-
+    /**
+     * Проверяет равенство двух матриц с учетом погрешности EPSILON.
+     *
+     * @param obj Объект для сравнения.
+     * @return true, если все элементы равны (с точностью до EPSILON), иначе false.
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
