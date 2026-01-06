@@ -10,7 +10,7 @@ import ru.vsu.cs.cg.exceptions.ModelLoadException;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.scene.Scene;
 import ru.vsu.cs.cg.scene.SceneObject;
-import ru.vsu.cs.cg.serializers.JavaFxJacksonModule;
+import ru.vsu.cs.cg.json.JavaFxJacksonModule;
 import ru.vsu.cs.cg.service.ModelService;
 import ru.vsu.cs.cg.service.SceneService;
 import ru.vsu.cs.cg.utils.DefaultModelLoader;

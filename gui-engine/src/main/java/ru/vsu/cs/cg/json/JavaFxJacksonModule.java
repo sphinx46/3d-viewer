@@ -1,7 +1,15 @@
-package ru.vsu.cs.cg.serializers;
+package ru.vsu.cs.cg.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import javafx.scene.paint.Color;
+import ru.vsu.cs.cg.json.deserializers.ColorDeserializer;
+import ru.vsu.cs.cg.json.deserializers.PolygonDeserializer;
+import ru.vsu.cs.cg.json.deserializers.Vector2fDeserializer;
+import ru.vsu.cs.cg.json.deserializers.Vector3fDeserializer;
+import ru.vsu.cs.cg.json.serializers.ColorSerializer;
+import ru.vsu.cs.cg.json.serializers.PolygonSerializer;
+import ru.vsu.cs.cg.json.serializers.Vector2fSerializer;
+import ru.vsu.cs.cg.json.serializers.Vector3fSerializer;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.model.Polygon;

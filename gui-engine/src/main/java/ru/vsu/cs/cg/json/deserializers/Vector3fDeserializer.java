@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.serializers;
+package ru.vsu.cs.cg.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

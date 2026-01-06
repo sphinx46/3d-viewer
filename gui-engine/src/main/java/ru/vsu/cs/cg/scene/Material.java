@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.serializers.ColorDeserializer;
-import ru.vsu.cs.cg.serializers.ColorSerializer;
+import ru.vsu.cs.cg.json.deserializers.ColorDeserializer;
+import ru.vsu.cs.cg.json.serializers.ColorSerializer;
 
 @JsonSerialize
 @JsonDeserialize
