@@ -18,6 +18,7 @@ public final class DialogManager {
     private static final Logger LOG = LoggerFactory.getLogger(DialogManager.class);
     private static final String DATE_FORMAT = "yyyyMMdd_HHmmss";
     private static final String MODEL_FILE_PREFIX = "model_";
+    private static final String SCENE_FILE_PREFIX = "scene_";
     private static final String SCREENSHOT_FILE_PREFIX = "screenshot_";
 
     private DialogManager() {
@@ -46,6 +47,48 @@ public final class DialogManager {
         return alert.showAndWait();
     }
 
+    public static Optional<File> showOpenSceneDialog(Stage ownerStage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Открыть сцену");
+
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("3D сцены", "*.3dscene"),
+            new FileChooser.ExtensionFilter("Все файлы", "*.*")
+        );
+
+        File file = fileChooser.showOpenDialog(ownerStage);
+
+        if (file != null) {
+            LOG.debug("Пользователь выбрал файл сцены для открытия: {}", file.getName());
+        } else {
+            LOG.debug("Открытие файла сцены отменено пользователем");
+        }
+        return Optional.ofNullable(file);
+    }
+
+    public static Optional<File> showSaveSceneDialog(Stage ownerStage, String defaultSceneName) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Сохранить сцену");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("3D сцены", "*.3dscene")
+        );
+
+        String fileName = defaultSceneName != null ?
+            defaultSceneName + ".3dscene" :
+            generateFileName(SCENE_FILE_PREFIX, ".3dscene");
+        fileChooser.setInitialFileName(fileName);
+
+        File file = fileChooser.showSaveDialog(ownerStage);
+
+        if (file != null) {
+            LOG.debug("Пользователь выбрал файл для сохранения сцены: {}", file.getName());
+        } else {
+            LOG.debug("Сохранение сцены отменено пользователем");
+        }
+
+        return Optional.ofNullable(file);
+    }
+
     public static Optional<File> showSaveDialog(Stage ownerStage, String title, String filePrefix, String extension) {
         FileChooser fileChooser = createFileChooser(title, filePrefix, extension);
         File file = fileChooser.showSaveDialog(ownerStage);
@@ -71,9 +114,9 @@ public final class DialogManager {
         File file = fileChooser.showOpenDialog(ownerStage);
 
         if (file != null) {
-            LOG.debug("Пользователь выбрал файл для открытия: {}", file.getName());
+            LOG.debug("Пользователь выбрал файл модели для открытия: {}", file.getName());
         } else {
-            LOG.debug("Открытие файла отменено пользователем");
+            LOG.debug("Открытие файла модели отменено пользователем");
         }
         return Optional.ofNullable(file);
     }

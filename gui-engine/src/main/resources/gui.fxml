@@ -52,12 +52,17 @@
                         <MenuItem fx:id="menuFileNewCustom" mnemonicParsing="false" text="Пользовательский объект" />
                     </items>
                 </Menu>
+                <MenuItem fx:id="menuFileNewScene" mnemonicParsing="false" text="Новая сцена">
+                </MenuItem>
+                <SeparatorMenuItem />
                 <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" text="Открыть">
                     <graphic>
                         <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                             <Image url="@/static/images/icons/top-menu/open.png" />
                         </ImageView>
                     </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuFileOpenScene" mnemonicParsing="false" text="Открыть сцену">
                 </MenuItem>
                 <SeparatorMenuItem />
                 <MenuItem fx:id="menuFileReset" mnemonicParsing="false" text="Сбросить изменения" />
@@ -75,6 +80,10 @@
                             <Image url="@/static/images/icons/top-menu/content-save-as.png" />
                         </ImageView>
                     </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuFileSaveScene" mnemonicParsing="false" text="Сохранить сцену">
+                </MenuItem>
+                <MenuItem fx:id="menuFileSaveSceneAs" mnemonicParsing="false" text="Сохранить сцену как">
                 </MenuItem>
                 <SeparatorMenuItem />
                 <Menu fx:id="menuRecent" mnemonicParsing="false" text="Недавно использованное">
@@ -280,12 +289,14 @@
                                             </ImageView>
                                         </graphic>
                                     </Button>
-                                    <Button fx:id="removeObjectButton" style="-fx-font-weight: bold;" text="Удалить">
+                                    <Button fx:id="deleteObjectButton" style="-fx-font-weight: bold;" text="Удалить">
                                         <graphic>
                                             <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                                                 <Image url="@/static/images/icons/right-menu/minus.png" />
                                             </ImageView>
                                         </graphic>
+                                    </Button>
+                                    <Button fx:id="duplicateObjectButton" style="-fx-font-weight: bold;" text="Дублировать">
                                     </Button>
                                 </HBox>
                                 <TreeView fx:id="sceneTreeView" prefHeight="150.0" style="-fx-font-size: 13px;">
@@ -332,6 +343,7 @@
                     </TitledPane>
 
                     <TitledPane animated="false" collapsible="true" expanded="true" text="Трансформация">
+                        <Button fx:id="resetTransformButton" mnemonicParsing="false" prefWidth="120.0" style="-fx-font-weight: bold;" text="Сбросить" />
                         <graphic>
                             <HBox alignment="CENTER_LEFT" spacing="5">
                                 <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
@@ -347,6 +359,8 @@
                                     </ImageView>
                                     <Label style="-fx-font-weight: bold;" text="Видимость:" />
                                     <CheckBox fx:id="visibilityCheckbox" mnemonicParsing="false" selected="true" />
+                                    <Label style="-fx-font-weight: bold;" text="Имя объекта:" />
+                                    <TextField fx:id="objectNameField" promptText="Имя объекта" />
                                 </HBox>
 
                                 <Label style="-fx-font-weight: bold;" text="Позиция:" />
@@ -472,6 +486,18 @@
                                     <Label style="-fx-font-weight: bold;" text="Цвет:" />
                                 </HBox>
                                 <ColorPicker fx:id="colorPicker" prefWidth="150.0" />
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="Блеск:" />
+                                    <TextField fx:id="materialShininessField" text="0.5" prefWidth="50.0" />
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="Прозрачность:" />
+                                    <TextField fx:id="materialTransparencyField" text="0.0" prefWidth="50.0" />
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="Отражение:" />
+                                    <TextField fx:id="materialReflectivityField" text="0.0" prefWidth="50.0" />
+                                </HBox>
 
                                 <Separator prefWidth="200.0" />
 
