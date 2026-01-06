@@ -41,15 +41,4 @@ public final class ControllerFactory {
             throw new RuntimeException("Не удалось создать контроллер", e);
         }
     }
-
-    public static void injectSceneController(BaseController controller, MainController mainController) {
-        if (controller != null && mainController != null && mainController.getSceneController() != null) {
-            controller.setSceneController(mainController.getSceneController());
-        }
-    }
-
-    public static void clearCache() {
-        CONTROLLER_CACHE.clear();
-        LOG.debug("Кэш контроллеров очищен");
-    }
 }

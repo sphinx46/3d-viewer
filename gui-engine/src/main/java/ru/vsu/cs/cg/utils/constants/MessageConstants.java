@@ -11,6 +11,7 @@ public final class MessageConstants {
 
     public static final String SCENE_LOAD_ERROR = "Ошибка загрузки сцены";
     public static final String SCENE_SAVE_ERROR = "Ошибка сохранения сцены";
+    public final static String SCENE_VALIDATION_ERROR = "Ошибка валидации сцены";
 
     public static final String FILE_OPERATION_ERROR = "Ошибка операции с файлом";
     public static final String FILE_NOT_FOUND = "Файл не найден";
@@ -26,7 +27,6 @@ public final class MessageConstants {
     public static final String CONTROLLER_INIT_ERROR = "Ошибка инициализации контроллера";
     public static final String UI_UPDATE_ERROR = "Ошибка обновления интерфейса";
 
-
     public static final String CACHE_OPERATION_ERROR = "Ошибка операции с кешем";
     public static final String SCREENSHOT_ERROR = "Ошибка создания скриншота";
     public static final String TRANSFORMATION_ERROR = "Ошибка трансформации объекта";
@@ -37,6 +37,8 @@ public final class MessageConstants {
     public static final String APPLICATION_INIT_ERROR = "Ошибка инициализации приложения";
     public static final String APPLICATION_EXIT_ERROR = "Ошибка завершения приложения";
     public static final String WINDOW_MANAGEMENT_ERROR = "Ошибка управления окнами";
+
+    public static final String HOTKEY_ERROR = "Ошибка горячей клавиши";
 
     private MessageConstants() {
     }
