@@ -185,3 +185,13 @@
     -fx-border-color: #dddddd;
     -fx-border-width: 0 1 0 0;
 }
+
+.tree-view .tree-cell:selected {
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
+}
+
+.tree-view .tree-cell:selected:hover {
+    -fx-background-color: #1a66b2;
+    -fx-text-fill: white;
+}

@@ -26,12 +26,18 @@ public class SceneController {
     private MainController mainController;
     private Scene currentScene;
     private SceneObject clipboardObject;
+    private boolean sceneModified = false;
+    private String currentSceneFilePath = null;
+    private boolean uiUpdateInProgress = false;
 
     public SceneController() {
         this.modelService = new ModelServiceImpl();
         this.sceneService = new SceneServiceImpl(modelService);
         this.currentScene = sceneService.createNewScene();
         this.clipboardObject = null;
+        this.sceneModified = false;
+        this.currentSceneFilePath = null;
+        this.uiUpdateInProgress = false;
 
         LOG.info("SceneController создан с новой сценой: {}", currentScene.getName());
     }
@@ -55,6 +61,7 @@ public class SceneController {
         try {
             SceneObject newObject = sceneService.addModelToScene(currentScene, filePath);
             currentScene.selectObject(newObject);
+            markSceneModified();
             updateUI();
             LOG.info("Модель '{}' добавлена в сцену из файла: {}", newObject.getName(), filePath);
             return newObject;
@@ -68,6 +75,7 @@ public class SceneController {
         try {
             SceneObject newObject = sceneService.addDefaultModelToScene(currentScene, modelType.name());
             currentScene.selectObject(newObject);
+            markSceneModified();
             updateUI();
             LOG.info("Стандартная модель '{}' добавлена в сцену", modelType.getDisplayName());
             return newObject;
@@ -81,6 +89,7 @@ public class SceneController {
         try {
             SceneObject newObject = sceneService.addDefaultModelToScene(currentScene, "CUBE");
             currentScene.selectObject(newObject);
+            markSceneModified();
             updateUI();
             LOG.info("Пользовательский объект создан: {}", newObject.getName());
             return newObject;
@@ -98,6 +107,7 @@ public class SceneController {
 
         String objectName = currentScene.getSelectedObject().getName();
         sceneService.removeSelectedObject(currentScene);
+        markSceneModified();
         updateUI();
         LOG.info("Объект '{}' удален из сцены", objectName);
     }
@@ -109,6 +119,7 @@ public class SceneController {
         }
 
         sceneService.duplicateSelectedObject(currentScene);
+        markSceneModified();
         updateUI();
         LOG.info("Выбранный объект продублирован");
     }
@@ -133,6 +144,7 @@ public class SceneController {
         pastedObject.setName(generateUniqueCopyName(clipboardObject.getName()));
         currentScene.addObject(pastedObject);
         currentScene.selectObject(pastedObject);
+        markSceneModified();
         updateUI();
         LOG.info("Объект '{}' вставлен из буфера обмена", pastedObject.getName());
     }
@@ -154,12 +166,16 @@ public class SceneController {
     public void createNewScene() {
         currentScene = sceneService.createNewScene();
         clipboardObject = null;
+        sceneModified = false;
+        currentSceneFilePath = null;
         updateUI();
         LOG.info("Создана новая сцена: {}", currentScene.getName());
     }
 
     public void saveScene(String filePath) throws IOException {
         sceneService.saveScene(currentScene, filePath);
+        sceneModified = false;
+        currentSceneFilePath = filePath;
         LOG.info("Сцена сохранена в файл: {}", filePath);
     }
 
@@ -167,6 +183,8 @@ public class SceneController {
         try {
             currentScene = sceneService.loadScene(filePath);
             clipboardObject = null;
+            sceneModified = false;
+            currentSceneFilePath = filePath;
             updateUI();
             LOG.info("Сцена загружена из файла: {}", filePath);
         } catch (Exception e) {
@@ -175,11 +193,26 @@ public class SceneController {
         }
     }
 
+    public boolean hasUnsavedChanges() {
+        return sceneModified;
+    }
+
+    public void markSceneModified() {
+        if (!sceneModified) {
+            sceneModified = true;
+            LOG.debug("Сцена отмечена как измененная");
+        }
+    }
+
     public void handleSceneObjectSelection(String objectName) {
+        if (uiUpdateInProgress) {
+            return;
+        }
+
         Optional<SceneObject> foundObject = currentScene.findObjectByName(objectName);
         if (foundObject.isPresent()) {
             currentScene.selectObject(foundObject.get());
-            updateUI();
+            updateUIWithoutTreeSelection();
             LOG.debug("Выбран объект сцены: {}", objectName);
         } else {
             LOG.warn("Объект с именем '{}' не найден в сцене", objectName);
@@ -193,6 +226,7 @@ public class SceneController {
         }
 
         currentScene.getSelectedObject().getTransform().reset();
+        markSceneModified();
         updateUI();
         LOG.info("Трансформация объекта '{}' сброшена", currentScene.getSelectedObject().getName());
     }
@@ -216,6 +250,7 @@ public class SceneController {
         transform.setScaleY(scaleY);
         transform.setScaleZ(scaleZ);
 
+        markSceneModified();
         LOG.info("Трансформация применена к объекту '{}'", currentScene.getSelectedObject().getName());
     }
 
@@ -231,6 +266,10 @@ public class SceneController {
         return currentScene.getSelectedObject() != null;
     }
 
+    public String getCurrentSceneFilePath() {
+        return currentSceneFilePath;
+    }
+
     private String generateUniqueCopyName(String baseName) {
         String copyName = baseName + "_copy";
         int counter = 1;
@@ -243,25 +282,45 @@ public class SceneController {
     }
 
     private void updateUI() {
-        LOG.debug("Начало обновления UI контроллеров");
+        if (uiUpdateInProgress) {
+            return;
+        }
+
+        uiUpdateInProgress = true;
         try {
             if (transformController != null) {
-                LOG.debug("Обновление TransformController");
                 transformController.updateUIFromSelectedObject();
             }
             if (materialController != null) {
-                LOG.debug("Обновление MaterialController");
                 materialController.updateUIFromSelectedObject();
             }
             if (mainController != null) {
-                LOG.debug("Обновление MainController (дерево сцены)");
                 mainController.updateSceneTree();
-            } else {
-                LOG.warn("MainController не установлен в SceneController. Дерево сцены не будет обновлено.");
             }
         } catch (Exception e) {
-            LOG.error("Ошибка обновления UI контроллеров: {}", e.getMessage(), e);
+            LOG.error("Ошибка обновления UI контроллеров: {}", e.getMessage());
+        } finally {
+            uiUpdateInProgress = false;
         }
-        LOG.debug("Завершение обновления UI контроллеров");
+    }
+
+    private void updateUIWithoutTreeSelection() {
+        if (uiUpdateInProgress) {
+            return;
+        }
+
+        uiUpdateInProgress = true;
+        try {
+            if (transformController != null) {
+                transformController.updateUIFromSelectedObject();
+            }
+            if (materialController != null) {
+                materialController.updateUIFromSelectedObject();
+            }
+        } catch (Exception e) {
+            LOG.error("Ошибка обновления UI контроллеров: {}", e.getMessage());
+        } finally {
+            uiUpdateInProgress = false;
+        }
     }
 }

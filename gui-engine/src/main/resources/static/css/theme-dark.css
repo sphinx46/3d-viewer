@@ -178,3 +178,15 @@
 .anchor-pane {
     -fx-background-color: -fx-base;
 }
+
+.tree-view .tree-cell:selected {
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
+}
+
+.tree-view .tree-cell:selected:hover {
+    -fx-background-color: #1a66b2;
+    -fx-text-fill: white;
+}
+
+
