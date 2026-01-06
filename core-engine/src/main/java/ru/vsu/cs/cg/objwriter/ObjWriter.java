@@ -1,6 +1,6 @@
 package ru.vsu.cs.cg.objwriter;
 
-import ru.vsu.cs.cg.exceptions.ObjWriterException;
+import ru.vsu.cs.cg.exception.ObjWriterException;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.model.Model;

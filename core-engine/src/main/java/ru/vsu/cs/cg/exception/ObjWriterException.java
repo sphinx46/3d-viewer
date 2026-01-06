@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.exceptions;
+package ru.vsu.cs.cg.exception;
 
 public class ObjWriterException extends RuntimeException {
     public ObjWriterException(String errorMessage) {

@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.exceptions;
+package ru.vsu.cs.cg.exception;
 
 public class ObjReaderException extends RuntimeException {
     public ObjReaderException(String errorMessage, int lineInd) {

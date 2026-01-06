@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.exceptions.ModelLoadException;
+import ru.vsu.cs.cg.exception.ModelLoadException;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.scene.Scene;
 import ru.vsu.cs.cg.scene.SceneObject;

@@ -2,7 +2,10 @@ package ru.vsu.cs.cg.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.exceptions.ModelLoadException;
+import ru.vsu.cs.cg.exception.ApplicationException;
+import ru.vsu.cs.cg.exception.FileOperationException;
+import ru.vsu.cs.cg.exception.ModelLoadException;
+import ru.vsu.cs.cg.exception.ValidationException;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.objreader.ObjReader;
 import ru.vsu.cs.cg.objwriter.ObjWriter;
@@ -30,11 +33,13 @@ public class ModelServiceImpl implements ModelService {
         } catch (ModelLoadException e) {
             LOG.error("Ошибка загрузки стандартной модели '{}': {}",
                 modelType.getDisplayName(), e.getMessage(), e);
-            throw e;
+            throw new ApplicationException(
+                MessageConstants.MODEL_LOAD_ERROR + ": " + modelType.getDisplayName(), e);
         } catch (Exception e) {
             LOG.error("Неожиданная ошибка при загрузке модели '{}': {}",
                 modelType.getDisplayName(), e.getMessage(), e);
-            throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
+            throw new ApplicationException(
+                MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
 
@@ -50,15 +55,23 @@ public class ModelServiceImpl implements ModelService {
             return ObjReader.read(fileContent);
         } catch (ModelLoadException e) {
             LOG.error("Ошибка загрузки модели '{}': {}", filePath, e.getMessage(), e);
-            throw e;
+            throw new ApplicationException(
+                MessageConstants.MODEL_LOAD_ERROR + ": " + filePath, e);
         } catch (Exception e) {
             LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", filePath, e.getMessage(), e);
-            throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
+            throw new ApplicationException(
+                MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
 
     private String readFileContent(String filePath) throws IOException {
-        return new String(Files.readAllBytes(Paths.get(filePath)));
+        try {
+            return new String(Files.readAllBytes(Paths.get(filePath)));
+        } catch (IOException e) {
+            LOG.error("Ошибка чтения файла '{}': {}", filePath, e.getMessage(), e);
+            throw new FileOperationException(
+                MessageConstants.FILE_OPERATION_ERROR + ": " + filePath, e);
+        }
     }
 
     @Override
@@ -70,7 +83,8 @@ public class ModelServiceImpl implements ModelService {
 
         } catch (Exception e) {
             LOG.error("Ошибка создания пользовательского объекта: {}", e.getMessage(), e);
-            throw new ModelLoadException("Ошибка создания пользовательского объекта", e);
+            throw new ApplicationException(
+                MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
 
@@ -95,19 +109,26 @@ public class ModelServiceImpl implements ModelService {
 
         } catch (Exception e) {
             LOG.error("Ошибка сохранения модели в файл {}: {}", filePath, e.getMessage(), e);
-            throw e;
+            throw new FileOperationException(
+                MessageConstants.OBJECT_SAVE_ERROR + ": " + filePath, e);
         }
     }
 
     private void validateModel(Model model) {
-        InputValidator.validateNotNull(model, "Модель");
+        try {
+            InputValidator.validateNotNull(model, "Модель");
 
-        if (model.getVertices().isEmpty()) {
-            LOG.warn("Модель не содержит вершин");
-        }
+            if (model.getVertices().isEmpty()) {
+                LOG.warn("Модель не содержит вершин");
+            }
 
-        if (model.getPolygons().isEmpty()) {
-            LOG.warn("Модель не содержит полигонов");
+            if (model.getPolygons().isEmpty()) {
+                LOG.warn("Модель не содержит полигонов");
+            }
+        } catch (IllegalArgumentException e) {
+            LOG.error("Ошибка валидации модели: {}", e.getMessage(), e);
+            throw new ValidationException(
+                MessageConstants.VALIDATION_ERROR + ": модель", e);
         }
     }
 }

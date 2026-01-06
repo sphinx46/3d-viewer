@@ -2,7 +2,7 @@ package ru.vsu.cs.cg.vertexremover;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.exceptions.VertexRemoverException;
+import ru.vsu.cs.cg.exception.VertexRemoverException;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.utils.MessageConstants;
 import ru.vsu.cs.cg.utils.ModelUtils;

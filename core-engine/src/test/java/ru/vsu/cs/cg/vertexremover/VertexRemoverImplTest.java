@@ -2,7 +2,7 @@ package ru.vsu.cs.cg.vertexremover;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.vsu.cs.cg.exceptions.VertexRemoverException;
+import ru.vsu.cs.cg.exception.VertexRemoverException;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.objreader.ObjReader;
 import ru.vsu.cs.cg.vertexremover.dto.VertexRemovalResult;

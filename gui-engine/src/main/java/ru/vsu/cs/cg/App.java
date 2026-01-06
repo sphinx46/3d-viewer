@@ -1,47 +1,51 @@
 package ru.vsu.cs.cg;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.controller.factory.ControllerFactory;
+
+import ru.vsu.cs.cg.exception.handler.GlobalExceptionHandler;
 import ru.vsu.cs.cg.utils.window.StageManager;
-import ru.vsu.cs.cg.utils.window.WindowManager;
 
 public class App extends Application {
 
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
+    private static final GlobalExceptionHandler EXCEPTION_HANDLER = GlobalExceptionHandler.getInstance();
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            primaryStage = StageManager.createPrimaryStage();
-            primaryStage.setOnCloseRequest(event -> {
-                LOG.info("Получен запрос на закрытие приложения");
-                ControllerFactory.clearCache();
-                Platform.exit();
-            });
+            EXCEPTION_HANDLER.initialize();
 
-            WindowManager.registerStage(primaryStage);
-            primaryStage.show();
+            Stage stage = StageManager.createPrimaryStage();
+            stage.show();
 
             LOG.info("Приложение успешно запущено");
         } catch (Exception e) {
-            handleStartupError(e);
+            LOG.error("Критическая ошибка запуска приложения: {}", e.getMessage(), e);
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.APPLICATION_INIT_ERROR);
+            throw new RuntimeException("Не удалось запустить приложение", e);
         }
     }
 
-    private void handleStartupError(Exception e) {
-        LOG.error("Критическая ошибка при запуске приложения", e);
-        System.exit(1);
+    @Override
+    public void stop() {
+        try {
+            LOG.info("Завершение работы приложения");
+        } catch (Exception e) {
+            LOG.error("Ошибка завершения работы приложения: {}", e.getMessage(), e);
+            EXCEPTION_HANDLER.handleException(e);
+        }
     }
 
     public static void main(String[] args) {
         try {
             launch(args);
         } catch (Exception e) {
-            LOG.error("Необработанное исключение в main методе", e);
+            LOG.error("Необработанное исключение в main: {}", e.getMessage(), e);
+            EXCEPTION_HANDLER.handleException(e);
             System.exit(1);
         }
     }

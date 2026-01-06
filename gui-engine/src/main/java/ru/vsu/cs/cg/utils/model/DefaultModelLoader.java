@@ -2,10 +2,11 @@ package ru.vsu.cs.cg.utils.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.exceptions.ModelLoadException;
-import ru.vsu.cs.cg.objreader.ObjReader;
+import ru.vsu.cs.cg.exception.ModelLoadException;
+import ru.vsu.cs.cg.exception.handler.GlobalExceptionHandler;
 import ru.vsu.cs.cg.model.Model;
-import ru.vsu.cs.cg.utils.constants.MessageConstants;
+import ru.vsu.cs.cg.objreader.ObjReader;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,9 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
 
+import static ru.vsu.cs.cg.utils.constants.MessageConstants.*;
+
 public final class DefaultModelLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultModelLoader.class);
+    private static final GlobalExceptionHandler EXCEPTION_HANDLER = GlobalExceptionHandler.getInstance();
     private static final String MODELS_BASE_PATH = "/models/default/";
     private static final Map<ModelType, String> MODEL_PATHS = new EnumMap<>(ModelType.class);
 
@@ -50,9 +54,7 @@ public final class DefaultModelLoader {
 
         if (path == null) {
             LOG.error("Неизвестный тип модели: {}", modelType);
-            throw new ModelLoadException(
-                ru.vsu.cs.cg.utils.constants.MessageConstants.UNKNOWN_MODEL_TYPE + " " + modelType
-            );
+            throw new ModelLoadException(UNKNOWN_MODEL_TYPE + " " + modelType);
         }
 
         LOG.debug("Начало загрузки модели '{}' по пути: {}", modelType.getDisplayName(), path);
@@ -60,9 +62,7 @@ public final class DefaultModelLoader {
         try (InputStream inputStream = DefaultModelLoader.class.getResourceAsStream(path)) {
             if (inputStream == null) {
                 LOG.error("Файл модели не найден: {}", path);
-                throw new IOException(
-                    ru.vsu.cs.cg.utils.constants.MessageConstants.MODEL_FILE_NOT_FOUND + " " + path
-                );
+                throw new ModelLoadException(MODEL_FILE_NOT_FOUND + " " + path);
             }
 
             final String content = new String(
@@ -83,15 +83,22 @@ public final class DefaultModelLoader {
 
         } catch (IOException e) {
             LOG.error("Ошибка загрузки модели '{}': {}", modelType.getDisplayName(), e.getMessage(), e);
-            throw new ModelLoadException(
-                MessageConstants.MODEL_LOAD_ERROR + " " +
-                    modelType.getDisplayName(),
-                e
-            );
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e, MODEL_LOAD_ERROR);
+            throw new ModelLoadException(MODEL_LOAD_ERROR + " " + modelType.getDisplayName(), e);
+        } catch (Exception e) {
+            LOG.error("Неожиданная ошибка загрузки модели '{}': {}", modelType.getDisplayName(), e.getMessage(), e);
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e, MODEL_LOAD_ERROR);
+            throw new ModelLoadException(MODEL_LOAD_ERROR, e);
         }
     }
 
     public static ModelType[] getAvailableModels() {
-        return ModelType.values();
+        try {
+            return ModelType.values();
+        } catch (Exception e) {
+            LOG.error("Ошибка получения доступных моделей: {}", e.getMessage(), e);
+            EXCEPTION_HANDLER.handleException(e);
+            return new ModelType[0];
+        }
     }
 }

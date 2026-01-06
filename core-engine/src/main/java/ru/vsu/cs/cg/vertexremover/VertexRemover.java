@@ -2,7 +2,7 @@ package ru.vsu.cs.cg.vertexremover;
 
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.vertexremover.dto.VertexRemovalResult;
-import ru.vsu.cs.cg.exceptions.VertexRemoverException;
+import ru.vsu.cs.cg.exception.VertexRemoverException;
 
 import java.util.Set;
 

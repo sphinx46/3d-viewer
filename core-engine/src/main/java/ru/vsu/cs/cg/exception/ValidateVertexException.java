@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.exceptions;
+package ru.vsu.cs.cg.exception;
 
 public class ValidateVertexException extends RuntimeException {
     public ValidateVertexException(String message) {

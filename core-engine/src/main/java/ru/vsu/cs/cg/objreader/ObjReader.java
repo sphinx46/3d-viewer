@@ -2,7 +2,7 @@ package ru.vsu.cs.cg.objreader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.exceptions.ObjReaderException;
+import ru.vsu.cs.cg.exception.ObjReaderException;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.model.Model;

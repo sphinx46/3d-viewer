@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.factory.ControllerFactory;
 import ru.vsu.cs.cg.controller.hotkeys.HotkeyManager;
+import ru.vsu.cs.cg.exception.UIException;
+import ru.vsu.cs.cg.exception.handler.GlobalExceptionHandler;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.service.impl.RecentFilesCacheServiceImpl;
@@ -26,6 +28,7 @@ import java.util.Optional;
 public class MainController {
 
     private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
+    private static final GlobalExceptionHandler EXCEPTION_HANDLER = GlobalExceptionHandler.getInstance();
 
     private TransformController transformController;
     private MaterialController materialController;
@@ -90,14 +93,22 @@ public class MainController {
 
             LOG.info("Главный контроллер успешно инициализирован");
         } catch (Exception e) {
-            LOG.error("Ошибка инициализации главного контроллера: {}", e.getMessage());
-            DialogManager.showError("Ошибка инициализации приложения: " + e.getMessage());
+            String errorMessage = "Ошибка инициализации главного контроллера: " + e.getMessage();
+            LOG.error(errorMessage, e);
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.CONTROLLER_INIT_ERROR);
         }
     }
 
     private void initializeControllers() {
-        transformController = ControllerFactory.createController("/fxml/transform-panel.fxml", TransformController.class);
-        materialController = ControllerFactory.createController("/fxml/material-panel.fxml", MaterialController.class);
+        try {
+            transformController = ControllerFactory.createController("/fxml/transform-panel.fxml", TransformController.class);
+            materialController = ControllerFactory.createController("/fxml/material-panel.fxml", MaterialController.class);
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.CONTROLLER_INIT_ERROR);
+            throw e;
+        }
     }
 
     private void initializeDependencies() {
@@ -108,44 +119,57 @@ public class MainController {
 
             LOG.debug("Зависимости контроллеров успешно инициализированы");
         } catch (Exception e) {
-            LOG.error("Ошибка инициализации зависимостей контроллеров: {}", e.getMessage());
+            String errorMessage = "Ошибка инициализации зависимостей контроллеров: " + e.getMessage();
+            LOG.error(errorMessage, e);
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.CONTROLLER_INIT_ERROR);
         }
     }
 
     private void initializeTooltips() {
-        TooltipManager.addHotkeyTooltip(addObjectButton, "addObjectButton");
-        TooltipManager.addHotkeyTooltip(deleteObjectButton, "deleteObjectButton");
-        TooltipManager.addHotkeyTooltip(duplicateObjectButton, "duplicateObjectButton");
-        TooltipManager.addHotkeyTooltip(selectToolButton, "selectToolButton");
-        TooltipManager.addHotkeyTooltip(moveToolButton, "moveToolButton");
-        TooltipManager.addHotkeyTooltip(rotateToolButton, "rotateToolButton");
-        TooltipManager.addHotkeyTooltip(scaleToolButton, "scaleToolButton");
+        EXCEPTION_HANDLER.handleUIException(() -> {
+            TooltipManager.addHotkeyTooltip(addObjectButton, "addObjectButton");
+            TooltipManager.addHotkeyTooltip(deleteObjectButton, "deleteObjectButton");
+            TooltipManager.addHotkeyTooltip(duplicateObjectButton, "duplicateObjectButton");
+            TooltipManager.addHotkeyTooltip(selectToolButton, "selectToolButton");
+            TooltipManager.addHotkeyTooltip(moveToolButton, "moveToolButton");
+            TooltipManager.addHotkeyTooltip(rotateToolButton, "rotateToolButton");
+            TooltipManager.addHotkeyTooltip(scaleToolButton, "scaleToolButton");
+        }, ru.vsu.cs.cg.utils.constants.MessageConstants.TOOLTIP_ERROR);
     }
 
     private void initializeSceneTree() {
-        TreeItem<String> rootItem = new TreeItem<>("Сцена");
-        rootItem.setExpanded(true);
-        sceneTreeView.setRoot(rootItem);
-        sceneTreeView.setShowRoot(false);
+        try {
+            TreeItem<String> rootItem = new TreeItem<>("Сцена");
+            rootItem.setExpanded(true);
+            sceneTreeView.setRoot(rootItem);
+            sceneTreeView.setShowRoot(false);
 
-        sceneTreeView.getSelectionModel().selectedItemProperty().addListener(
-            (observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    String objectName = newValue.getValue();
-                    if (objectName.endsWith(" (скрыт)")) {
-                        objectName = objectName.replace(" (скрыт)", "");
+            sceneTreeView.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        String objectName = newValue.getValue();
+                        if (objectName.endsWith(" (скрыт)")) {
+                            objectName = objectName.replace(" (скрыт)", "");
+                        }
+                        sceneController.handleSceneObjectSelection(objectName);
                     }
-                    sceneController.handleSceneObjectSelection(objectName);
                 }
-            }
-        );
+            );
 
-        LOG.debug("Дерево сцены инициализировано");
+            LOG.debug("Дерево сцены инициализировано");
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.UI_OPERATION_ERROR);
+        }
     }
 
     private void initializeMenuActions() {
-        menuThemeDark.setOnAction(event -> ControllerUtils.applyTheme(anchorPane, "/static/css/theme-dark.css"));
-        menuThemeLight.setOnAction(event -> ControllerUtils.applyTheme(anchorPane, "/static/css/theme-light.css"));
+        menuThemeDark.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(() ->
+            ControllerUtils.applyTheme(anchorPane, "/static/css/theme-dark.css"), "Применение темы"));
+
+        menuThemeLight.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(() ->
+            ControllerUtils.applyTheme(anchorPane, "/static/css/theme-light.css"), "Применение темы"));
 
         menuFileOpen.setOnAction(event -> openModel());
         menuFileSave.setOnAction(event -> saveSelectedModel());
@@ -165,18 +189,27 @@ public class MainController {
         menuSceneSaveAs.setOnAction(event -> saveSceneAs());
         menuSceneReset.setOnAction(event -> resetScene());
 
-        menuWindowNew.setOnAction(event -> WindowManager.createAndShowNewWindow());
+        menuWindowNew.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(() ->
+            WindowManager.createAndShowNewWindow(), "Создание окна"));
+
         menuWindowFullscreen.setOnAction(event -> toggleFullscreen());
         menuWindowScreenshot.setOnAction(event -> takeScreenshot());
 
-        menuWindowDefault.setOnAction(event -> WindowManager.arrangeDefault());
-        menuWindowHorizontal.setOnAction(event -> WindowManager.arrangeHorizontally());
-        menuWindowVertical.setOnAction(event -> WindowManager.arrangeVertically());
-        menuWindowCascade.setOnAction(event -> WindowManager.arrangeCascade());
+        menuWindowDefault.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(WindowManager::arrangeDefault, "Расположение окон"));
 
-        menuHelpDocumentation.setOnAction(event -> ControllerUtils.openUrl("https://github.com/sphinx46/3d-viewer"));
+        menuWindowHorizontal.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(WindowManager::arrangeHorizontally, "Расположение окон"));
+
+        menuWindowVertical.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(WindowManager::arrangeVertically, "Расположение окон"));
+
+        menuWindowCascade.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(WindowManager::arrangeCascade, "Расположение окон"));
+
+        menuHelpDocumentation.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(() ->
+            ControllerUtils.openUrl("https://github.com/sphinx46/3d-viewer"), "Открытие URL"));
+
         menuHelpShortcuts.setOnAction(event -> showHotkeysDialog());
-        menuHelpBugReport.setOnAction(event -> ControllerUtils.openUrl("https://github.com/sphinx46/3d-viewer/issues/new"));
+        menuHelpBugReport.setOnAction(event -> EXCEPTION_HANDLER.handleUIException(() ->
+            ControllerUtils.openUrl("https://github.com/sphinx46/3d-viewer/issues/new"), "Открытие URL"));
+
         menuHelpAbout.setOnAction(event -> showAboutDialog());
 
         menuRecentClear.setOnAction(event -> clearRecentFiles());
@@ -190,39 +223,44 @@ public class MainController {
 
     public void updateSceneTree() {
         Platform.runLater(() -> {
-            try {
-                TreeItem<String> rootItem = new TreeItem<>("Сцена");
-                rootItem.setExpanded(true);
+            EXCEPTION_HANDLER.handleUIException(() -> {
+                try {
+                    TreeItem<String> rootItem = new TreeItem<>("Сцена");
+                    rootItem.setExpanded(true);
 
-                SceneObject selectedObject = sceneController.getSelectedObject();
-                String selectedObjectName = selectedObject != null ? selectedObject.getName() : null;
+                    SceneObject selectedObject = sceneController.getSelectedObject();
+                    String selectedObjectName = selectedObject != null ? selectedObject.getName() : null;
 
-                sceneController.getCurrentScene().getObjects().forEach(obj -> {
-                    String displayName = obj.isVisible() ? obj.getName() : obj.getName() + " (скрыт)";
-                    TreeItem<String> item = new TreeItem<>(displayName);
-                    rootItem.getChildren().add(item);
-                });
+                    sceneController.getCurrentScene().getObjects().forEach(obj -> {
+                        String displayName = obj.isVisible() ? obj.getName() : obj.getName() + " (скрыт)";
+                        TreeItem<String> item = new TreeItem<>(displayName);
+                        rootItem.getChildren().add(item);
+                    });
 
-                sceneTreeView.setRoot(rootItem);
+                    sceneTreeView.setRoot(rootItem);
 
-                if (selectedObjectName != null) {
-                    for (TreeItem<String> item : rootItem.getChildren()) {
-                        String itemValue = item.getValue();
-                        if (itemValue.endsWith(" (скрыт)")) {
-                            itemValue = itemValue.replace(" (скрыт)", "");
-                        }
+                    if (selectedObjectName != null) {
+                        for (TreeItem<String> item : rootItem.getChildren()) {
+                            String itemValue = item.getValue();
+                            if (itemValue.endsWith(" (скрыт)")) {
+                                itemValue = itemValue.replace(" (скрыт)", "");
+                            }
 
-                        if (itemValue.equals(selectedObjectName)) {
-                            sceneTreeView.getSelectionModel().select(item);
-                            break;
+                            if (itemValue.equals(selectedObjectName)) {
+                                sceneTreeView.getSelectionModel().select(item);
+                                break;
+                            }
                         }
                     }
-                }
 
-                LOG.debug("Дерево сцены обновлено. Объектов: {}", rootItem.getChildren().size());
-            } catch (Exception e) {
-                LOG.error("Ошибка обновления дерева сцены: {}", e.getMessage());
-            }
+                    LOG.debug("Дерево сцены обновлено. Объектов: {}", rootItem.getChildren().size());
+                } catch (Exception e) {
+                    String errorMessage = "Ошибка обновления дерева сцены: " + e.getMessage();
+                    LOG.error(errorMessage, e);
+                    throw new UIException(
+                        ru.vsu.cs.cg.utils.constants.MessageConstants.UI_UPDATE_ERROR, e);
+                }
+            }, ru.vsu.cs.cg.utils.constants.MessageConstants.UI_UPDATE_ERROR);
         });
     }
 
@@ -233,37 +271,43 @@ public class MainController {
             LOG.info("Загружено {} недавних файлов из кеша", recentFiles.size());
             updateRecentFilesMenu();
         } catch (Exception e) {
-            LOG.error("Ошибка загрузки списка недавних файлов: {}", e.getMessage());
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.CACHE_OPERATION_ERROR);
         }
     }
 
     private void updateRecentFilesMenu() {
-        try {
-            menuRecent.getItems().clear();
+        EXCEPTION_HANDLER.handleUIException(() -> {
+            try {
+                menuRecent.getItems().clear();
 
-            List<String> recentFiles = recentFilesCacheService.getRecentFiles();
+                List<String> recentFiles = recentFilesCacheService.getRecentFiles();
 
-            if (recentFiles.isEmpty()) {
-                MenuItem emptyItem = new MenuItem("Нет недавних файлов");
-                emptyItem.setDisable(true);
-                menuRecent.getItems().add(emptyItem);
-                menuRecent.getItems().add(new SeparatorMenuItem());
-            } else {
-                for (String filePath : recentFiles) {
-                    String fileName = ControllerUtils.getFileName(filePath);
-                    MenuItem fileItem = new MenuItem(fileName);
-                    fileItem.setOnAction(event -> openRecentFile(filePath));
-                    menuRecent.getItems().add(fileItem);
+                if (recentFiles.isEmpty()) {
+                    MenuItem emptyItem = new MenuItem("Нет недавних файлов");
+                    emptyItem.setDisable(true);
+                    menuRecent.getItems().add(emptyItem);
+                    menuRecent.getItems().add(new SeparatorMenuItem());
+                } else {
+                    for (String filePath : recentFiles) {
+                        String fileName = ControllerUtils.getFileName(filePath);
+                        MenuItem fileItem = new MenuItem(fileName);
+                        fileItem.setOnAction(event -> openRecentFile(filePath));
+                        menuRecent.getItems().add(fileItem);
+                    }
                 }
+
+                menuRecent.getItems().add(new SeparatorMenuItem());
+                menuRecent.getItems().add(menuRecentClear);
+
+                LOG.debug("Меню недавних файлов обновлено: {} файлов", recentFiles.size());
+            } catch (Exception e) {
+                String errorMessage = "Ошибка обновления меню недавних файлов: " + e.getMessage();
+                LOG.error(errorMessage, e);
+                throw new UIException(
+                    ru.vsu.cs.cg.utils.constants.MessageConstants.UI_UPDATE_ERROR, e);
             }
-
-            menuRecent.getItems().add(new SeparatorMenuItem());
-            menuRecent.getItems().add(menuRecentClear);
-
-            LOG.debug("Меню недавних файлов обновлено: {} файлов", recentFiles.size());
-        } catch (Exception e) {
-            LOG.error("Ошибка обновления меню недавних файлов: {}", e.getMessage());
-        }
+        }, ru.vsu.cs.cg.utils.constants.MessageConstants.UI_UPDATE_ERROR);
     }
 
     private void openRecentFile(String filePath) {
@@ -278,8 +322,8 @@ public class MainController {
             recentFilesCacheService.addFile(filePath);
             updateRecentFilesMenu();
         } catch (Exception e) {
-            LOG.error("Ошибка загрузки недавнего файла '{}': {}", filePath, e.getMessage());
-            DialogManager.showError("Не удалось загрузить файл: " + ControllerUtils.getFileName(filePath));
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.FILE_OPERATION_ERROR);
         }
     }
 
@@ -308,7 +352,8 @@ public class MainController {
             DialogManager.showInfo("Горячие клавиши", hotkeysText.toString());
             LOG.info("Показан диалог горячих клавиш");
         } catch (Exception e) {
-            LOG.error("Ошибка показа диалога горячих клавиш: {}", e.getMessage());
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.DIALOG_ERROR);
         }
     }
 
@@ -321,7 +366,8 @@ public class MainController {
             DialogManager.showInfo("О программе", aboutText);
             LOG.info("Показано окно 'О программе'");
         } catch (Exception e) {
-            LOG.error("Ошибка показа окна 'О программе': {}", e.getMessage());
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.DIALOG_ERROR);
         }
     }
 
@@ -339,7 +385,8 @@ public class MainController {
                 LOG.info("Список недавних файлов очищен пользователем");
             }
         } catch (Exception e) {
-            LOG.error("Ошибка очистки списка недавних файлов: {}", e.getMessage());
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.CACHE_OPERATION_ERROR);
         }
     }
 
@@ -361,7 +408,8 @@ public class MainController {
             Platform.exit();
             LOG.info("Пользователь завершил работу приложения");
         } catch (Exception e) {
-            LOG.error("Ошибка завершения работы приложения: {}", e.getMessage());
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.APPLICATION_EXIT_ERROR);
             Platform.exit();
         }
     }
@@ -375,20 +423,30 @@ public class MainController {
                 updateRecentFilesMenu();
                 DialogManager.showSuccess("Модель добавлена: " + file.getName());
             } catch (Exception e) {
-                LOG.error("Ошибка добавления модели: {}", e.getMessage());
-                DialogManager.showError("Ошибка добавления модели: " + e.getMessage());
+                EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                    ru.vsu.cs.cg.utils.constants.MessageConstants.MODEL_LOAD_ERROR);
             }
         });
     }
 
     public void createCustomObject() {
-        sceneController.createCustomObject();
-        DialogManager.showInfo("Пользовательский объект", "Создан новый объект для редактирования");
+        try {
+            sceneController.createCustomObject();
+            DialogManager.showInfo("Пользовательский объект", "Создан новый объект для редактирования");
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.MODEL_LOAD_ERROR);
+        }
     }
 
     private void addDefaultModel(DefaultModelLoader.ModelType modelType) {
-        sceneController.addDefaultModelToScene(modelType);
-        DialogManager.showSuccess("Модель '" + modelType.getDisplayName() + "' добавлена");
+        try {
+            sceneController.addDefaultModelToScene(modelType);
+            DialogManager.showSuccess("Модель '" + modelType.getDisplayName() + "' добавлена");
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.MODEL_LOAD_ERROR);
+        }
     }
 
     private void saveSelectedModel() {
@@ -405,63 +463,73 @@ public class MainController {
                 updateRecentFilesMenu();
                 DialogManager.showSuccess("Модель сохранена: " + file.getName());
             } catch (Exception e) {
-                LOG.error("Ошибка сохранения модели: {}", e.getMessage());
-                DialogManager.showError("Ошибка сохранения модели: " + e.getMessage());
+                EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                    ru.vsu.cs.cg.utils.constants.MessageConstants.OBJECT_SAVE_ERROR);
             }
         });
     }
 
     public void createNewScene() {
-        if (sceneController.hasUnsavedChanges()) {
-            Optional<ButtonType> result = DialogManager.showConfirmation(
-                "Несохраненные изменения",
-                "В текущей сцене есть несохраненные изменения. Создать новую сцену?"
-            );
+        try {
+            if (sceneController.hasUnsavedChanges()) {
+                Optional<ButtonType> result = DialogManager.showConfirmation(
+                    "Несохраненные изменения",
+                    "В текущей сцене есть несохраненные изменения. Создать новую сцену?"
+                );
 
-            if (result.isEmpty() || result.get() != ButtonType.OK) {
-                return;
+                if (result.isEmpty() || result.get() != ButtonType.OK) {
+                    return;
+                }
             }
-        }
 
-        sceneController.createNewScene();
-        DialogManager.showInfo("Новая сцена", "Создана новая сцена");
+            sceneController.createNewScene();
+            DialogManager.showInfo("Новая сцена", "Создана новая сцена");
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.SCENE_LOAD_ERROR);
+        }
     }
 
     public void openSceneWithCheck() {
-        if (sceneController.hasUnsavedChanges()) {
-            Optional<ButtonType> result = DialogManager.showConfirmation(
-                "Несохраненные изменения",
-                "В текущей сцене есть несохраненные изменения. Открыть новую сцену?"
-            );
+        try {
+            if (sceneController.hasUnsavedChanges()) {
+                Optional<ButtonType> result = DialogManager.showConfirmation(
+                    "Несохраненные изменения",
+                    "В текущей сцене есть несохраненные изменения. Открыть новую сцену?"
+                );
 
-            if (result.isEmpty() || result.get() != ButtonType.OK) {
-                return;
+                if (result.isEmpty() || result.get() != ButtonType.OK) {
+                    return;
+                }
             }
-        }
 
-        openScene();
+            openScene();
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.SCENE_LOAD_ERROR);
+        }
     }
 
     private void openSceneWithCheck(String filePath) {
-        if (sceneController.hasUnsavedChanges()) {
-            Optional<ButtonType> result = DialogManager.showConfirmation(
-                "Несохраненные изменения",
-                "В текущей сцене есть несохраненные изменения. Загрузить сцену из файла?"
-            );
-
-            if (result.isEmpty() || result.get() != ButtonType.OK) {
-                return;
-            }
-        }
-
         try {
+            if (sceneController.hasUnsavedChanges()) {
+                Optional<ButtonType> result = DialogManager.showConfirmation(
+                    "Несохраненные изменения",
+                    "В текущей сцене есть несохраненные изменения. Загрузить сцену из файла?"
+                );
+
+                if (result.isEmpty() || result.get() != ButtonType.OK) {
+                    return;
+                }
+            }
+
             sceneController.loadScene(filePath);
             DialogManager.showSuccess("Сцена загружена: " + ControllerUtils.getFileName(filePath));
             recentFilesCacheService.addFile(filePath);
             updateRecentFilesMenu();
         } catch (Exception e) {
-            LOG.error("Ошибка загрузки сцены: {}", e.getMessage());
-            DialogManager.showError("Ошибка загрузки сцены: " + e.getMessage());
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.SCENE_LOAD_ERROR);
         }
     }
 
@@ -472,16 +540,16 @@ public class MainController {
     }
 
     public void saveScene() {
-        if (sceneController.getCurrentSceneFilePath() != null) {
-            try {
+        try {
+            if (sceneController.getCurrentSceneFilePath() != null) {
                 sceneController.saveScene(sceneController.getCurrentSceneFilePath());
                 DialogManager.showSuccess("Сцена сохранена");
-            } catch (Exception e) {
-                LOG.error("Ошибка сохранения сцены: {}", e.getMessage());
-                DialogManager.showError("Ошибка сохранения сцены: " + e.getMessage());
+            } else {
+                saveSceneAs();
             }
-        } else {
-            saveSceneAs();
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.SCENE_SAVE_ERROR);
         }
     }
 
@@ -495,75 +563,111 @@ public class MainController {
                 updateRecentFilesMenu();
                 DialogManager.showSuccess("Сцена сохранена: " + file.getName());
             } catch (Exception e) {
-                DialogManager.showError("Ошибка сохранения сцены: " + e.getMessage());
+                EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                    ru.vsu.cs.cg.utils.constants.MessageConstants.SCENE_SAVE_ERROR);
             }
         });
     }
 
     private void resetScene() {
-        if (sceneController.hasUnsavedChanges()) {
-            Optional<ButtonType> result = DialogManager.showConfirmation(
-                "Сброс сцены",
-                "Сбросить все изменения в сцене? Несохраненные изменения будут потеряны."
-            );
+        try {
+            if (sceneController.hasUnsavedChanges()) {
+                Optional<ButtonType> result = DialogManager.showConfirmation(
+                    "Сброс сцены",
+                    "Сбросить все изменения в сцене? Несохраненные изменения будут потеряны."
+                );
 
-            if (result.isEmpty() || result.get() != ButtonType.OK) return;
+                if (result.isEmpty() || result.get() != ButtonType.OK) return;
+            }
+
+            sceneController.createNewScene();
+            DialogManager.showInfo("Сброс сцены", "Сцена сброшена до начального состояния");
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.SCENE_LOAD_ERROR);
         }
-
-        sceneController.createNewScene();
-        DialogManager.showInfo("Сброс сцены", "Сцена сброшена до начального состояния");
     }
 
     public void copyObject() {
-        if (!sceneController.hasSelectedObject()) {
-            DialogManager.showError("Нет выбранного объекта");
-            return;
-        }
+        try {
+            if (!sceneController.hasSelectedObject()) {
+                DialogManager.showError("Нет выбранного объекта");
+                return;
+            }
 
-        sceneController.copySelectedObject();
-        DialogManager.showInfo("Копирование", "Объект скопирован в буфер");
+            sceneController.copySelectedObject();
+            DialogManager.showInfo("Копирование", "Объект скопирован в буфер");
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.UI_OPERATION_ERROR);
+        }
     }
 
     public void pasteObject() {
-        sceneController.pasteCopiedObject();
-        DialogManager.showInfo("Вставка", "Объект вставлен в сцену");
+        try {
+            sceneController.pasteCopiedObject();
+            DialogManager.showInfo("Вставка", "Объект вставлен в сцену");
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.UI_OPERATION_ERROR);
+        }
     }
 
     public void duplicateObject() {
-        if (!sceneController.hasSelectedObject()) {
-            DialogManager.showError("Нет выбранного объекта");
-            return;
-        }
+        try {
+            if (!sceneController.hasSelectedObject()) {
+                DialogManager.showError("Нет выбранного объекта");
+                return;
+            }
 
-        sceneController.duplicateSelectedObject();
-        DialogManager.showInfo("Дублирование", "Создана копия объекта");
+            sceneController.duplicateSelectedObject();
+            DialogManager.showInfo("Дублирование", "Создана копия объекта");
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.UI_OPERATION_ERROR);
+        }
     }
 
     public void deleteObject() {
-        if (!sceneController.hasSelectedObject()) {
-            DialogManager.showError("Нет выбранного объекта");
-            return;
-        }
+        try {
+            if (!sceneController.hasSelectedObject()) {
+                DialogManager.showError("Нет выбранного объекта");
+                return;
+            }
 
-        String objectName = sceneController.getSelectedObject().getName();
-        Optional<ButtonType> result = DialogManager.showConfirmation(
-            "Удаление объекта",
-            "Удалить объект '" + objectName + "'?"
-        );
+            String objectName = sceneController.getSelectedObject().getName();
+            Optional<ButtonType> result = DialogManager.showConfirmation(
+                "Удаление объекта",
+                "Удалить объект '" + objectName + "'?"
+            );
 
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            sceneController.removeSelectedObject();
-            DialogManager.showInfo("Удаление", "Объект '" + objectName + "' удален");
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                sceneController.removeSelectedObject();
+                DialogManager.showInfo("Удаление", "Объект '" + objectName + "' удален");
+            }
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.UI_OPERATION_ERROR);
         }
     }
 
     public void takeScreenshot() {
-        ControllerUtils.getStage(anchorPane).flatMap(ScreenshotManager::takeScreenshot).ifPresent(file ->
-            DialogManager.showInfo("Скриншот сохранен", "Скриншот сохранен: " + file.getName()));
+        try {
+            ControllerUtils.getStage(anchorPane).flatMap(ScreenshotManager::takeScreenshot).ifPresent(file ->
+                DialogManager.showInfo("Скриншот сохранен", "Скриншот сохранен: " + file.getName()));
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.SCREENSHOT_ERROR);
+        }
     }
 
     public void toggleFullscreen() {
-        ControllerUtils.getStage(anchorPane).ifPresent(WindowManager::toggleFullscreen);
+        try {
+            ControllerUtils.getStage(anchorPane).ifPresent(WindowManager::toggleFullscreen);
+        } catch (Exception e) {
+            EXCEPTION_HANDLER.handleExceptionWithCustomMessage(e,
+                ru.vsu.cs.cg.utils.constants.MessageConstants.WINDOW_MANAGEMENT_ERROR);
+        }
     }
 
     public SceneController getSceneController() {
