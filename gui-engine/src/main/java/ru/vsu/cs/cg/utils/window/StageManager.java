@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.utils;
+package ru.vsu.cs.cg.utils.window;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,7 +13,7 @@ import java.io.IOException;
 public final class StageManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(StageManager.class);
-    private static final String FXML_PATH = "/gui.fxml";
+    private static final String FXML_PATH = "/fxml/main.fxml";
     private static final String WINDOW_TITLE = "3d-viewer";
     private static final int DEFAULT_WIDTH = 1400;
     private static final int DEFAULT_HEIGHT = 800;
@@ -37,9 +37,7 @@ public final class StageManager {
     }
 
     public static Stage createPrimaryStage() throws IOException {
-        FXMLLoader loader = new FXMLLoader(App.class.getResource(FXML_PATH));
-        Parent root = loader.load();
-        return createStageFromRoot(root);
+        return createStage();
     }
 
     private static Stage createStage() throws IOException {

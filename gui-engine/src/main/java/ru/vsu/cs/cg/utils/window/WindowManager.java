@@ -1,10 +1,11 @@
-package ru.vsu.cs.cg.utils;
+package ru.vsu.cs.cg.utils.window;
 
 import javafx.application.Platform;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vsu.cs.cg.utils.dialog.DialogManager;
 
 import java.util.ArrayList;
 import java.util.List;

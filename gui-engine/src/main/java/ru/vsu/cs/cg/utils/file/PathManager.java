@@ -1,7 +1,8 @@
-package ru.vsu.cs.cg.utils;
+package ru.vsu.cs.cg.utils.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vsu.cs.cg.utils.validation.InputValidator;
 
 import java.io.File;
 import java.io.IOException;

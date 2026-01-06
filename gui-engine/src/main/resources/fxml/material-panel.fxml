@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<TitledPane xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.MaterialController" animated="false" collapsible="true" text="Материал">
+    <graphic>
+        <HBox alignment="CENTER_LEFT" spacing="5">
+            <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
+                <Image url="@/static/images/icons/right-menu/material.png" />
+            </ImageView>
+        </HBox>
+    </graphic>
+    <content>
+        <VBox spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/palette.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Цвет:" />
+            </HBox>
+            <ColorPicker fx:id="colorPicker" prefWidth="150.0" />
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Блеск:" />
+                <TextField fx:id="materialShininessField" text="0.5" prefWidth="50.0" />
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Прозрачность:" />
+                <TextField fx:id="materialTransparencyField" text="0.0" prefWidth="50.0" />
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Отражение:" />
+                <TextField fx:id="materialReflectivityField" text="0.0" prefWidth="50.0" />
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/texture.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Текстура:" />
+            </HBox>
+            <HBox spacing="8">
+                <Button fx:id="loadTextureButton" mnemonicParsing="false" prefWidth="100.0" style="-fx-font-weight: bold;" text="Загрузить" />
+                <Button fx:id="clearTextureButton" mnemonicParsing="false" prefWidth="100.0" style="-fx-font-weight: bold;" text="Очистить" />
+                <CheckBox fx:id="showTextureCheckbox" mnemonicParsing="false" text="Показать" />
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/lightbulb.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Освещение:" />
+            </HBox>
+            <VBox spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Яркость:" />
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Slider fx:id="brightnessSlider" max="1.0" min="0.0" value="0.5" prefWidth="80.0" />
+                        <TextField fx:id="brightnessField" text="0.5" prefWidth="50.0" />
+                    </HBox>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Отражение:" />
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Slider fx:id="reflectionSlider" max="1.0" min="0.0" value="0.3" prefWidth="80.0" />
+                        <TextField fx:id="reflectionField" text="0.3" prefWidth="50.0" />
+                    </HBox>
+                </HBox>
+            </VBox>
+        </VBox>
+    </content>
+</TitledPane>

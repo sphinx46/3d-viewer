@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.utils;
+package ru.vsu.cs.cg.utils.validation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

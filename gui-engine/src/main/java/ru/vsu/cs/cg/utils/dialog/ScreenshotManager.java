@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.utils;
+package ru.vsu.cs.cg.utils.dialog;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
@@ -6,6 +6,8 @@ import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vsu.cs.cg.utils.validation.InputValidator;
+import ru.vsu.cs.cg.utils.file.PathManager;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -37,11 +39,13 @@ public final class ScreenshotManager {
 
     private static Optional<File> saveScreenshot(Scene scene, File file) {
         try {
+            InputValidator.validateNotNull(scene, "Сцена");
+            InputValidator.validateNotNull(file, "Файл");
+
             String filePath = ensurePngExtension(file.getAbsolutePath());
             File finalFile = new File(filePath);
 
-            PathValidator.ensureDirectoryExists(file.getAbsolutePath());
-            PathValidator.checkWritePermissions(file.getAbsolutePath());
+            PathManager.validatePathForSave(filePath);
             saveImageToFile(scene, finalFile);
 
             LOG.info("Скриншот успешно сохранен: {}", finalFile.getAbsolutePath());
@@ -53,11 +57,8 @@ public final class ScreenshotManager {
     }
 
     private static String ensurePngExtension(String filePath) {
-        String normalizedPath = PathValidator.normalizePath(filePath);
-        if (!normalizedPath.toLowerCase().endsWith(".png")) {
-            return normalizedPath + ".png";
-        }
-        return normalizedPath;
+        InputValidator.validateNotEmpty(filePath, "Путь к файлу");
+        return PathManager.ensureExtension(filePath, ".png");
     }
 
     private static void saveImageToFile(Scene scene, File file) throws IOException {

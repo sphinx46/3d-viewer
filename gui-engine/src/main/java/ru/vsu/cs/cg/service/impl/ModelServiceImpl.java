@@ -7,9 +7,10 @@ import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.objreader.ObjReader;
 import ru.vsu.cs.cg.objwriter.ObjWriter;
 import ru.vsu.cs.cg.service.ModelService;
-import ru.vsu.cs.cg.utils.DefaultModelLoader;
-import ru.vsu.cs.cg.utils.MessageConstants;
-import ru.vsu.cs.cg.utils.PathValidator;
+import ru.vsu.cs.cg.utils.model.DefaultModelLoader;
+import ru.vsu.cs.cg.utils.validation.InputValidator;
+import ru.vsu.cs.cg.utils.constants.MessageConstants;
+import ru.vsu.cs.cg.utils.file.PathManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,15 +43,16 @@ public class ModelServiceImpl implements ModelService {
         LOG.info("Загрузка модели, путь: {}", filePath);
 
         try {
+            InputValidator.validateNotEmpty(filePath, "Путь к файлу модели");
+            PathManager.validatePathForRead(filePath);
+
             String fileContent = readFileContent(filePath);
             return ObjReader.read(fileContent);
         } catch (ModelLoadException e) {
-            LOG.error("Ошибка загрузки модели '{}': {}",
-                filePath, e.getMessage(), e);
+            LOG.error("Ошибка загрузки модели '{}': {}", filePath, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}",
-                filePath, e.getMessage(), e);
+            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", filePath, e.getMessage(), e);
             throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
@@ -78,11 +80,13 @@ public class ModelServiceImpl implements ModelService {
 
         try {
             validateModel(model);
+            InputValidator.validateNotEmpty(filePath, "Путь к файлу");
 
-            String normalizedPath = PathValidator.normalizePath(filePath);
-            PathValidator.validateSavePath(normalizedPath);
+            String normalizedPath = PathManager.normalizePath(filePath);
+            normalizedPath = PathManager.ensureExtension(normalizedPath, ".obj");
+            PathManager.validatePathForSave(normalizedPath);
 
-            String fileName = PathValidator.getFileNameWithoutExtension(normalizedPath);
+            String fileName = PathManager.getFileNameWithoutExtension(normalizedPath);
             LOG.debug("Сохранение файла с именем: {}", fileName);
 
             ObjWriter.write(normalizedPath, model);
@@ -96,9 +100,7 @@ public class ModelServiceImpl implements ModelService {
     }
 
     private void validateModel(Model model) {
-        if (model == null) {
-            throw new IllegalArgumentException("Модель не может быть null");
-        }
+        InputValidator.validateNotNull(model, "Модель");
 
         if (model.getVertices().isEmpty()) {
             LOG.warn("Модель не содержит вершин");

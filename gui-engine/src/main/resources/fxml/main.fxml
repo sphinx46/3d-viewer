@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TreeItem?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="anchorPane" prefHeight="800.0" prefWidth="1400.0" styleClass="root" stylesheets="@/static/css/theme-light.css" xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.MainController">
+    <MenuBar prefHeight="32.0" prefWidth="1400.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <Menu mnemonicParsing="false" text="Файл">
+            <items>
+                <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" text="Открыть модель">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/open.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuFileSave" mnemonicParsing="false" text="Сохранить модель">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/content-save.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <Menu fx:id="menuRecent" mnemonicParsing="false" text="Недавно использованное">
+                    <items>
+                        <SeparatorMenuItem />
+                        <MenuItem fx:id="menuRecentClear" mnemonicParsing="false" text="Очистить список" />
+                    </items>
+                </Menu>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuFileSaveAs" mnemonicParsing="false" text="Сохранить модель как">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/content-save-as.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuFileExit" mnemonicParsing="false" text="Выход">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/exit.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+            </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Сцена">
+            <items>
+                <MenuItem fx:id="menuSceneNew" mnemonicParsing="false" text="Новая сцена">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/create.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuSceneOpen" mnemonicParsing="false" text="Открыть сцену" />
+                <MenuItem fx:id="menuSceneSave" mnemonicParsing="false" text="Сохранить сцену" />
+                <MenuItem fx:id="menuSceneSaveAs" mnemonicParsing="false" text="Сохранить сцену как" />
+                <SeparatorMenuItem />
+                <Menu mnemonicParsing="false" text="Добавить объект">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/right-menu/plus.png" />
+                        </ImageView>
+                    </graphic>
+                    <items>
+                        <Menu mnemonicParsing="false" text="Стандартные объекты">
+                            <items>
+                                <MenuItem fx:id="menuCreatePlane" mnemonicParsing="false" text="Плоскость" />
+                                <MenuItem fx:id="menuCreateCube" mnemonicParsing="false" text="Куб" />
+                                <MenuItem fx:id="menuCreateCone" mnemonicParsing="false" text="Конус" />
+                                <MenuItem fx:id="menuCreateCylinder" mnemonicParsing="false" text="Цилиндр" />
+                                <MenuItem fx:id="menuCreateTeapot" mnemonicParsing="false" text="Чайник" />
+                            </items>
+                        </Menu>
+                        <MenuItem fx:id="menuFileNewCustom" mnemonicParsing="false" text="Пользовательский объект" />
+                    </items>
+                </Menu>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuSceneReset" mnemonicParsing="false" text="Сбросить изменения" />
+            </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Правка">
+            <items>
+                <MenuItem fx:id="menuEditCopy" mnemonicParsing="false" text="Копировать">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/copy.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuEditPaste" mnemonicParsing="false" text="Вставить">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/paste.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuEditDuplicate" mnemonicParsing="false" text="Дублировать" />
+                <MenuItem fx:id="menuEditDelete" mnemonicParsing="false" text="Удалить">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/delete.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuEditSettings" mnemonicParsing="false" text="Настройки">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/settings.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+            </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Окно">
+            <items>
+                <MenuItem fx:id="menuWindowNew" mnemonicParsing="false" text="Новое окно">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/new-window-open.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuWindowFullscreen" mnemonicParsing="false" text="Полноэкранный режим">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/fullscreen.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuWindowScreenshot" mnemonicParsing="false" text="Сделать снимок экрана">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/screenshot.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <Menu mnemonicParsing="false" text="Расположение окон">
+                    <items>
+                        <MenuItem fx:id="menuWindowDefault" mnemonicParsing="false" text="По умолчанию" />
+                        <MenuItem fx:id="menuWindowHorizontal" mnemonicParsing="false" text="Горизонтальное" />
+                        <MenuItem fx:id="menuWindowVertical" mnemonicParsing="false" text="Вертикальное" />
+                        <MenuItem fx:id="menuWindowCascade" mnemonicParsing="false" text="Каскадом" />
+                    </items>
+                </Menu>
+            </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Тема">
+            <graphic>
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/top-menu/theme.png" />
+                </ImageView>
+            </graphic>
+            <items>
+                <MenuItem fx:id="menuThemeDark" mnemonicParsing="false" text="Темная" />
+                <MenuItem fx:id="menuThemeLight" mnemonicParsing="false" text="Светлая" />
+            </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Справка">
+            <items>
+                <MenuItem fx:id="menuHelpDocumentation" mnemonicParsing="false" text="Документация">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/documentation.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuHelpShortcuts" mnemonicParsing="false" text="Горячие клавиши">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/keyboard.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuHelpBugReport" mnemonicParsing="false" text="Сообщить об ошибке">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/bug.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuHelpAbout" mnemonicParsing="false" text="О программе">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/help.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+            </items>
+        </Menu>
+    </MenuBar>
+    <HBox layoutY="32.0" prefHeight="768.0" prefWidth="1400.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
+        <VBox prefWidth="80.0" styleClass="left-panel">
+            <padding>
+                <Insets top="200.0" />
+            </padding>
+            <VBox alignment="CENTER" spacing="20" VBox.vgrow="ALWAYS">
+                <VBox alignment="CENTER" spacing="20.0">
+                    <Button fx:id="selectToolButton" maxWidth="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" styleClass="tool-button">
+                        <graphic>
+                            <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                                <Image url="@/static/images/icons/left-menu/cursor-pointer.png" />
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="moveToolButton" maxWidth="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" styleClass="tool-button">
+                        <graphic>
+                            <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                                <Image url="@/static/images/icons/left-menu/move.png" />
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="rotateToolButton" maxWidth="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" styleClass="tool-button">
+                        <graphic>
+                            <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                                <Image url="@/static/images/icons/left-menu/rotate-3d.png" />
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="scaleToolButton" maxWidth="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" styleClass="tool-button">
+                        <graphic>
+                            <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
+                                <Image url="@/static/images/icons/left-menu/scale.png" />
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                </VBox>
+                <Pane VBox.vgrow="ALWAYS" />
+            </VBox>
+        </VBox>
+        <HBox HBox.hgrow="ALWAYS">
+            <BorderPane HBox.hgrow="ALWAYS">
+                <center>
+                    <StackPane fx:id="viewerContainer" style="-fx-background-color: #1e1e1e;" />
+                </center>
+            </BorderPane>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="350.0" vbarPolicy="AS_NEEDED">
+                <VBox spacing="15" style="-fx-padding: 15;">
+                    <TitledPane animated="false" collapsible="true" text="Сцена">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="5">
+                                <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
+                                    <Image url="@/static/images/icons/right-menu/collection.png" />
+                                </ImageView>
+                            </HBox>
+                        </graphic>
+                        <content>
+                            <VBox spacing="8">
+                                <HBox spacing="8">
+                                    <Button fx:id="addObjectButton" style="-fx-font-weight: bold;" text="Добавить">
+                                        <graphic>
+                                            <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                <Image url="@/static/images/icons/right-menu/plus.png" />
+                                            </ImageView>
+                                        </graphic>
+                                    </Button>
+                                    <Button fx:id="deleteObjectButton" style="-fx-font-weight: bold;" text="Удалить">
+                                        <graphic>
+                                            <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                <Image url="@/static/images/icons/right-menu/minus.png" />
+                                            </ImageView>
+                                        </graphic>
+                                    </Button>
+                                    <Button fx:id="duplicateObjectButton" style="-fx-font-weight: bold;" text="Дублировать" />
+                                </HBox>
+                                <TreeView fx:id="sceneTreeView" prefHeight="150.0" style="-fx-font-size: 13px;">
+                                    <TreeItem expanded="true" value="Коллекция сцены">
+                                        <graphic>
+                                            <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                <Image url="@/static/images/icons/right-menu/collection.png" />
+                                            </ImageView>
+                                        </graphic>
+                                        <children>
+                                            <TreeItem value="Коллекция">
+                                                <graphic>
+                                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                        <Image url="@/static/images/icons/right-menu/collection.png" />
+                                                    </ImageView>
+                                                </graphic>
+                                            </TreeItem>
+                                            <TreeItem value="Камера">
+                                                <graphic>
+                                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                        <Image url="@/static/images/icons/right-menu/camera.png" />
+                                                    </ImageView>
+                                                </graphic>
+                                            </TreeItem>
+                                            <TreeItem value="Куб">
+                                                <graphic>
+                                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                        <Image url="@/static/images/icons/right-menu/cube.png" />
+                                                    </ImageView>
+                                                </graphic>
+                                            </TreeItem>
+                                            <TreeItem value="Свет">
+                                                <graphic>
+                                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                        <Image url="@/static/images/icons/right-menu/lightbulb.png" />
+                                                    </ImageView>
+                                                </graphic>
+                                            </TreeItem>
+                                        </children>
+                                    </TreeItem>
+                                </TreeView>
+                            </VBox>
+                        </content>
+                    </TitledPane>
+                    <fx:include fx:id="transformPanel" source="transform-panel.fxml" />
+                    <fx:include fx:id="materialPanel" source="material-panel.fxml" />
+                </VBox>
+            </ScrollPane>
+        </HBox>
+    </HBox>
+</AnchorPane>

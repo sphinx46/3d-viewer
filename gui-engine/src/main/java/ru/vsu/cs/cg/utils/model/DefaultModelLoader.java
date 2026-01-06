@@ -1,10 +1,11 @@
-package ru.vsu.cs.cg.utils;
+package ru.vsu.cs.cg.utils.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.exceptions.ModelLoadException;
 import ru.vsu.cs.cg.objreader.ObjReader;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.utils.constants.MessageConstants;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +51,7 @@ public final class DefaultModelLoader {
         if (path == null) {
             LOG.error("Неизвестный тип модели: {}", modelType);
             throw new ModelLoadException(
-                MessageConstants.UNKNOWN_MODEL_TYPE + " " + modelType
+                ru.vsu.cs.cg.utils.constants.MessageConstants.UNKNOWN_MODEL_TYPE + " " + modelType
             );
         }
 
@@ -60,7 +61,7 @@ public final class DefaultModelLoader {
             if (inputStream == null) {
                 LOG.error("Файл модели не найден: {}", path);
                 throw new IOException(
-                    MessageConstants.MODEL_FILE_NOT_FOUND + " " + path
+                    ru.vsu.cs.cg.utils.constants.MessageConstants.MODEL_FILE_NOT_FOUND + " " + path
                 );
             }
 

@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.utils;
+package ru.vsu.cs.cg.utils.cache;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

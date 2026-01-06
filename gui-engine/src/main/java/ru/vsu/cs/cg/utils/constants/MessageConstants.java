@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.utils;
+package ru.vsu.cs.cg.utils.constants;
 
 public final class MessageConstants {
 

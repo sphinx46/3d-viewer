@@ -13,11 +13,11 @@ import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.json.JavaFxJacksonModule;
 import ru.vsu.cs.cg.service.ModelService;
 import ru.vsu.cs.cg.service.SceneService;
-import ru.vsu.cs.cg.utils.DefaultModelLoader;
-import ru.vsu.cs.cg.utils.MessageConstants;
-import ru.vsu.cs.cg.utils.PathValidator;
+import ru.vsu.cs.cg.utils.model.DefaultModelLoader;
+import ru.vsu.cs.cg.utils.validation.InputValidator;
+import ru.vsu.cs.cg.utils.constants.MessageConstants;
+import ru.vsu.cs.cg.utils.file.PathManager;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -28,7 +28,6 @@ public class SceneServiceImpl implements SceneService {
     private static final Logger LOG = LoggerFactory.getLogger(SceneServiceImpl.class);
 
     private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
-
     private static final String SCENE_EXTENSION = ".3dscene";
 
     private final ModelService modelService;
@@ -63,7 +62,12 @@ public class SceneServiceImpl implements SceneService {
         LOG.info("Загрузка сцены из файла: {}", filePath);
 
         try {
-            validateSceneFilePath(filePath);
+            InputValidator.validateNotEmpty(filePath, "Путь к файлу сцены");
+            PathManager.validatePathForRead(filePath);
+
+            if (!PathManager.isSupportedSceneFormat(filePath)) {
+                LOG.warn("Файл сцены имеет нестандартное расширение: {}", filePath);
+            }
 
             String content = new String(Files.readAllBytes(Paths.get(filePath)));
             Scene scene = OBJECT_MAPPER.readValue(content, Scene.class);
@@ -87,10 +91,11 @@ public class SceneServiceImpl implements SceneService {
 
         try {
             validateScene(scene);
+            InputValidator.validateNotEmpty(filePath, "Путь к файлу");
 
-            String normalizedPath = PathValidator.normalizePath(filePath);
-            ensureSceneExtension(normalizedPath);
-            PathValidator.validateSavePath(normalizedPath);
+            String normalizedPath = PathManager.normalizePath(filePath);
+            normalizedPath = PathManager.ensureExtension(normalizedPath, SCENE_EXTENSION);
+            PathManager.validatePathForSave(normalizedPath);
 
             String json = OBJECT_MAPPER.writeValueAsString(scene);
             Files.write(Paths.get(normalizedPath), json.getBytes());
@@ -109,9 +114,15 @@ public class SceneServiceImpl implements SceneService {
         LOG.info("Добавление модели в сцену: {}", modelFilePath);
 
         try {
+            InputValidator.validateNotEmpty(modelFilePath, "Путь к файлу модели");
+            PathManager.validatePathForRead(modelFilePath);
+
+            if (!PathManager.isSupported3DFormat(modelFilePath)) {
+                LOG.warn("Файл модели имеет нестандартное расширение: {}", modelFilePath);
+            }
+
             Model model = modelService.loadModel(modelFilePath);
-            String modelName = new File(modelFilePath).getName();
-            modelName = modelName.substring(0, modelName.lastIndexOf('.'));
+            String modelName = PathManager.getFileNameWithoutExtension(modelFilePath);
 
             SceneObject sceneObject = createUniqueSceneObject(scene, modelName, model);
             scene.addObject(sceneObject);
@@ -130,6 +141,7 @@ public class SceneServiceImpl implements SceneService {
         LOG.info("Добавление стандартной модели в сцену: {}", modelType);
 
         try {
+            InputValidator.validateNotEmpty(modelType, "Тип модели");
             DefaultModelLoader.ModelType type = DefaultModelLoader.ModelType.valueOf(modelType.toUpperCase());
             Model model = modelService.loadDefaultModel(type);
 
@@ -174,6 +186,9 @@ public class SceneServiceImpl implements SceneService {
     }
 
     private SceneObject createUniqueSceneObject(Scene scene, String baseName, Model model) {
+        InputValidator.validateNotEmpty(baseName, "Базовое имя объекта");
+        InputValidator.validateNotNull(model, "Модель");
+
         String uniqueName = baseName;
         int counter = 1;
 
@@ -185,37 +200,9 @@ public class SceneServiceImpl implements SceneService {
     }
 
     private void validateScene(Scene scene) {
-        if (scene == null) {
-            throw new IllegalArgumentException("Сцена не может быть null");
-        }
-
-        if (scene.getName() == null || scene.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя сцены не может быть пустым");
-        }
+        InputValidator.validateNotNull(scene, "Сцена");
+        InputValidator.validateNotEmpty(scene.getName(), "Имя сцены");
 
         LOG.debug("Сцена валидирована: name='{}', objects={}", scene.getName(), scene.getObjectCount());
-    }
-
-    private void validateSceneFilePath(String filePath) {
-        if (filePath == null || filePath.trim().isEmpty()) {
-            throw new IllegalArgumentException("Путь к файлу сцены не может быть пустым");
-        }
-
-        File file = new File(filePath);
-        if (!file.exists()) {
-            throw new IllegalArgumentException("Файл сцены не найден: " + filePath);
-        }
-
-        if (!filePath.toLowerCase().endsWith(SCENE_EXTENSION)) {
-            LOG.warn("Файл сцены имеет нестандартное расширение: {}", filePath);
-        }
-    }
-
-    private void ensureSceneExtension(String filePath) {
-        String normalized = PathValidator.normalizePath(filePath);
-        if (!normalized.toLowerCase().endsWith(SCENE_EXTENSION)) {
-            String newPath = normalized + SCENE_EXTENSION;
-            LOG.debug("Добавлено расширение .3dscene к пути: {}", newPath);
-        }
     }
 }
