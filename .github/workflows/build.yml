@@ -2,7 +2,7 @@ name: Test & Build
 
 on:
   push:
-    branches: [main, develop-main, develop/**, feature/**]
+    branches: [main, develop-main, develop/**]
   pull_request:
     branches: [main, develop-main]
   workflow_dispatch:
@@ -20,17 +20,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
 
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2-
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
 
       - name: Run tests
-        run: mvn -B clean verify
+        run: ./mvnw -B clean verify
 
   build:
     name: Build
@@ -46,10 +41,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
+
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
 
       - name: Build all modules
-        run: mvn -B clean package -DskipTests
+        run: ./mvnw -B clean package -DskipTests
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
