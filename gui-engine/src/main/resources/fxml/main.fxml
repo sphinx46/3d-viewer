@@ -288,45 +288,7 @@
                                     </Button>
                                     <Button fx:id="duplicateObjectButton" style="-fx-font-weight: bold;" text="Дублировать" />
                                 </HBox>
-                                <TreeView fx:id="sceneTreeView" prefHeight="150.0" style="-fx-font-size: 13px;">
-                                    <TreeItem expanded="true" value="Коллекция сцены">
-                                        <graphic>
-                                            <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                                                <Image url="@/static/images/icons/right-menu/collection.png" />
-                                            </ImageView>
-                                        </graphic>
-                                        <children>
-                                            <TreeItem value="Коллекция">
-                                                <graphic>
-                                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                                                        <Image url="@/static/images/icons/right-menu/collection.png" />
-                                                    </ImageView>
-                                                </graphic>
-                                            </TreeItem>
-                                            <TreeItem value="Камера">
-                                                <graphic>
-                                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                                                        <Image url="@/static/images/icons/right-menu/camera.png" />
-                                                    </ImageView>
-                                                </graphic>
-                                            </TreeItem>
-                                            <TreeItem value="Куб">
-                                                <graphic>
-                                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                                                        <Image url="@/static/images/icons/right-menu/cube.png" />
-                                                    </ImageView>
-                                                </graphic>
-                                            </TreeItem>
-                                            <TreeItem value="Свет">
-                                                <graphic>
-                                                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                                                        <Image url="@/static/images/icons/right-menu/lightbulb.png" />
-                                                    </ImageView>
-                                                </graphic>
-                                            </TreeItem>
-                                        </children>
-                                    </TreeItem>
-                                </TreeView>
+                                <TreeView fx:id="sceneTreeView" prefHeight="150.0" style="-fx-font-size: 13px;" />
                             </VBox>
                         </content>
                     </TitledPane>

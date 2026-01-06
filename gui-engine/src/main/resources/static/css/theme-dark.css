@@ -3,7 +3,7 @@
     -fx-focus-color: -fx-accent;
     -fx-base: #2b2b2b;
     -fx-control-inner-background: derive(-fx-base, 35%);
-    -fx-control-inner-background-alt: -fx-control-inner-background ;
+    -fx-control-inner-background-alt: -fx-control-inner-background;
 }
 
 .menu-bar {
@@ -47,24 +47,16 @@
     -fx-border-radius: 6;
     -fx-border-width: 1;
     -fx-padding: 8;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 6, 0, 0, 3);
-    -fx-transition: all 0.2s;
 }
 
 .tool-button:hover {
     -fx-background-color: derive(-fx-base, 40%);
     -fx-border-color: #1e74c6;
-    -fx-effect: dropshadow(gaussian, rgba(30,116,198,0.7), 10, 0, 0, 4);
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
 }
 
 .tool-button:selected {
     -fx-background-color: #1e74c6;
     -fx-border-color: #1e74c6;
-    -fx-effect: dropshadow(gaussian, rgba(30,116,198,0.9), 12, 0, 0, 5);
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
 }
 
 .titled-pane {
@@ -77,15 +69,6 @@
     -fx-background-color: derive(-fx-base, 20%);
     -fx-border-color: #3C3C3C;
     -fx-padding: 8 12;
-    -fx-font-weight: bold;
-}
-
-.titled-pane:collapsed > .title {
-    -fx-background-color: derive(-fx-base, 20%);
-}
-
-.titled-pane:expanded > .title {
-    -fx-background-color: derive(-fx-base, 25%);
 }
 
 .titled-pane > .content {
@@ -98,16 +81,6 @@
     -fx-text-fill: lightgray;
 }
 
-.titled-pane:collapsed > .title > .text {
-    -fx-fill: lightgray;
-    -fx-text-fill: lightgray;
-}
-
-.titled-pane:expanded > .title > .text {
-    -fx-fill: lightgray;
-    -fx-text-fill: lightgray;
-}
-
 .tree-view {
     -fx-background-color: derive(-fx-base, 15%);
     -fx-border-color: #3C3C3C;
@@ -115,14 +88,17 @@
 
 .tree-cell {
     -fx-text-fill: lightgray;
+    -fx-background-color: transparent;
+    -fx-padding: 3 5;
 }
 
 .tree-cell:hover {
-    -fx-background-color: derive(-fx-base, 30%);
+    -fx-background-color: #3a3a3a;
 }
 
 .tree-cell:selected {
-    -fx-background-color: derive(-fx-base, 40%);
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
 }
 
 .button {
@@ -134,36 +110,23 @@
     -fx-border-color: derive(-fx-base, 50%);
     -fx-border-radius: 4;
     -fx-border-width: 1;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 1);
 }
 
 .button:hover {
     -fx-background-color: derive(-fx-base, 40%);
     -fx-text-fill: white;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0, 0, 2);
 }
 
 .button:pressed {
     -fx-background-color: #1e74c6;
     -fx-border-color: #1e74c6;
     -fx-text-fill: white;
-    -fx-effect: dropshadow(gaussian, rgba(30,116,198,0.6), 7, 0, 0, 3);
-    -fx-translate-y: 1px;
-}
-
-.button:default {
-    -fx-base: -fx-accent ;
 }
 
 .text-field, .color-picker {
     -fx-background-color: derive(-fx-base, 35%);
     -fx-border-color: #3C3C3C;
     -fx-text-fill: lightgray;
-}
-
-.text-field {
-    -fx-prompt-text-fill: gray;
 }
 
 .text-field:focused, .color-picker:focused {
@@ -176,11 +139,6 @@
 
 .slider .thumb {
     -fx-background-color: #1e74c6;
-    -fx-effect: dropshadow(gaussian, rgba(30,116,198,0.5), 4, 0, 0, 2);
-}
-
-.slider .axis {
-    -fx-tick-label-fill: lightgray;
 }
 
 .check-box {
@@ -204,13 +162,8 @@
     -fx-background-color: derive(-fx-base, 60%);
 }
 
-.scroll-bar .thumb:hover {
-    -fx-background-color: derive(-fx-base, 70%);
-}
-
 .separator *.line {
     -fx-background-color: #3C3C3C;
-    -fx-border-style: solid;
     -fx-border-width: 1px;
 }
 
@@ -225,36 +178,3 @@
 .anchor-pane {
     -fx-background-color: -fx-base;
 }
-
-.color-picker .color-picker-label .text {
-    -fx-fill: lightgray;
-}
-
-.scroll-pane:focused {
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.list-cell:even,
-.list-cell:odd,
-.table-row-cell:even,
-.table-row-cell:odd {
-    -fx-control-inner-background: derive(-fx-base, 15%);
-}
-
-.list-cell,
-.table-row-cell {
-    -fx-border-color: transparent;
-    -fx-table-cell-border-color: transparent;
-}
-
-.titulo {
-    -fx-font-weight: bold;
-    -fx-font-size: 18px;
-}
-
-.tree-view .column-header .label {
-    -fx-alignment: CENTER_LEFT;
-    -fx-font-weight: none;
-}
-

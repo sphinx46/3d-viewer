@@ -48,24 +48,16 @@
     -fx-border-radius: 6;
     -fx-border-width: 1;
     -fx-padding: 8;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 3);
-    -fx-transition: all 0.2s;
 }
 
 .tool-button:hover {
     -fx-background-color: #f8f8f8;
     -fx-border-color: #1e74c6;
-    -fx-effect: dropshadow(gaussian, rgba(30,116,198,0.3), 10, 0, 0, 4);
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
 }
 
 .tool-button:selected {
     -fx-background-color: #1e74c6;
     -fx-border-color: #1e74c6;
-    -fx-effect: dropshadow(gaussian, rgba(30,116,198,0.5), 12, 0, 0, 5);
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
 }
 
 .titled-pane {
@@ -78,15 +70,6 @@
     -fx-background-color: #ffffff;
     -fx-border-color: #dddddd;
     -fx-padding: 8 12;
-    -fx-font-weight: bold;
-}
-
-.titled-pane:collapsed > .title {
-    -fx-background-color: #ffffff;
-}
-
-.titled-pane:expanded > .title {
-    -fx-background-color: #f8f8f8;
 }
 
 .titled-pane > .content {
@@ -106,14 +89,17 @@
 
 .tree-cell {
     -fx-text-fill: #333333;
+    -fx-background-color: transparent;
+    -fx-padding: 3 5;
 }
 
 .tree-cell:hover {
-    -fx-background-color: #f8f8f8;
+    -fx-background-color: #f0f0f0;
 }
 
 .tree-cell:selected {
-    -fx-background-color: #e8f0fe;
+    -fx-background-color: #1e74c6;
+    -fx-text-fill: white;
 }
 
 .button {
@@ -125,36 +111,23 @@
     -fx-border-color: #dddddd;
     -fx-border-radius: 4;
     -fx-border-width: 1;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
 }
 
 .button:hover {
     -fx-background-color: #f8f8f8;
     -fx-text-fill: #1e74c6;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
 }
 
 .button:pressed {
     -fx-background-color: #1e74c6;
     -fx-border-color: #1e74c6;
     -fx-text-fill: #ffffff;
-    -fx-effect: dropshadow(gaussian, rgba(30,116,198,0.3), 7, 0, 0, 3);
-    -fx-translate-y: 1px;
-}
-
-.button:default {
-    -fx-base: -fx-accent;
 }
 
 .text-field, .color-picker {
     -fx-background-color: #ffffff;
     -fx-border-color: #dddddd;
     -fx-text-fill: #333333;
-}
-
-.text-field {
-    -fx-prompt-text-fill: #888888;
 }
 
 .text-field:focused, .color-picker:focused {
@@ -167,11 +140,6 @@
 
 .slider .thumb {
     -fx-background-color: #1e74c6;
-    -fx-effect: dropshadow(gaussian, rgba(30,116,198,0.3), 4, 0, 0, 2);
-}
-
-.slider .axis {
-    -fx-tick-label-fill: #333333;
 }
 
 .check-box {
@@ -195,13 +163,8 @@
     -fx-background-color: #dddddd;
 }
 
-.scroll-bar .thumb:hover {
-    -fx-background-color: #cccccc;
-}
-
 .separator *.line {
     -fx-background-color: #dddddd;
-    -fx-border-style: solid;
     -fx-border-width: 1px;
 }
 
@@ -217,89 +180,8 @@
     -fx-background-color: #ffffff;
 }
 
-.color-picker .color-picker-label .text {
-    -fx-fill: #333333;
-}
-
-.scroll-pane:focused {
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.list-cell:even,
-.list-cell:odd,
-.table-row-cell:even,
-.table-row-cell:odd {
-    -fx-control-inner-background: #ffffff;
-}
-
-.list-cell,
-.table-row-cell {
-    -fx-border-color: transparent;
-    -fx-table-cell-border-color: transparent;
-}
-
-.titulo {
-    -fx-font-weight: bold;
-    -fx-font-size: 18px;
-}
-
-.tree-view .column-header .label {
-    -fx-alignment: CENTER_LEFT;
-    -fx-font-weight: none;
-}
-
-.vbox {
-    -fx-background-color: #ffffff;
-}
-
-.hbox {
-    -fx-background-color: #ffffff;
-}
-
-.pane {
-    -fx-background-color: #ffffff;
-}
-
-.split-pane {
-    -fx-background-color: #ffffff;
-}
-
-.border-pane {
-    -fx-background-color: #ffffff;
-}
-
-.stack-pane {
-    -fx-background-color: #ffffff;
-}
-
-.grid-pane {
-    -fx-background-color: #ffffff;
-}
-
-.scroll-pane {
-    -fx-background-color: #ffffff;
-}
-
-.scroll-pane > .viewport {
-    -fx-background-color: #ffffff;
-}
-
-.scroll-pane .content {
-    -fx-background-color: #ffffff;
-}
-
-.tool-bar {
-    -fx-background-color: #ffffff;
-}
-
-.status-bar {
-    -fx-background-color: #ffffff;
-}
-
 .left-panel {
     -fx-background-color: #ffffff;
     -fx-border-color: #dddddd;
     -fx-border-width: 0 1 0 0;
 }
-
