@@ -239,21 +239,26 @@ public class MainController {
 
     private void updateRecentFilesMenu() {
         try {
-            menuRecent.getItems().removeIf(item -> !item.equals(menuRecentClear) && !(item instanceof SeparatorMenuItem));
+            menuRecent.getItems().clear();
 
             List<String> recentFiles = recentFilesCacheService.getRecentFiles();
+
             if (recentFiles.isEmpty()) {
                 MenuItem emptyItem = new MenuItem("Нет недавних файлов");
                 emptyItem.setDisable(true);
                 menuRecent.getItems().add(emptyItem);
+                menuRecent.getItems().add(new SeparatorMenuItem());
             } else {
-                recentFiles.forEach(filePath -> {
+                for (String filePath : recentFiles) {
                     String fileName = ControllerUtils.getFileName(filePath);
                     MenuItem fileItem = new MenuItem(fileName);
                     fileItem.setOnAction(event -> openRecentFile(filePath));
                     menuRecent.getItems().add(fileItem);
-                });
+                }
             }
+
+            menuRecent.getItems().add(new SeparatorMenuItem());
+            menuRecent.getItems().add(menuRecentClear);
 
             LOG.debug("Меню недавних файлов обновлено: {} файлов", recentFiles.size());
         } catch (Exception e) {
