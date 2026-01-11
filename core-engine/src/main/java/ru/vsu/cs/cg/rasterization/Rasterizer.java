@@ -83,6 +83,14 @@ public class Rasterizer {
                 normal1, normal3,
                 texture, lightDirection, settings
         );
+
+        if (settings.isDrawPolygonalGrid()){
+            Color gridColor = settings.getGridColor();
+
+            drawLine(pixelWriter, vertex1, vertex2, gridColor);
+            drawLine(pixelWriter, vertex2, vertex3, gridColor);
+            drawLine(pixelWriter, vertex1, vertex3, gridColor);
+        }
     }
 
 
@@ -203,6 +211,62 @@ public class Rasterizer {
     }
 
     // --- Вспомогательные методы ---
+
+
+    private void drawLine(PixelWriter pixelWriter, Vector3f start, Vector3f end, Color color) {
+        int x0 = (int) start.getX();
+        int y0 = (int) start.getY();
+        int x1 = (int) end.getX();
+        int y1 = (int) end.getY();
+
+        float zStart = Math.max(start.getZ(), EPSILON);
+        float zEnd = Math.max(end.getZ(), EPSILON);
+        float invZStart = 1.0f / zStart;
+        float invZEnd = 1.0f / zEnd;
+
+        int dx = Math.abs(x1 - x0);
+        int dy = Math.abs(y1 - y0);
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+        int err = dx - dy;
+
+        float totalDist = Math.max(dx, dy);
+        if (totalDist == 0) return;
+
+        int x = x0;
+        int y = y0;
+
+        float stepCount = 0;
+
+        while (true) {
+            float t = stepCount / totalDist;
+            float currentInvZ = interpolate(invZStart, invZEnd, t);
+            float currentZ = 1.0f / currentInvZ;
+
+            float biasFactor = 0.003f;
+            float offset = currentZ * biasFactor;
+
+            float biasedZ = currentZ - offset;
+
+            if (zBuffer.checkAndSet(x, y, biasedZ)) {
+                pixelWriter.setPixel(x, y, color);
+            }
+
+            if (x == x1 && y == y1) break;
+
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y += sy;
+            }
+
+            stepCount++;
+        }
+    }
 
     /**
      * Применение освещения с учетом добавления ambientLight
