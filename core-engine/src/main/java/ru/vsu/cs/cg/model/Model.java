@@ -247,30 +247,71 @@ public final class Model {
         return new Model(vertices, textureVertices, normals, polygons);
     }
 
+    /**
+     * Устанавливает вектор смещения (переноса) модели.
+     * Определяет положение модели в мировом пространстве относительно начала координат (0,0,0).
+     *
+     * @param translation Вектор смещения (x, y, z).
+     */
     public void setTranslation(Vector3f translation) {
         this.translation = translation;
     }
 
+    /**
+     * Возвращает текущий вектор смещения модели.
+     *
+     * @return Вектор смещения.
+     */
     public Vector3f getTranslation() {
         return translation;
     }
 
+    /**
+     * Устанавливает вектор вращения модели.
+     *
+     * @param rotation Вектор углов поворота вокруг осей X, Y, Z (в радианах).
+     */
     public void setRotation(Vector3f rotation) {
         this.rotation = rotation;
     }
 
+    /**
+     * Возвращает текущий вектор вращения модели.
+     *
+     * @return Вектор углов поворота.
+     */
     public Vector3f getRotation() {
         return rotation;
     }
 
+    /**
+     * Устанавливает вектор масштабирования модели.
+     * Значение 1.0 означает исходный размер (100%).
+     *
+     * @param scale Вектор масштаба по осям X, Y, Z.
+     */
     public void setScale(Vector3f scale) {
         this.scale = scale;
     }
 
+    /**
+     * Возвращает текущий вектор масштабирования модели.
+     *
+     * @return Вектор масштаба.
+     */
     public Vector3f getScale() {
         return scale;
     }
 
+    /**
+     * Применяет текущие параметры трансформации (Scale, Rotation, Translation) ко всем вершинам модели
+     * и возвращает их новые координаты в мировом пространстве.
+     * Исходные вершины модели при этом не изменяются.
+     * Метод используется для сохранения трансформированной модели в файл
+     * или для отладки позиционирования.
+     *
+     * @return Новый список вершин с примененными трансформациями.
+     */
     public List<Vector3f> getTransformedVertices() {
         List<Vector3f> transformedVertices = new ArrayList<>(vertices.size());
 

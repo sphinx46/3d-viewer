@@ -7,6 +7,14 @@ import ru.vsu.cs.cg.math.Vector4f;
 
 public class GraphicConveyor {
 
+    /**
+     * Создает матрицу переноса.
+     *
+     * @param tx Смещение по оси X.
+     * @param ty Смещение по оси Y.
+     * @param tz Смещение по оси Z.
+     * @return Матрица 4x4, где значения смещения находятся в последнем столбце.
+     */
     public static Matrix4x4 translate(float tx, float ty, float tz) {
         Matrix4x4 matrix = new Matrix4x4();
         matrix.set(0, 3, tx);
@@ -15,6 +23,14 @@ public class GraphicConveyor {
         return matrix;
     }
 
+    /**
+     * Создает матрицу масштабирования.
+     *
+     * @param sx Коэффициент масштаба по оси X.
+     * @param sy Коэффициент масштаба по оси Y.
+     * @param sz Коэффициент масштаба по оси Z.
+     * @return Диагональная матрица 4x4.
+     */
     public static Matrix4x4 scale(float sx, float sy, float sz) {
         Matrix4x4 matrix = new Matrix4x4();
         matrix.set(0, 0, sx);
@@ -23,6 +39,12 @@ public class GraphicConveyor {
         return matrix;
     }
 
+    /**
+     * Создает матрицу поворота вокруг оси X.
+     *
+     * @param angle Угол поворота.
+     * @return Матрица поворота.
+     */
     public static Matrix4x4 rotateX(float angle) {
         Matrix4x4 matrix = new Matrix4x4();
         float cos = (float) Math.cos(angle);
@@ -35,6 +57,12 @@ public class GraphicConveyor {
         return matrix;
     }
 
+    /**
+     * Создает матрицу поворота вокруг оси Y.
+     *
+     * @param angle Угол поворота.
+     * @return Матрица поворота.
+     */
     public static Matrix4x4 rotateY(float angle) {
         Matrix4x4 matrix = new Matrix4x4();
         float cos = (float) Math.cos(angle);
@@ -47,6 +75,12 @@ public class GraphicConveyor {
         return matrix;
     }
 
+    /**
+     * Создает матрицу поворота вокруг оси Z.
+     *
+     * @param angle Угол поворота.
+     * @return Матрица поворота.
+     */
     public static Matrix4x4 rotateZ(float angle) {
         Matrix4x4 matrix = new Matrix4x4();
         float cos = (float) Math.cos(angle);
@@ -59,6 +93,16 @@ public class GraphicConveyor {
         return matrix;
     }
 
+    /**
+     * Собирает единую матрицу модели.
+     * Переводит координаты вершины из локальных координат модели в мировые координаты.
+     *  Итоговая формула: M = Translation * Rotation * Scale
+     *
+     * @param translation Вектор смещения.
+     * @param rotation    Вектор углов поворота по осям X, Y, Z (в радианах).
+     * @param scale       Вектор масштабирования.
+     * @return Итоговая матрица модели (Model Matrix).
+     */
     public static Matrix4x4 rotateScaleTranslate(Vector3f translation, Vector3f rotation, Vector3f scale) {
         Matrix4x4 scaleM = scale(scale.getX(), scale.getY(), scale.getZ());
 
@@ -73,10 +117,28 @@ public class GraphicConveyor {
         return translationM.multiply(rotationM).multiply(scaleM);
     }
 
+    /**
+     * Создает матрицу вида на основе параметров камеры (LookAt).
+     * Переводит координаты из мировых координат в пространство камеры.
+     * В качестве вектора "Вверх" (Up) по умолчанию используется (0, 1, 0).
+     *
+     * @param eye    Позиция камеры (глаза наблюдателя).
+     * @param target Точка, в которую смотрит камера.
+     * @return Матрица вида.
+     */
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target) {
         return lookAt(eye, target, new Vector3f(0F, 1.0F, 0F));
     }
 
+
+    /**
+     * Создает матрицу вида с произвольным вектором "Вверх".
+     *
+     * @param eye    Позиция камеры.
+     * @param target Точка, в которую смотрит камера.
+     * @param up     Вектор направления "Вверх" для камеры.
+     * @return Матрица вида.
+     */
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
         Vector3f resultZ = target.subtract(eye);
 
@@ -112,6 +174,17 @@ public class GraphicConveyor {
         return matrix;
     }
 
+    /**
+     * Создает матрицу перспективной проекции.
+     * Переводит координаты из пространства камеры в пространство отсечения.
+     * Определяет форму усеченной пирамиды видимости.
+     *
+     * @param fov         Угол обзора по вертикали.
+     * @param aspectRatio Соотношение сторон экрана (ширина / высота).
+     * @param nearPlane   Расстояние до ближней плоскости отсечения.
+     * @param farPlane    Расстояние до дальней плоскости отсечения.
+     * @return Матрица проекции.
+     */
     public static Matrix4x4 perspective(float fov, float aspectRatio, float nearPlane, float farPlane) {
         Matrix4x4 matrix = new Matrix4x4();
         matrix.makeZero();
@@ -127,6 +200,16 @@ public class GraphicConveyor {
         return matrix;
     }
 
+    /**
+     * Преобразует нормализованные координаты устройства (NDC) в экранные координаты (пиксели).
+     * NDC координаты находятся в диапазоне [-1, 1].
+     * Экранные координаты находятся в диапазоне [0, width] и [0, height].
+     *
+     * @param vertex Нормализованные координаты (x, y от -1 до 1).
+     * @param width  Ширина экрана.
+     * @param height Высота экрана.
+     * @return Вектор 2f с координатами пикселя (x, y).
+     */
     public static Vector2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
         return new Vector2f(
                 vertex.getX() * width + width / 2.0F,
@@ -134,6 +217,14 @@ public class GraphicConveyor {
         );
     }
 
+    /**
+     * Применяет матричное преобразование к трехмерному вектору.
+     * Выполняет следующие шаги:
+     *
+     * @param matrix Матрица преобразования.
+     * @param vertex Исходный вектор.
+     * @return Преобразованный вектор в нормализованных координатах (если была применена проекция).
+     */
     public static Vector3f multiplyMatrix4ByVector3(Matrix4x4 matrix, Vector3f vertex) {
         Vector4f vertex4 = new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
         Vector4f result4 = matrix.multiply(vertex4);
