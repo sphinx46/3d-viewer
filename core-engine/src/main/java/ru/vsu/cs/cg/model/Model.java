@@ -3,7 +3,8 @@ package ru.vsu.cs.cg.model;
 import ru.vsu.cs.cg.math.NormalCalculator;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
-
+import ru.vsu.cs.cg.math.Matrix4x4;
+import ru.vsu.cs.cg.render_engine.GraphicConveyor;
 import java.util.*;
 
 public final class Model {
@@ -11,6 +12,9 @@ public final class Model {
     private final List<Vector2f> textureVertices;
     private final List<Vector3f> normals;
     private final List<Polygon> polygons;
+    private Vector3f translation = new Vector3f(0, 0, 0);
+    private Vector3f rotation = new Vector3f(0, 0, 0);
+    private Vector3f scale = new Vector3f(1, 1, 1);
 
     private volatile List<Polygon> triangulatedPolygonsCache = null;
 
@@ -241,5 +245,42 @@ public final class Model {
      */
     public Model copy() {
         return new Model(vertices, textureVertices, normals, polygons);
+    }
+
+    public void setTranslation(Vector3f translation) {
+        this.translation = translation;
+    }
+
+    public Vector3f getTranslation() {
+        return translation;
+    }
+
+    public void setRotation(Vector3f rotation) {
+        this.rotation = rotation;
+    }
+
+    public Vector3f getRotation() {
+        return rotation;
+    }
+
+    public void setScale(Vector3f scale) {
+        this.scale = scale;
+    }
+
+    public Vector3f getScale() {
+        return scale;
+    }
+
+    public List<Vector3f> getTransformedVertices() {
+        List<Vector3f> transformedVertices = new ArrayList<>(vertices.size());
+
+        Matrix4x4 modelMatrix = GraphicConveyor.rotateScaleTranslate(translation, rotation, scale);
+
+        for (Vector3f vertex : vertices) {
+            Vector3f transformed = GraphicConveyor.multiplyMatrix4ByVector3(modelMatrix, vertex);
+            transformedVertices.add(transformed);
+        }
+
+        return transformedVertices;
     }
 }

@@ -3,6 +3,7 @@ package ru.vsu.cs.cg.render_engine;
 import ru.vsu.cs.cg.math.Matrix4x4;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
+import ru.vsu.cs.cg.math.Vector4f;
 
 public class GraphicConveyor {
 
@@ -131,5 +132,11 @@ public class GraphicConveyor {
                 vertex.getX() * width + width / 2.0F,
                 -vertex.getY() * height + height / 2.0F
         );
+    }
+
+    public static Vector3f multiplyMatrix4ByVector3(Matrix4x4 matrix, Vector3f vertex) {
+        Vector4f vertex4 = new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
+        Vector4f result4 = matrix.multiply(vertex4);
+        return result4.toVector3Safe();
     }
 }
