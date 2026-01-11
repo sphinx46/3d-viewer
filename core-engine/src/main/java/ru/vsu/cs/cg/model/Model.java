@@ -3,7 +3,8 @@ package ru.vsu.cs.cg.model;
 import ru.vsu.cs.cg.math.NormalCalculator;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
-
+import ru.vsu.cs.cg.math.Matrix4x4;
+import ru.vsu.cs.cg.render_engine.GraphicConveyor;
 import java.util.*;
 
 public final class Model {
@@ -11,6 +12,9 @@ public final class Model {
     private final List<Vector2f> textureVertices;
     private final List<Vector3f> normals;
     private final List<Polygon> polygons;
+    private Vector3f translation = new Vector3f(0, 0, 0);
+    private Vector3f rotation = new Vector3f(0, 0, 0);
+    private Vector3f scale = new Vector3f(1, 1, 1);
 
     private volatile List<Polygon> triangulatedPolygonsCache = null;
 
@@ -241,5 +245,83 @@ public final class Model {
      */
     public Model copy() {
         return new Model(vertices, textureVertices, normals, polygons);
+    }
+
+    /**
+     * Устанавливает вектор смещения (переноса) модели.
+     * Определяет положение модели в мировом пространстве относительно начала координат (0,0,0).
+     *
+     * @param translation Вектор смещения (x, y, z).
+     */
+    public void setTranslation(Vector3f translation) {
+        this.translation = translation;
+    }
+
+    /**
+     * Возвращает текущий вектор смещения модели.
+     *
+     * @return Вектор смещения.
+     */
+    public Vector3f getTranslation() {
+        return translation;
+    }
+
+    /**
+     * Устанавливает вектор вращения модели.
+     *
+     * @param rotation Вектор углов поворота вокруг осей X, Y, Z (в радианах).
+     */
+    public void setRotation(Vector3f rotation) {
+        this.rotation = rotation;
+    }
+
+    /**
+     * Возвращает текущий вектор вращения модели.
+     *
+     * @return Вектор углов поворота.
+     */
+    public Vector3f getRotation() {
+        return rotation;
+    }
+
+    /**
+     * Устанавливает вектор масштабирования модели.
+     * Значение 1.0 означает исходный размер (100%).
+     *
+     * @param scale Вектор масштаба по осям X, Y, Z.
+     */
+    public void setScale(Vector3f scale) {
+        this.scale = scale;
+    }
+
+    /**
+     * Возвращает текущий вектор масштабирования модели.
+     *
+     * @return Вектор масштаба.
+     */
+    public Vector3f getScale() {
+        return scale;
+    }
+
+    /**
+     * Применяет текущие параметры трансформации (Scale, Rotation, Translation) ко всем вершинам модели
+     * и возвращает их новые координаты в мировом пространстве.
+     * Исходные вершины модели при этом не изменяются.
+     * Метод используется для сохранения трансформированной модели в файл
+     * или для отладки позиционирования.
+     *
+     * @return Новый список вершин с примененными трансформациями.
+     */
+    public List<Vector3f> getTransformedVertices() {
+        List<Vector3f> transformedVertices = new ArrayList<>(vertices.size());
+
+        Matrix4x4 modelMatrix = GraphicConveyor.rotateScaleTranslate(translation, rotation, scale);
+
+        for (Vector3f vertex : vertices) {
+            Vector3f transformed = GraphicConveyor.multiplyMatrix4ByVector3(modelMatrix, vertex);
+            transformedVertices.add(transformed);
+        }
+
+        return transformedVertices;
     }
 }
