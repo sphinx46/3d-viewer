@@ -212,7 +212,14 @@ public class Rasterizer {
 
     // --- Вспомогательные методы ---
 
-
+    /**
+     * Рисует линию между двумя точками, используя алгоритм Брезенхема.
+     * Учитывает Z-буфер для корректного перекрытия.
+     * @param pixelWriter интерфейс для отрисовки пикселя на экран
+     * @param start вектор начала линии
+     * @param end вектор конца линии
+     * @param color цвет линии
+     */
     private void drawLine(PixelWriter pixelWriter, Vector3f start, Vector3f end, Color color) {
         int x0 = (int) start.getX();
         int y0 = (int) start.getY();
