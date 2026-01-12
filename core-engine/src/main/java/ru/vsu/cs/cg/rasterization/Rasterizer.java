@@ -150,12 +150,20 @@ public class Rasterizer {
             float scanlineStartInvDepth = interpolate(invDepthStartA, invDepthEndA, verticalFactorA);
             float scanlineEndInvDepth   = interpolate(invDepthStartB, invDepthEndB, verticalFactorB);
 
-            Vector2f uvOverDepthStart = interpolate(uvStartA.multiply(invDepthStartA), uvEndA.multiply(invDepthEndA), verticalFactorA);
-            Vector3f normalOverDepthStart = interpolate(normalStartA.multiply(invDepthStartA), normalEndA.multiply(invDepthEndA), verticalFactorA);
+            Vector2f uvOverDepthStart = null;
+            Vector2f uvOverDepthEnd = null;
+            Vector3f normalOverDepthStart = null;
+            Vector3f normalOverDepthEnd = null;
 
-            Vector2f uvOverDepthEnd = interpolate(uvStartB.multiply(invDepthStartB), uvEndB.multiply(invDepthEndB), verticalFactorB);
-            Vector3f normalOverDepthEnd = interpolate(normalStartB.multiply(invDepthStartB), normalEndB.multiply(invDepthEndB), verticalFactorB);
+            if (settings.isUseTexture() && uvStartA != null && uvEndA != null && uvStartB != null && uvEndB != null) {
+                uvOverDepthStart = interpolate(uvStartA.multiply(invDepthStartA), uvEndA.multiply(invDepthEndA), verticalFactorA);
+                uvOverDepthEnd   = interpolate(uvStartB.multiply(invDepthStartB), uvEndB.multiply(invDepthEndB), verticalFactorB);
+            }
 
+            if (settings.isUseLighting() && normalStartA != null && normalEndA != null && normalStartB != null && normalEndB != null) {
+                normalOverDepthStart = interpolate(normalStartA.multiply(invDepthStartA), normalEndA.multiply(invDepthEndA), verticalFactorA);
+                normalOverDepthEnd   = interpolate(normalStartB.multiply(invDepthStartB), normalEndB.multiply(invDepthEndB), verticalFactorB);
+            }
             if (scanlineStartX > scanlineEndX) {
                 float tempX = scanlineStartX; scanlineStartX = scanlineEndX; scanlineEndX = tempX;
 
@@ -184,7 +192,7 @@ public class Rasterizer {
 
                     Color finalPixelColor = settings.getDefaultColor();
 
-                    if (settings.isUseTexture() && texture != null) {
+                    if (settings.isUseTexture() && texture != null && uvOverDepthStart != null && uvOverDepthEnd != null) {
                         Vector2f interpolatedUVOverDepth = interpolate(uvOverDepthStart, uvOverDepthEnd, horizontalFactor);
 
                         Vector2f finalUV = interpolatedUVOverDepth.multiply(currentPixelDepth);
@@ -192,7 +200,7 @@ public class Rasterizer {
                         finalPixelColor = texture.getPixel(finalUV.getX(), finalUV.getY());
                     }
 
-                    if (settings.isUseLighting()) {
+                    if (settings.isUseLighting() && normalOverDepthEnd != null && normalOverDepthStart != null) {
                         Vector3f interpolatedNormalOverDepth = interpolate(normalOverDepthStart, normalOverDepthEnd, horizontalFactor);
 
                         Vector3f pixelNormal = interpolatedNormalOverDepth.multiply(currentPixelDepth);
@@ -233,9 +241,9 @@ public class Rasterizer {
 
         int dx = Math.abs(x1 - x0);
         int dy = Math.abs(y1 - y0);
-        int sx = x0 < x1 ? 1 : -1;
-        int sy = y0 < y1 ? 1 : -1;
-        int err = dx - dy;
+        int stepX = x0 < x1 ? 1 : -1;
+        int stepY = y0 < y1 ? 1 : -1;
+        int error = dx - dy;
 
         float totalDist = Math.max(dx, dy);
         if (totalDist == 0) return;
@@ -261,14 +269,14 @@ public class Rasterizer {
 
             if (x == x1 && y == y1) break;
 
-            int e2 = 2 * err;
+            int e2 = 2 * error;
             if (e2 > -dy) {
-                err -= dy;
-                x += sx;
+                error -= dy;
+                x += stepX;
             }
             if (e2 < dx) {
-                err += dx;
-                y += sy;
+                error += dx;
+                y += stepY;
             }
 
             stepCount++;
