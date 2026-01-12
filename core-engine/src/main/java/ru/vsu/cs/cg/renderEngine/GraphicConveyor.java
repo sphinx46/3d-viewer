@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.render_engine;
+package ru.vsu.cs.cg.renderEngine;
 
 import ru.vsu.cs.cg.math.Matrix4x4;
 import ru.vsu.cs.cg.math.Vector2f;
