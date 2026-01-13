@@ -27,6 +27,7 @@ public class SceneController {
     private Scene currentScene;
     private SceneObject clipboardObject;
     private boolean sceneModified = false;
+    private boolean modelModified = false;
     private String currentSceneFilePath = null;
     private boolean uiUpdateInProgress = false;
 
@@ -36,6 +37,7 @@ public class SceneController {
         this.currentScene = sceneService.createNewScene();
         this.clipboardObject = null;
         this.sceneModified = false;
+        this.modelModified = false;
         this.currentSceneFilePath = null;
         this.uiUpdateInProgress = false;
 
@@ -62,6 +64,7 @@ public class SceneController {
             SceneObject newObject = sceneService.addModelToScene(currentScene, filePath);
             currentScene.selectObject(newObject);
             markSceneModified();
+            markModelModified();
             updateUI();
             LOG.info("Модель '{}' добавлена в сцену из файла: {}", newObject.getName(), filePath);
             return newObject;
@@ -76,6 +79,7 @@ public class SceneController {
             SceneObject newObject = sceneService.addDefaultModelToScene(currentScene, modelType.name());
             currentScene.selectObject(newObject);
             markSceneModified();
+            markModelModified();
             updateUI();
             LOG.info("Стандартная модель '{}' добавлена в сцену", modelType.getDisplayName());
             return newObject;
@@ -90,6 +94,7 @@ public class SceneController {
             SceneObject newObject = sceneService.addDefaultModelToScene(currentScene, "CUBE");
             currentScene.selectObject(newObject);
             markSceneModified();
+            markModelModified();
             updateUI();
             LOG.info("Пользовательский объект создан: {}", newObject.getName());
             return newObject;
@@ -145,6 +150,7 @@ public class SceneController {
         currentScene.addObject(pastedObject);
         currentScene.selectObject(pastedObject);
         markSceneModified();
+        markModelModified();
         updateUI();
         LOG.info("Объект '{}' вставлен из буфера обмена", pastedObject.getName());
     }
@@ -160,6 +166,7 @@ public class SceneController {
         }
 
         modelService.saveModelToFile(modelToSave, filePath);
+        modelModified = false;
         LOG.info("Модель сохранена в файл: {}", filePath);
     }
 
@@ -167,6 +174,7 @@ public class SceneController {
         currentScene = sceneService.createNewScene();
         clipboardObject = null;
         sceneModified = false;
+        modelModified = false;
         currentSceneFilePath = null;
         updateUI();
         LOG.info("Создана новая сцена: {}", currentScene.getName());
@@ -184,6 +192,7 @@ public class SceneController {
             currentScene = sceneService.loadScene(filePath);
             clipboardObject = null;
             sceneModified = false;
+            modelModified = false;
             currentSceneFilePath = filePath;
             updateUI();
             LOG.info("Сцена загружена из файла: {}", filePath);
@@ -197,11 +206,19 @@ public class SceneController {
         return sceneModified;
     }
 
+    public boolean isModelModified() {
+        return modelModified;
+    }
+
     public void markSceneModified() {
-        if (!sceneModified) {
-            sceneModified = true;
-            LOG.debug("Сцена отмечена как измененная");
-        }
+        sceneModified = true;
+        LOG.debug("Сцена отмечена как измененная");
+    }
+
+    public void markModelModified() {
+        modelModified = true;
+        markSceneModified();
+        LOG.debug("Модель отмечена как измененная");
     }
 
     public void handleSceneObjectSelection(String objectName) {
@@ -227,6 +244,7 @@ public class SceneController {
 
         currentScene.getSelectedObject().getTransform().reset();
         markSceneModified();
+        markModelModified();
         updateUI();
         LOG.info("Трансформация объекта '{}' сброшена", currentScene.getSelectedObject().getName());
     }
@@ -251,6 +269,7 @@ public class SceneController {
         transform.setScaleZ(scaleZ);
 
         markSceneModified();
+        markModelModified();
         LOG.info("Трансформация применена к объекту '{}'", currentScene.getSelectedObject().getName());
     }
 

@@ -7,85 +7,136 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.controller.MainController;
+import ru.vsu.cs.cg.controller.command.CommandFactory;
 
 import java.util.*;
 
 public class HotkeyManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(HotkeyManager.class);
-    private final MainController mainController;
     private final Map<KeyCombination, Runnable> hotkeyActions;
-    private boolean isMac;
+    private final boolean isMac;
+    private CommandFactory commandFactory;
 
-    public HotkeyManager(MainController mainController) {
-        this.mainController = mainController;
+    public HotkeyManager() {
         this.hotkeyActions = new HashMap<>();
         this.isMac = System.getProperty("os.name").toLowerCase().contains("mac");
         initializeHotkeys();
     }
 
+    public void setCommandFactory(CommandFactory commandFactory) {
+        this.commandFactory = commandFactory;
+        LOG.debug("CommandFactory установлен в HotkeyManager");
+    }
+
     private void initializeHotkeys() {
         KeyCombination ctrlC = createCombination("Ctrl+C");
-        hotkeyActions.put(ctrlC, () -> Platform.runLater(() -> {
-            mainController.copyObject();
-        }));
+        if (ctrlC != null) {
+            hotkeyActions.put(ctrlC, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("object_copy");
+                }
+            }));
+        }
 
         KeyCombination ctrlV = createCombination("Ctrl+V");
-        hotkeyActions.put(ctrlV, () -> Platform.runLater(() -> {
-            mainController.pasteObject();
-        }));
+        if (ctrlV != null) {
+            hotkeyActions.put(ctrlV, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("object_paste");
+                }
+            }));
+        }
 
         KeyCombination ctrlD = createCombination("Ctrl+D");
-        hotkeyActions.put(ctrlD, () -> Platform.runLater(() -> {
-            mainController.duplicateObject();
-        }));
+        if (ctrlD != null) {
+            hotkeyActions.put(ctrlD, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("object_duplicate");
+                }
+            }));
+        }
 
         KeyCombination delete = createCombination("Delete");
-        hotkeyActions.put(delete, () -> Platform.runLater(() -> {
-            mainController.deleteObject();
-        }));
+        if (delete != null) {
+            hotkeyActions.put(delete, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("object_delete");
+                }
+            }));
+        }
 
         KeyCombination ctrlN = createCombination("Ctrl+N");
-        hotkeyActions.put(ctrlN, () -> Platform.runLater(() -> {
-            mainController.createNewScene();
-        }));
+        if (ctrlN != null) {
+            hotkeyActions.put(ctrlN, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("scene_new");
+                }
+            }));
+        }
 
         KeyCombination ctrlO = createCombination("Ctrl+O");
-        hotkeyActions.put(ctrlO, () -> Platform.runLater(() -> {
-            mainController.openSceneWithCheck();
-        }));
+        if (ctrlO != null) {
+            hotkeyActions.put(ctrlO, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("scene_open");
+                }
+            }));
+        }
 
         KeyCombination ctrlS = createCombination("Ctrl+S");
-        hotkeyActions.put(ctrlS, () -> Platform.runLater(() -> {
-            mainController.saveScene();
-        }));
+        if (ctrlS != null) {
+            hotkeyActions.put(ctrlS, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("scene_save");
+                }
+            }));
+        }
 
         KeyCombination ctrlShiftS = createCombination("Ctrl+Shift+S");
-        hotkeyActions.put(ctrlShiftS, () -> Platform.runLater(() -> {
-            mainController.saveSceneAs();
-        }));
+        if (ctrlShiftS != null) {
+            hotkeyActions.put(ctrlShiftS, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("scene_save_as");
+                }
+            }));
+        }
 
         KeyCombination ctrlShiftN = createCombination("Ctrl+Shift+N");
-        hotkeyActions.put(ctrlShiftN, () -> Platform.runLater(() -> {
-            mainController.createCustomObject();
-        }));
+        if (ctrlShiftN != null) {
+            hotkeyActions.put(ctrlShiftN, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("custom_object_create");
+                }
+            }));
+        }
 
         KeyCombination ctrlP = createCombination("Ctrl+P");
-        hotkeyActions.put(ctrlP, () -> Platform.runLater(() -> {
-            mainController.takeScreenshot();
-        }));
+        if (ctrlP != null) {
+            hotkeyActions.put(ctrlP, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("screenshot_take");
+                }
+            }));
+        }
 
         KeyCombination f11 = createCombination("F11");
-        hotkeyActions.put(f11, () -> Platform.runLater(() -> {
-            mainController.toggleFullscreen();
-        }));
+        if (f11 != null) {
+            hotkeyActions.put(f11, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("fullscreen_toggle");
+                }
+            }));
+        }
 
         KeyCombination f1 = createCombination("F1");
-        hotkeyActions.put(f1, () -> Platform.runLater(() -> {
-            mainController.showHotkeysDialog();
-        }));
-
+        if (f1 != null) {
+            hotkeyActions.put(f1, () -> Platform.runLater(() -> {
+                if (commandFactory != null) {
+                    commandFactory.executeCommand("hotkeys_show");
+                }
+            }));
+        }
         LOG.info("Инициализировано {} горячих клавиш для {} ОС", hotkeyActions.size(), isMac ? "macOS" : "Windows/Linux");
     }
 
@@ -146,8 +197,6 @@ public class HotkeyManager {
         descriptions.put("Delete", "Удалить выбранный объект");
         descriptions.put("Ctrl+P", "Сделать скриншот");
         descriptions.put("F11", "Переключить полноэкранный режим");
-        descriptions.put("Ctrl+W", "Закрыть текущее окно");
-        descriptions.put("Ctrl+Q", "Выйти из приложения");
         descriptions.put("F1", "Открыть документацию");
 
         return descriptions;
