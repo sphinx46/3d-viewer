@@ -4,26 +4,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.model.Model;
-import ru.vsu.cs.cg.renderEngine.SceneManager;
-import ru.vsu.cs.cg.renderEngine.camera.Camera;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Scene{
+public class Scene {
     private static final Logger LOG = LoggerFactory.getLogger(Scene.class);
 
     private final String id;
     private String name;
     private final List<SceneObject> objects;
     private SceneObject selectedObject;
-
-    private List<Camera> cameras;
-    private int activeCameraId;
-
 
     @JsonCreator
     public Scene(
@@ -49,9 +42,16 @@ public class Scene{
 
     public String getId() { return id; }
 
+    public String getName() { return name; }
+    public void setName(String name) {
+        String oldName = this.name;
+        this.name = name != null ? name : "Новая сцена";
+        LOG.debug("Имя сцены изменено: '{}' -> '{}'", oldName, this.name);
+    }
 
+    public List<SceneObject> getObjects() { return new ArrayList<>(objects); }
 
-
+    public SceneObject getSelectedObject() { return selectedObject; }
 
     public Optional<SceneObject> findObjectById(String id) {
         if (id == null) return Optional.empty();
@@ -143,10 +143,8 @@ public class Scene{
 
     @Override
     public String toString() {
-        return String.format("SceneManager{id='%s', name='%s', objects=%d, selected=%s}",
+        return String.format("Scene{id='%s', name='%s', objects=%d, selected=%s}",
             id, name, objects.size(),
             selectedObject != null ? selectedObject.getName() : "null");
     }
-
-
 }
