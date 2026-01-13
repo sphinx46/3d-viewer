@@ -230,4 +230,8 @@ public class GraphicConveyor {
         Vector4f result4 = matrix.multiply(vertex4);
         return result4.toVector3Safe();
     }
+
+    public static Vector4f multiplyMatrix4ByVector3ToVector4(Matrix4x4 matrix, Vector3f vertex) {
+        return matrix.multiply(new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F));
+    }
 }
