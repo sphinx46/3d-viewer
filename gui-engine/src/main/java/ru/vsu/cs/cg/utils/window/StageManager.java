@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.App;
+import ru.vsu.cs.cg.controller.MainController;
 
 import java.io.IOException;
 
@@ -43,7 +44,14 @@ public final class StageManager {
     private static Stage createStage() throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource(FXML_PATH));
         Parent root = loader.load();
-        return createStageFromRoot(root);
+
+        MainController controller = loader.getController();
+
+        Stage stage = createStageFromRoot(root);
+
+        controller.initializeAfterStageSet();
+
+        return stage;
     }
 
     private static Stage createStageFromRoot(Parent root) {

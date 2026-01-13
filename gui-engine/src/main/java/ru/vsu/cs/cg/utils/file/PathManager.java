@@ -167,16 +167,4 @@ public final class PathManager {
             LOG.warn("Файл уже существует и будет перезаписан: {}", filePath);
         }
     }
-
-    public static String getRelativePath(String basePath, String targetPath) {
-        try {
-            Path base = Paths.get(basePath).toAbsolutePath().normalize();
-            Path target = Paths.get(targetPath).toAbsolutePath().normalize();
-            Path relative = base.relativize(target);
-            return relative.toString();
-        } catch (Exception e) {
-            LOG.warn("Не удалось получить относительный путь от {} к {}", basePath, targetPath, e);
-            return targetPath;
-        }
-    }
 }
