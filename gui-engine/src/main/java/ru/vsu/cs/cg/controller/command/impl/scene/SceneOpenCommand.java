@@ -10,6 +10,7 @@ import ru.vsu.cs.cg.utils.cache.CachePersistenceManager;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
 import ru.vsu.cs.cg.utils.file.PathManager;
 
+
 public class SceneOpenCommand implements Command {
     private static final Logger LOG = LoggerFactory.getLogger(SceneOpenCommand.class);
 
@@ -25,30 +26,34 @@ public class SceneOpenCommand implements Command {
 
     @Override
     public void execute() {
-        if (sceneController.hasUnsavedChanges() && !DialogManager.confirmUnsavedChanges()) {
-            return;
-        }
-
         DialogManager.showOpenSceneDialog(stage).ifPresent(file -> {
-            try {
-                String filePath = file.getAbsolutePath();
-
-                if (!PathManager.isSupportedSceneFormat(filePath)) {
-                    DialogManager.showError("Неподдерживаемый формат сцены");
-                    return;
-                }
-
-                sceneController.loadScene(filePath);
-                recentFilesService.addFile(filePath);
-                CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
-
-                LOG.info("Сцена загружена из файла: {}", file.getName());
-                DialogManager.showSuccess("Сцена загружена: " + file.getName());
-            } catch (Exception e) {
-                LOG.error("Ошибка загрузки сцены: {}", e.getMessage());
-                DialogManager.showError("Ошибка загрузки сцены: " + e.getMessage());
-            }
+            loadSceneFromPath(file.getAbsolutePath());
         });
+    }
+
+    public void loadSceneFromPath(String filePath) {
+        try {
+            if (!PathManager.isSupportedSceneFormat(filePath)) {
+                DialogManager.showError("Неподдерживаемый формат сцены");
+                return;
+            }
+
+            if (sceneController.hasUnsavedChanges() && !DialogManager.confirmUnsavedChanges()) {
+                return;
+            }
+
+            PathManager.validatePathForRead(filePath);
+
+            sceneController.loadScene(filePath);
+            recentFilesService.addFile(filePath);
+            CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
+
+            LOG.info("Сцена загружена из файла: {}", PathManager.getFileNameWithoutExtension(filePath));
+            DialogManager.showSceneLoadSuccess("Сцена загружена: " + PathManager.getFileNameWithoutExtension(filePath));
+        } catch (Exception e) {
+            LOG.error("Ошибка загрузки сцены: {}", e.getMessage());
+            DialogManager.showError("Ошибка загрузки сцены: " + e.getMessage());
+        }
     }
 
     @Override

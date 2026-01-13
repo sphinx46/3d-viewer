@@ -23,9 +23,22 @@ public final class DialogManager {
     private DialogManager() {
     }
 
-    public static void showSuccess(String message) {
+    public static void showSceneSaveSuccess(String message) {
+        showDialog(Alert.AlertType.INFORMATION, MessageConstants.SCENE_SAVE_SUCCESS, message);
+    }
+
+    public static void showModelSaveSuccess(String message) {
+        showDialog(Alert.AlertType.INFORMATION, MessageConstants.MODEL_SAVE_SUCCESS, message);
+    }
+
+    public static void showModelLoadSuccess(String message) {
         showDialog(Alert.AlertType.INFORMATION, MessageConstants.MODEL_LOAD_SUCCESS, message);
     }
+
+    public static void showSceneLoadSuccess(String message) {
+        showDialog(Alert.AlertType.INFORMATION, MessageConstants.SCENE_LOAD_SUCCESS, message);
+    }
+
 
     public static void showError(String message) {
         showDialog(Alert.AlertType.ERROR, MessageConstants.MODEL_LOAD_ERROR, message);

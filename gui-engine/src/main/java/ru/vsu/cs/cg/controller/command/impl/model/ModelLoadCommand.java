@@ -26,25 +26,27 @@ public class ModelLoadCommand implements Command {
     @Override
     public void execute() {
         DialogManager.showOpenModelDialog(stage).ifPresent(file -> {
-            try {
-                String filePath = file.getAbsolutePath();
-
-                if (!PathManager.isSupported3DFormat(filePath)) {
-                    DialogManager.showError("Неподдерживаемый формат 3D модели");
-                    return;
-                }
-
-                sceneController.addModelToScene(filePath);
-                recentFilesService.addFile(filePath);
-                CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
-
-                LOG.info("Модель загружена: {}", file.getName());
-                DialogManager.showSuccess("Модель добавлена: " + file.getName());
-            } catch (Exception e) {
-                LOG.error("Ошибка загрузки модели: {}", e.getMessage());
-                DialogManager.showError("Ошибка добавления модели: " + e.getMessage());
-            }
+            loadModelFromPath(file.getAbsolutePath());
         });
+    }
+
+    public void loadModelFromPath(String filePath) {
+        try {
+            if (!PathManager.isSupported3DFormat(filePath)) {
+                DialogManager.showError("Неподдерживаемый формат 3D модели");
+                return;
+            }
+
+            sceneController.addModelToScene(filePath);
+            recentFilesService.addFile(filePath);
+            CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
+
+            LOG.info("Модель загружена: {}", PathManager.getFileNameWithoutExtension(filePath));
+            DialogManager.showModelLoadSuccess("Модель добавлена: " + PathManager.getFileNameWithoutExtension(filePath));
+        } catch (Exception e) {
+            LOG.error("Ошибка загрузки модели: {}", e.getMessage());
+            DialogManager.showError("Ошибка добавления модели: " + e.getMessage());
+        }
     }
 
     @Override
