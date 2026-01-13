@@ -1,23 +1,18 @@
 package ru.vsu.cs.cg.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.scene.SceneObject;
-import ru.vsu.cs.cg.vertexremover.VertexRemover;
-import ru.vsu.cs.cg.vertexremover.VertexRemoverImpl;
-import ru.vsu.cs.cg.vertexremover.dto.VertexRemovalResult;
-import ru.vsu.cs.cg.utils.dialog.DialogManager;
-
-import java.util.HashSet;
-import java.util.Set;
+import ru.vsu.cs.cg.model.Model;
 
 public class ModificationController extends BaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ModificationController.class);
-
-    private final VertexRemover vertexRemover = new VertexRemoverImpl();
 
     @FXML private TextField vertexIndicesField;
     @FXML private CheckBox cleanUnusedCheckbox;
@@ -34,246 +29,140 @@ public class ModificationController extends BaseController {
     @FXML private Label normalCountLabel;
 
     @FXML
-    public void initialize() {
-        LOG.info("Инициализация контроллера модификации модели");
-
+    private void initialize() {
         setupButtonActions();
-        setupTextFields();
+        setInitialState();
+    }
 
-        LOG.debug("Контроллер модификации модели успешно инициализирован");
+    private void setInitialState() {
+        clearFields();
+        setFieldsEditable(false);
     }
 
     private void setupButtonActions() {
         removeVerticesButton.setOnAction(event -> handleRemoveVertices());
-        selectVerticesButton.setOnAction(event -> handleSelectVertices());
-
         removePolygonsButton.setOnAction(event -> handleRemovePolygons());
+        selectVerticesButton.setOnAction(event -> handleSelectVertices());
         selectPolygonsButton.setOnAction(event -> handleSelectPolygons());
-
-        LOG.debug("Действия кнопок установлены");
-    }
-
-    private void setupTextFields() {
-        vertexIndicesField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("[0-9,\\-\\s]*")) {
-                vertexIndicesField.setText(oldValue);
-            }
-        });
-
-        polygonIndicesField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("[0-9,\\-\\s]*")) {
-                polygonIndicesField.setText(oldValue);
-            }
-        });
-
-        LOG.debug("Валидация текстовых полей настроена");
     }
 
     private void handleRemoveVertices() {
-        if (sceneController == null || !sceneController.hasSelectedObject()) {
-            LOG.warn("Попытка удалить вершины при отсутствии выбранного объекта");
-            DialogManager.showError("Выберите объект для модификации");
+        if (!hasSelectedObject()) {
             return;
         }
 
-        SceneObject selectedObject = sceneController.getSelectedObject();
-        Model model = selectedObject.getModel();
+        String indicesInput = vertexIndicesField.getText();
+        boolean clearUnused = cleanUnusedCheckbox.isSelected();
 
-        if (model == null) {
-            LOG.warn("У выбранного объекта отсутствует модель");
-            DialogManager.showError("У объекта нет модели для модификации");
-            return;
-        }
+        ru.vsu.cs.cg.controller.command.Command command =
+            new ru.vsu.cs.cg.controller.command.impl.modification.RemoveVerticesCommand(
+                sceneController, indicesInput, clearUnused);
+        command.execute();
 
-        Set<Integer> vertexIndices = parseIndices(vertexIndicesField.getText());
-        if (vertexIndices.isEmpty()) {
-            LOG.warn("Не указаны индексы вершин для удаления");
-            DialogManager.showError("Введите индексы вершин для удаления");
-            return;
-        }
-
-        try {
-            LOG.info("Начало удаления вершин: объект={}, количество вершин={}, индексы={}",
-                selectedObject.getName(), vertexIndices.size(), vertexIndices);
-
-            boolean clearUnused = cleanUnusedCheckbox.isSelected();
-            VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, clearUnused);
-
-            sceneController.markModelModified();
-            updateModelStatistics(model);
-
-            LOG.info("Удаление вершин завершено успешно: удалено вершин={}, удалено полигонов={}",
-                result.getRemovedVerticesCount(), result.getRemovedPolygonsCount());
-
-            DialogManager.showSuccess(String.format("Удалено вершин: %d, полигонов: %d",
-                result.getRemovedVerticesCount(), result.getRemovedPolygonsCount()));
-
-        } catch (Exception e) {
-            LOG.error("Ошибка удаления вершин: {}", e.getMessage(), e);
-            DialogManager.showError("Ошибка удаления вершин: " + e.getMessage());
-        }
-    }
-
-    private void handleSelectVertices() {
-        LOG.debug("Выделение вершин: {}", vertexIndicesField.getText());
-        DialogManager.showInfo("Выделение вершин",
-            "Функция выделения вершин будет реализована в следующем обновлении");
+        updateStatistics();
     }
 
     private void handleRemovePolygons() {
-        if (sceneController == null || !sceneController.hasSelectedObject()) {
-            LOG.warn("Попытка удалить полигоны при отсутствии выбранного объекта");
-            DialogManager.showError("Выберите объект для модификации");
+        if (!hasSelectedObject()) {
             return;
         }
 
-        SceneObject selectedObject = sceneController.getSelectedObject();
-        Model model = selectedObject.getModel();
+        String indicesInput = polygonIndicesField.getText();
 
-        if (model == null) {
-            LOG.warn("У выбранного объекта отсутствует модель");
-            DialogManager.showError("У объекта нет модели для модификации");
-            return;
-        }
+        ru.vsu.cs.cg.controller.command.Command command =
+            new ru.vsu.cs.cg.controller.command.impl.modification.RemovePolygonsCommand(
+                sceneController, indicesInput);
+        command.execute();
 
-        Set<Integer> polygonIndices = parseIndices(polygonIndicesField.getText());
-        if (polygonIndices.isEmpty()) {
-            LOG.warn("Не указаны индексы полигонов для удаления");
-            DialogManager.showError("Введите индексы полигонов для удаления");
-            return;
-        }
+        updateStatistics();
+    }
 
-        try {
-            LOG.info("Начало удаления полигонов: объект={}, количество полигонов={}, индексы={}",
-                selectedObject.getName(), polygonIndices.size(), polygonIndices);
-
-            removePolygonsFromModel(model, polygonIndices);
-            sceneController.markModelModified();
-            updateModelStatistics(model);
-
-            LOG.info("Удаление полигонов завершено успешно: удалено полигонов={}",
-                polygonIndices.size());
-
-            DialogManager.showSuccess(String.format("Удалено полигонов: %d", polygonIndices.size()));
-
-        } catch (Exception e) {
-            LOG.error("Ошибка удаления полигонов: {}", e.getMessage(), e);
-            DialogManager.showError("Ошибка удаления полигонов: " + e.getMessage());
-        }
+    private void handleSelectVertices() {
+        LOG.debug("Выделение вершин по индексам");
     }
 
     private void handleSelectPolygons() {
-        LOG.debug("Выделение полигонов: {}", polygonIndicesField.getText());
-        DialogManager.showInfo("Выделение полигонов",
-            "Функция выделения полигонов будет реализована в следующем обновлении");
+        LOG.debug("Выделение полигонов по индексам");
     }
 
-    private Set<Integer> parseIndices(String input) {
-        Set<Integer> indices = new HashSet<>();
+    @Override
+    protected void clearFields() {
+        Platform.runLater(() -> {
+            vertexIndicesField.clear();
+            polygonIndicesField.clear();
+            cleanUnusedCheckbox.setSelected(false);
+            resetStatistics();
+        });
+    }
 
-        if (input == null || input.trim().isEmpty()) {
-            return indices;
-        }
+    @Override
+    protected void populateFields(SceneObject object) {
+        updateStatistics();
+    }
 
-        try {
-            String[] parts = input.split(",");
-            for (String part : parts) {
-                part = part.trim();
-                if (part.contains("-")) {
-                    String[] range = part.split("-");
-                    if (range.length == 2) {
-                        int start = Integer.parseInt(range[0].trim());
-                        int end = Integer.parseInt(range[1].trim());
-                        for (int i = start; i <= end; i++) {
-                            indices.add(i);
-                        }
-                    }
-                } else {
-                    indices.add(Integer.parseInt(part));
-                }
+    public void updateStatistics() {
+        Platform.runLater(() -> {
+            if (!hasSelectedObject()) {
+                resetStatistics();
+                return;
             }
 
-            LOG.debug("Парсинг индексов завершен: входная строка='{}', результат={}", input, indices);
-        } catch (NumberFormatException e) {
-            LOG.error("Ошибка парсинга индексов: входная строка='{}', ошибка={}", input, e.getMessage());
-            DialogManager.showError("Некорректный формат индексов. Используйте: 0,1,2 или 1-10");
-        }
-
-        return indices;
-    }
-
-    private void removePolygonsFromModel(Model model, Set<Integer> polygonIndices) {
-        int originalCount = model.getPolygons().size();
-
-        Set<Integer> validIndices = new HashSet<>();
-        for (Integer index : polygonIndices) {
-            if (index >= 0 && index < originalCount) {
-                validIndices.add(index);
+            SceneObject selectedObject = getSelectedObject();
+            if (selectedObject == null) {
+                resetStatistics();
+                return;
             }
-        }
 
-        model.getPolygons().removeIf(polygon -> validIndices.contains(model.getPolygons().indexOf(polygon)));
+            Model model = selectedObject.getModel();
+            if (model == null) {
+                resetStatistics();
+                return;
+            }
 
-        LOG.debug("Полигоны удалены: запрошено={}, валидно={}, было={}, стало={}",
-            polygonIndices.size(), validIndices.size(), originalCount, model.getPolygons().size());
-    }
-
-    public void updateUIFromSelectedObject() {
-        if (sceneController == null || !sceneController.hasSelectedObject()) {
-            resetUI();
-            return;
-        }
-
-        SceneObject selectedObject = sceneController.getSelectedObject();
-        Model model = selectedObject.getModel();
-
-        if (model != null) {
-            updateModelStatistics(model);
-            enableModificationControls(true);
-            LOG.debug("UI обновлен для объекта: {}", selectedObject.getName());
-        } else {
-            resetUI();
-            LOG.debug("UI сброшен: у объекта нет модели");
-        }
-    }
-
-    private void updateModelStatistics(Model model) {
-        if (model != null) {
             vertexCountLabel.setText(String.valueOf(model.getVertices().size()));
             polygonCountLabel.setText(String.valueOf(model.getPolygons().size()));
             textureCountLabel.setText(String.valueOf(model.getTextureVertices().size()));
             normalCountLabel.setText(String.valueOf(model.getNormals().size()));
-
-            LOG.trace("Статистика модели обновлена: вершин={}, полигонов={}",
-                model.getVertices().size(), model.getPolygons().size());
-        }
+        });
     }
 
-    private void resetUI() {
-        vertexIndicesField.clear();
-        polygonIndicesField.clear();
-        cleanUnusedCheckbox.setSelected(false);
-
-        vertexCountLabel.setText("0");
-        polygonCountLabel.setText("0");
-        textureCountLabel.setText("0");
-        normalCountLabel.setText("0");
-
-        enableModificationControls(false);
-
-        LOG.trace("UI контроллера модификации сброшен");
+    private void resetStatistics() {
+        Platform.runLater(() -> {
+            vertexCountLabel.setText("0");
+            polygonCountLabel.setText("0");
+            textureCountLabel.setText("0");
+            normalCountLabel.setText("0");
+        });
     }
 
-    private void enableModificationControls(boolean enabled) {
-        vertexIndicesField.setDisable(!enabled);
-        polygonIndicesField.setDisable(!enabled);
-        cleanUnusedCheckbox.setDisable(!enabled);
-        removeVerticesButton.setDisable(!enabled);
-        selectVerticesButton.setDisable(!enabled);
-        removePolygonsButton.setDisable(!enabled);
-        selectPolygonsButton.setDisable(!enabled);
+    @Override
+    public void updateUIFromSelectedObject() {
+        Platform.runLater(() -> {
+            if (hasSelectedObject()) {
+                SceneObject selectedObject = getSelectedObject();
+                if (selectedObject != null) {
+                    populateFields(selectedObject);
+                }
+                setFieldsEditable(true);
+            } else {
+                clearFields();
+                setFieldsEditable(false);
+            }
+        });
+    }
 
-        LOG.trace("Элементы управления модификацией {} для редактирования",
-            enabled ? "включены" : "выключены");
+    @Override
+    protected void setFieldsEditable(boolean editable) {
+        Platform.runLater(() -> {
+            vertexIndicesField.setEditable(editable);
+            vertexIndicesField.setDisable(!editable);
+            polygonIndicesField.setEditable(editable);
+            polygonIndicesField.setDisable(!editable);
+            cleanUnusedCheckbox.setDisable(!editable);
+            removeVerticesButton.setDisable(!editable);
+            removePolygonsButton.setDisable(!editable);
+            selectVerticesButton.setDisable(!editable);
+            selectPolygonsButton.setDisable(!editable);
+        });
     }
 }

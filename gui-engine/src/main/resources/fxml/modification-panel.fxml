@@ -5,7 +5,10 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -19,7 +22,7 @@
     <graphic>
         <HBox alignment="CENTER_LEFT" spacing="5">
             <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
-                <Image url="@/static/images/icons/right-menu/modify-geometry.png" />
+                <Image url="@/static/images/icons/right-menu/modify.png" />
             </ImageView>
         </HBox>
     </graphic>
@@ -27,7 +30,7 @@
         <VBox spacing="12">
             <HBox alignment="CENTER_LEFT" spacing="5">
                 <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                    <Image url="@/static/images/icons/right-menu/vertex.png" />
+                    <Image url="@/static/images/icons/right-menu/vector-square.png" />
                 </ImageView>
                 <Label style="-fx-font-weight: bold;" text="Вершины:" />
             </HBox>
@@ -94,7 +97,7 @@
 
             <HBox alignment="CENTER_LEFT" spacing="5">
                 <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                    <Image url="@/static/images/icons/right-menu/statistics.png" />
+                    <Image url="@/static/images/icons/top-menu/documentation.png" />
                 </ImageView>
                 <Label style="-fx-font-weight: bold;" text="Статистика модели:" />
             </HBox>

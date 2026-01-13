@@ -58,7 +58,7 @@ public class ModelSaveCommand implements Command {
                 CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
 
                 LOG.info("Модель сохранена: {}", file.getName());
-                DialogManager.showSuccess("Модель сохранена: " + file.getName());
+                DialogManager.showModelSaveSuccess("Модель сохранена: " + file.getName());
             } catch (Exception e) {
                 LOG.error("Ошибка сохранения модели: {}", e.getMessage());
                 DialogManager.showError("Ошибка сохранения модели: " + e.getMessage());
