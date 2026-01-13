@@ -266,6 +266,7 @@
                     </TitledPane>
                     <fx:include fx:id="transformPanel" source="transform-panel.fxml" />
                     <fx:include fx:id="materialPanel" source="material-panel.fxml" />
+                    <fx:include fx:id="modificationPanel" source="modification-panel.fxml" />
                 </VBox>
             </ScrollPane>
         </HBox>
