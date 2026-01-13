@@ -36,6 +36,7 @@ public class MainController {
     private HotkeyManager hotkeyManager;
     private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
     private CommandFactory commandFactory;
+    private RenderController renderController; // Новый контроллер
 
     @FXML
     private AnchorPane anchorPane;
@@ -106,8 +107,15 @@ public class MainController {
         initializeMenuActions();
         initializeButtonActions();
         loadRecentFiles();
+        initializeRender();
         initializeDependencies();
+
+        this.renderController.start();
+
+        LOG.info("Главный контроллер успешно инициализирован");
     }
+
+
 
     public void initializeAfterStageSet() {
         try {
@@ -123,7 +131,12 @@ public class MainController {
         }
     }
 
+    private void initializeRender() {
+        this.renderController = new RenderController(anchorPane);
+    }
+
     private void initializeDependencies() {
+        LOG.debug("Зависимости контроллеров инициализированы");
         if (transformPanelController != null) {
             transformPanelController.setSceneController(sceneController);
             sceneController.setTransformController(transformPanelController);
@@ -138,6 +151,7 @@ public class MainController {
             modificationPanelController.setSceneController(sceneController);
             sceneController.setModificationController(modificationPanelController);
         }
+        this.sceneController.setRenderController(renderController);
 
         sceneController.setMainController(this);
         sceneController.updateUI();
@@ -345,6 +359,9 @@ public class MainController {
         CachePersistenceManager.saveRecentFiles(recentFilesCacheService.getRecentFiles());
         if (hotkeyManager != null) {
             hotkeyManager.unregisterGlobalHotkeys(anchorPane);
+        }
+        if (renderController != null) {
+            renderController.stop();
         }
         Platform.exit();
     }

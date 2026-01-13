@@ -142,13 +142,13 @@
                         <option>--add-opens</option>
                         <option>javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</option>
                         <option>--add-opens</option>
-                        <option>javafx.graphics/javafx.scene=ALL-UNNAMED</option>
+                        <option>javafx.graphics/javafx.sceneManager=ALL-UNNAMED</option>
                         <option>--add-opens</option>
-                        <option>javafx.controls/javafx.scene.control=ALL-UNNAMED</option>
+                        <option>javafx.controls/javafx.sceneManager.control=ALL-UNNAMED</option>
                         <option>--add-opens</option>
                         <option>javafx.base/javafx.collections=ALL-UNNAMED</option>
                         <option>--add-opens</option>
-                        <option>javafx.graphics/javafx.scene.layout=ALL-UNNAMED</option>
+                        <option>javafx.graphics/javafx.sceneManager.layout=ALL-UNNAMED</option>
                         <option>--add-exports</option>
                         <option>javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</option>
                     </options>

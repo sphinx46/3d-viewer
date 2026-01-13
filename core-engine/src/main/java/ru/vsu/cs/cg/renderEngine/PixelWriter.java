@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.render_engine;
+package ru.vsu.cs.cg.renderEngine;
 
 import javafx.scene.paint.Color;
 

@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.render_engine;
+package ru.vsu.cs.cg.renderEngine;
 
 import ru.vsu.cs.cg.math.Matrix4x4;
 import ru.vsu.cs.cg.math.Vector2f;
@@ -211,9 +211,11 @@ public class GraphicConveyor {
      * @return Вектор 2f с координатами пикселя (x, y).
      */
     public static Vector2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
+        // NDC координаты находятся в диапазоне [-1, 1]
+        // Преобразуем в экранные координаты [0, width] и [0, height]
         return new Vector2f(
-                vertex.getX() * width + width / 2.0F,
-                -vertex.getY() * height + height / 2.0F
+                (vertex.getX() + 1.0F) * width / 2.0F,
+                (1.0F - vertex.getY()) * height / 2.0F
         );
     }
 
@@ -229,5 +231,9 @@ public class GraphicConveyor {
         Vector4f vertex4 = new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
         Vector4f result4 = matrix.multiply(vertex4);
         return result4.toVector3Safe();
+    }
+
+    public static Vector4f multiplyMatrix4ByVector3ToVector4(Matrix4x4 matrix, Vector3f vertex) {
+        return matrix.multiply(new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F));
     }
 }

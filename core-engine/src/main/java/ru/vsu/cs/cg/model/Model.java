@@ -4,7 +4,7 @@ import ru.vsu.cs.cg.math.NormalCalculator;
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.math.Matrix4x4;
-import ru.vsu.cs.cg.render_engine.GraphicConveyor;
+import ru.vsu.cs.cg.renderEngine.GraphicConveyor;
 import java.util.*;
 
 public final class Model {

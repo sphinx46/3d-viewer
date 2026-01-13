@@ -25,6 +25,7 @@ public class SceneController {
     private MaterialController materialController;
     private ModificationController modificationController;
     private MainController mainController;
+    private RenderController renderController;
     private Scene currentScene;
     private SceneObject clipboardObject;
     private boolean sceneModified = false;
@@ -52,6 +53,13 @@ public class SceneController {
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
+    }
+
+    public void setRenderController(RenderController renderController) {
+        this.renderController = renderController;
+        if (this.currentScene != null) {
+            this.renderController.setScene(this.currentScene);
+        }
     }
 
     public SceneObject addModelToScene(String filePath) {
@@ -158,6 +166,11 @@ public class SceneController {
         sceneModified = false;
         modelModified = false;
         currentSceneFilePath = null;
+
+        if (renderController != null) {
+            renderController.setScene(currentScene);
+        }
+
         updateUI();
     }
 
@@ -174,6 +187,11 @@ public class SceneController {
             sceneModified = false;
             modelModified = false;
             currentSceneFilePath = filePath;
+
+            if (renderController != null) {
+                renderController.setScene(currentScene);
+            }
+
             updateUI();
         } catch (Exception e) {
             LOG.error("Ошибка загрузки сцены из файла {}: {}", filePath, e.getMessage());

@@ -2,7 +2,7 @@ package ru.vsu.cs.cg.rasterization;
 
 import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
-import ru.vsu.cs.cg.render_engine.PixelWriter;
+import ru.vsu.cs.cg.renderEngine.PixelWriter;
 import javafx.scene.paint.Color;
 
 /**
