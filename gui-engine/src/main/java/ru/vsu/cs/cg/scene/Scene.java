@@ -18,7 +18,7 @@ public class Scene{
 
     private final String id;
     private String name;
-    private List<SceneObject> objects;
+    private final List<SceneObject> objects;
     private SceneObject selectedObject;
 
     private List<Camera> cameras;
