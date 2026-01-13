@@ -87,13 +87,4 @@ public final class ControllerUtils {
             return "Ошибка имени файла";
         }
     }
-
-    public static boolean isSceneFormat(String filePath) {
-        try {
-            return filePath != null && filePath.toLowerCase().endsWith(".scene");
-        } catch (Exception e) {
-            LOG.error("Ошибка проверки формата файла '{}': {}", filePath, e.getMessage());
-            return false;
-        }
-    }
 }

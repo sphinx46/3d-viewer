@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
 
 public class ModificationController extends BaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ModificationController.class);
@@ -48,6 +49,7 @@ public class ModificationController extends BaseController {
 
     private void handleRemoveVertices() {
         if (!hasSelectedObject()) {
+            LOG.warn("Попытка удалить вершины без выбранного объекта");
             return;
         }
 
@@ -60,10 +62,12 @@ public class ModificationController extends BaseController {
         command.execute();
 
         updateStatistics();
+        LOG.debug("Команда удаления вершин выполнена");
     }
 
     private void handleRemovePolygons() {
         if (!hasSelectedObject()) {
+            LOG.warn("Попытка удалить полигоны без выбранного объекта");
             return;
         }
 
@@ -75,6 +79,7 @@ public class ModificationController extends BaseController {
         command.execute();
 
         updateStatistics();
+        LOG.debug("Команда удаления полигонов выполнена");
     }
 
     private void handleSelectVertices() {
@@ -88,8 +93,7 @@ public class ModificationController extends BaseController {
     @Override
     protected void clearFields() {
         Platform.runLater(() -> {
-            vertexIndicesField.clear();
-            polygonIndicesField.clear();
+            UiFieldUtils.clearTextFields(vertexIndicesField, polygonIndicesField);
             cleanUnusedCheckbox.setSelected(false);
             resetStatistics();
         });
@@ -154,9 +158,9 @@ public class ModificationController extends BaseController {
     @Override
     protected void setFieldsEditable(boolean editable) {
         Platform.runLater(() -> {
-            vertexIndicesField.setEditable(editable);
+            UiFieldUtils.setTextFieldsEditable(editable, vertexIndicesField, polygonIndicesField);
+
             vertexIndicesField.setDisable(!editable);
-            polygonIndicesField.setEditable(editable);
             polygonIndicesField.setDisable(!editable);
             cleanUnusedCheckbox.setDisable(!editable);
             removeVerticesButton.setDisable(!editable);
