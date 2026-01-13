@@ -13,6 +13,14 @@ public final class MessageConstants {
     public static final String OBJECT_SAVE_ERROR = "Ошибка сохранения объекта";
     public static final String NO_MODEL_TO_SAVE = "Нет модели для сохранения";
 
+    public static final String VERTICES_REMOVE_SUCCESS = "Вершины успешно удалены";
+    public static final String VERTICES_REMOVE_ERROR = "Ошибка удаления вершин";
+    public static final String VERTICES_INDICES_INVALID = "Некорректные индексы вершин";
+    public static final String POLYGONS_REMOVE_SUCCESS = "Полигоны успешно удалены";
+    public static final String POLYGONS_REMOVE_ERROR = "Ошибка удаления полигонов";
+    public static final String POLYGONS_INDICES_INVALID = "Некорректные индексы полигонов";
+    public static final String NO_SELECTED_OBJECT = "Нет выбранного объекта";
+    public static final String INDICES_PARSING_ERROR = "Ошибка парсинга индексов";
 
     private MessageConstants() {
     }
