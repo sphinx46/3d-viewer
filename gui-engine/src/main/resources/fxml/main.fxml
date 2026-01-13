@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TreeItem?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -17,7 +16,9 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+
 <AnchorPane fx:id="anchorPane" prefHeight="800.0" prefWidth="1400.0" styleClass="root" stylesheets="@/static/css/theme-light.css" xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.MainController">
     <MenuBar prefHeight="32.0" prefWidth="1400.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <Menu mnemonicParsing="false" text="Файл">
@@ -279,60 +280,51 @@
                 <Pane VBox.vgrow="ALWAYS" />
             </VBox>
         </VBox>
-        <SplitPane fx:id="rightPanelSplitPane" dividerPositions="0.8" orientation="HORIZONTAL" HBox.hgrow="ALWAYS">
-            <items>
-                <BorderPane HBox.hgrow="ALWAYS">
-                    <center>
-                        <AnchorPane fx:id="viewerContainer" />
-                    </center>
-                </BorderPane>
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="350.0" vbarPolicy="AS_NEEDED">
-                    <VBox spacing="15" style="-fx-padding: 15;">
-                        <TitledPane animated="false" collapsible="true" text="Сцена">
-                            <graphic>
-                                <HBox alignment="CENTER_LEFT" spacing="5">
-                                    <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
-                                        <Image url="@/static/images/icons/right-menu/collection.png" />
-                                    </ImageView>
+        <HBox HBox.hgrow="ALWAYS">
+            <BorderPane HBox.hgrow="ALWAYS">
+                <center>
+                    <AnchorPane fx:id="viewerContainer" />
+                </center>
+            </BorderPane>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="350.0" vbarPolicy="AS_NEEDED">
+                <VBox spacing="15" style="-fx-padding: 15;">
+                    <TitledPane animated="false" collapsible="true" text="Сцена">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="5">
+                                <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
+                                    <Image url="@/static/images/icons/right-menu/collection.png" />
+                                </ImageView>
+                            </HBox>
+                        </graphic>
+                        <content>
+                            <VBox spacing="8">
+                                <HBox spacing="8">
+                                    <Button fx:id="addObjectButton" style="-fx-font-weight: bold;" text="Добавить">
+                                        <graphic>
+                                            <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                <Image url="@/static/images/icons/right-menu/plus.png" />
+                                            </ImageView>
+                                        </graphic>
+                                    </Button>
+                                    <Button fx:id="deleteObjectButton" style="-fx-font-weight: bold;" text="Удалить">
+                                        <graphic>
+                                            <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                                <Image url="@/static/images/icons/right-menu/minus.png" />
+                                            </ImageView>
+                                        </graphic>
+                                    </Button>
+                                    <Button fx:id="duplicateObjectButton" style="-fx-font-weight: bold;" text="Дублировать" />
                                 </HBox>
-                            </graphic>
-                            <content>
-                                <VBox spacing="8">
-                                    <HBox spacing="8">
-                                        <Button fx:id="addObjectButton" style="-fx-font-weight: bold;" text="Добавить">
-                                            <graphic>
-                                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                                                    <Image url="@/static/images/icons/right-menu/plus.png" />
-                                                </ImageView>
-                                            </graphic>
-                                        </Button>
-                                        <Button fx:id="deleteObjectButton" style="-fx-font-weight: bold;" text="Удалить">
-                                            <graphic>
-                                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                                                    <Image url="@/static/images/icons/right-menu/minus.png" />
-                                                </ImageView>
-                                            </graphic>
-                                        </Button>
-                                        <Button fx:id="duplicateObjectButton" style="-fx-font-weight: bold;" text="Дублировать" />
-                                    </HBox>
-                                    <HBox spacing="8" alignment="CENTER_LEFT">
-                                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                                            <Image url="@/static/images/icons/right-menu/eye.png" />
-                                        </ImageView>
-                                        <Label text="Отображать полигональную сетку:" />
-                                        <CheckBox fx:id="showWireframeCheckbox" />
-                                    </HBox>
-                                    <TreeView fx:id="sceneTreeView" prefHeight="150.0" style="-fx-font-size: 13px;" />
-                                </VBox>
-                            </content>
-                        </TitledPane>
-                        <fx:include fx:id="transformPanel" source="transform-panel.fxml" />
-                        <fx:include fx:id="materialPanel" source="material-panel.fxml" />
-                        <fx:include fx:id="modificationPanel" source="modification-panel.fxml" />
-                        <fx:include fx:id="cameraPanel" source="camera-panel.fxml" />
-                    </VBox>
-                </ScrollPane>
-            </items>
-        </SplitPane>
+                                <TreeView fx:id="sceneTreeView" prefHeight="150.0" style="-fx-font-size: 13px;" />
+                            </VBox>
+                        </content>
+                    </TitledPane>
+                    <fx:include fx:id="transformPanel" source="transform-panel.fxml" />
+                    <fx:include fx:id="materialPanel" source="material-panel.fxml" />
+                    <fx:include fx:id="modificationPanel" source="modification-panel.fxml" />
+                    <fx:include fx:id="cameraPanel" source="camera-panel.fxml" />
+                </VBox>
+            </ScrollPane>
+        </HBox>
     </HBox>
 </AnchorPane>

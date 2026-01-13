@@ -19,20 +19,10 @@ public class MaterialController extends BaseController {
     @FXML private Button loadTextureButton;
     @FXML private Button clearTextureButton;
     @FXML private CheckBox showTextureCheckbox;
-    @FXML private CheckBox showLightingCheckbox;
     @FXML private Slider brightnessSlider;
     @FXML private TextField brightnessField;
     @FXML private Slider reflectionSlider;
     @FXML private TextField reflectionField;
-    @FXML private Label materialColorLabel;
-    @FXML private Label materialShininessLabel;
-    @FXML private Label materialTransparencyLabel;
-    @FXML private Label materialReflectivityLabel;
-    @FXML private Label textureLabel;
-    @FXML private Label brightnessLabel;
-    @FXML private Label reflectionLabel;
-    @FXML private Label lightingLabel;
-    @FXML private Label displayLabel;
 
     @FXML
     private void initialize() {
@@ -41,7 +31,6 @@ public class MaterialController extends BaseController {
         initializeBindings();
         initializeButtonActions();
         setFieldsEditable(false);
-        updateLabels();
     }
 
     private void initializeTooltips() {
@@ -73,18 +62,6 @@ public class MaterialController extends BaseController {
                 double value = InputValidator.parseDoubleSafe(newValue, 0.0);
                 material.setReflectivity(InputValidator.clamp(value, 0.0, 1.0));
             }));
-
-        showTextureCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (hasSelectedObject()) {
-                LOG.info("Изменение отображения текстуры: {}", newValue);
-            }
-        });
-
-        showLightingCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (hasSelectedObject()) {
-                LOG.info("Изменение отображения освещения: {}", newValue);
-            }
-        });
     }
 
     private void initializeButtonActions() {
@@ -121,9 +98,7 @@ public class MaterialController extends BaseController {
         materialTransparencyField.clear();
         brightnessSlider.setValue(0.5);
         reflectionSlider.setValue(0.3);
-        showTextureCheckbox.setSelected(true);
-        showLightingCheckbox.setSelected(true);
-        updateLabels();
+        showTextureCheckbox.setSelected(false);
     }
 
     @Override
@@ -136,9 +111,6 @@ public class MaterialController extends BaseController {
         materialTransparencyField.setText(UiFieldUtils.formatDouble(object.getMaterial().getTransparency()));
         brightnessSlider.setValue(0.5);
         reflectionSlider.setValue(0.3);
-        showTextureCheckbox.setSelected(true);
-        showLightingCheckbox.setSelected(true);
-        updateLabels();
     }
 
     @Override
@@ -150,7 +122,6 @@ public class MaterialController extends BaseController {
         loadTextureButton.setDisable(!editable);
         clearTextureButton.setDisable(!editable);
         showTextureCheckbox.setDisable(!editable);
-        showLightingCheckbox.setDisable(!editable);
         brightnessSlider.setDisable(!editable);
         reflectionSlider.setDisable(!editable);
     }
@@ -159,20 +130,6 @@ public class MaterialController extends BaseController {
         if (hasSelectedObject()) {
             updater.update(getSelectedObject().getMaterial());
         }
-    }
-
-    private void updateLabels() {
-        boolean hasSelectedObject = hasSelectedObject();
-
-        if (materialColorLabel != null) materialColorLabel.setDisable(!hasSelectedObject);
-        if (materialShininessLabel != null) materialShininessLabel.setDisable(!hasSelectedObject);
-        if (materialTransparencyLabel != null) materialTransparencyLabel.setDisable(!hasSelectedObject);
-        if (materialReflectivityLabel != null) materialReflectivityLabel.setDisable(!hasSelectedObject);
-        if (textureLabel != null) textureLabel.setDisable(!hasSelectedObject);
-        if (lightingLabel != null) lightingLabel.setDisable(!hasSelectedObject);
-        if (brightnessLabel != null) brightnessLabel.setDisable(!hasSelectedObject);
-        if (reflectionLabel != null) reflectionLabel.setDisable(!hasSelectedObject);
-        if (displayLabel != null) displayLabel.setDisable(!hasSelectedObject);
     }
 
     @FunctionalInterface
