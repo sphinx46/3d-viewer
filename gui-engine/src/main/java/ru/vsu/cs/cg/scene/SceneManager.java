@@ -47,6 +47,7 @@ public class SceneManager {
         this.scene = new Scene();
         this.renderEngine = new RenderEngine();
         this.renderSettings = new RasterizerSettings();
+        renderSettings.setDrawPolygonalGrid(true);
 
         // Инициализация буферов
         initBuffers(width, height);

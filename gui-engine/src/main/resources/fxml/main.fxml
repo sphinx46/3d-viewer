@@ -283,7 +283,7 @@
         <HBox HBox.hgrow="ALWAYS">
             <BorderPane HBox.hgrow="ALWAYS">
                 <center>
-                    <StackPane fx:id="viewerContainer" style="-fx-background-color: #1e1e1e;" />
+                    <AnchorPane fx:id="viewerContainer" />
                 </center>
             </BorderPane>
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="350.0" vbarPolicy="AS_NEEDED">

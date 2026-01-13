@@ -105,7 +105,6 @@ public class RenderEngine {
         List<Polygon> polygons = model.getTriangulatedPolygonsCache();
 
         for (Polygon polygon : polygons) {
-            System.out.println("Полигон есть");
             List<Integer> vertexIndices = polygon.getVertexIndices();
             List<Integer> textureIndices = polygon.getTextureVertexIndices();
             List<Integer> normalIndices = polygon.getNormalIndices();
@@ -144,8 +143,6 @@ public class RenderEngine {
                 n2 = GraphicConveyor.multiplyMatrix4ByVector3(modelMatrix, normals.get(normalIndices.get(1))).normalized();
                 n3 = GraphicConveyor.multiplyMatrix4ByVector3(modelMatrix, normals.get(normalIndices.get(2))).normalized();
             }
-
-            System.out.println("дошел до растеризации");
 
             rasterizer.drawTriangle(
                     pixelWriter, screenV1, screenV2, screenV3,

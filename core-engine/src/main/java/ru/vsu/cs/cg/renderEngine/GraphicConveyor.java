@@ -211,9 +211,11 @@ public class GraphicConveyor {
      * @return Вектор 2f с координатами пикселя (x, y).
      */
     public static Vector2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
+        // NDC координаты находятся в диапазоне [-1, 1]
+        // Преобразуем в экранные координаты [0, width] и [0, height]
         return new Vector2f(
-                vertex.getX() * width + width / 2.0F,
-                -vertex.getY() * height + height / 2.0F
+                (vertex.getX() + 1.0F) * width / 2.0F,
+                (1.0F - vertex.getY()) * height / 2.0F
         );
     }
 
