@@ -8,7 +8,7 @@ public class SceneManager {
 
     private Scene scene;
 
-    // todo: добавить список камер
+    // todo: добавить список к амер
     // todo: добавить активную камеру
     // todo: добавить систему освещения
     // todo: добавить RenderEngine
