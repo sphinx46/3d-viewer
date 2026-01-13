@@ -104,6 +104,61 @@
                 <MenuItem fx:id="menuSceneReset" mnemonicParsing="false" text="Сбросить изменения" />
             </items>
         </Menu>
+        <Menu mnemonicParsing="false" text="Камера">
+            <items>
+                <MenuItem fx:id="menuCameraCreate" mnemonicParsing="false" text="Добавить камеру">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/right-menu/plus.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuCameraDelete" mnemonicParsing="false" text="Удалить камеру">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/right-menu/minus.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuCameraFront" mnemonicParsing="false" text="Вид спереди">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/front.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuCameraTop" mnemonicParsing="false" text="Вид сверху">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/top.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuCameraRight" mnemonicParsing="false" text="Вид справа">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/right.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="menuCameraLeft" mnemonicParsing="false" text="Вид слева">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/left.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <SeparatorMenuItem />
+                <MenuItem fx:id="menuCameraFrame" mnemonicParsing="false" text="Обрамить выделенное">
+                    <graphic>
+                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                            <Image url="@/static/images/icons/top-menu/frame.png" />
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+            </items>
+        </Menu>
         <Menu mnemonicParsing="false" text="Окно">
             <items>
                 <MenuItem fx:id="menuWindowNew" mnemonicParsing="false" text="Новое окно">
@@ -267,6 +322,7 @@
                     <fx:include fx:id="transformPanel" source="transform-panel.fxml" />
                     <fx:include fx:id="materialPanel" source="material-panel.fxml" />
                     <fx:include fx:id="modificationPanel" source="modification-panel.fxml" />
+                    <fx:include fx:id="cameraPanel" source="camera-panel.fxml" />
                 </VBox>
             </ScrollPane>
         </HBox>
