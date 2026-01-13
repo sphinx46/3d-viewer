@@ -142,15 +142,13 @@ public class GraphicConveyor {
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
         Vector3f resultZ = target.subtract(eye);
 
-        Vector3f resultX = resultZ.cross(up);
+        Vector3f resultX = up.cross(resultZ);
 
-        Vector3f resultY = resultX.cross(resultZ);
+        Vector3f resultY = resultZ.cross(resultX);
 
         resultZ = resultZ.normalizeSafe();
         resultX = resultX.normalizeSafe();
         resultY = resultY.normalizeSafe();
-
-        resultY = resultY.multiply(-1);
 
         Matrix4x4 matrix = new Matrix4x4();
 
@@ -174,6 +172,7 @@ public class GraphicConveyor {
         return matrix;
     }
 
+
     /**
      * Создает матрицу перспективной проекции.
      * Переводит координаты из пространства камеры в пространство отсечения.
@@ -191,15 +190,17 @@ public class GraphicConveyor {
 
         float tangentMinusOnDegree = (float) (1.0F / (Math.tan(fov * 0.5F)));
 
-        matrix.set(0, 0, tangentMinusOnDegree);
-        matrix.set(1, 1, tangentMinusOnDegree / aspectRatio);
+        matrix.set(0, 0, tangentMinusOnDegree / aspectRatio);
+        matrix.set(1, 1, tangentMinusOnDegree);
+
         matrix.set(2, 2, (farPlane + nearPlane) / (farPlane - nearPlane));
+
         matrix.set(2, 3, (2 * nearPlane * farPlane) / (nearPlane - farPlane));
+
         matrix.set(3, 2, 1.0F);
 
         return matrix;
     }
-
     /**
      * Преобразует нормализованные координаты устройства (NDC) в экранные координаты (пиксели).
      * NDC координаты находятся в диапазоне [-1, 1].
@@ -211,12 +212,14 @@ public class GraphicConveyor {
      * @return Вектор 2f с координатами пикселя (x, y).
      */
     public static Vector2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
-        // NDC координаты находятся в диапазоне [-1, 1]
-        // Преобразуем в экранные координаты [0, width] и [0, height]
         return new Vector2f(
                 (vertex.getX() + 1.0F) * width / 2.0F,
                 (1.0F - vertex.getY()) * height / 2.0F
         );
+    }
+
+    public static Vector4f multiplyMatrix4ByVector3ToVector4(Matrix4x4 matrix, Vector3f vertex) {
+        return matrix.multiply(new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F));
     }
 
     /**
@@ -231,9 +234,5 @@ public class GraphicConveyor {
         Vector4f vertex4 = new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
         Vector4f result4 = matrix.multiply(vertex4);
         return result4.toVector3Safe();
-    }
-
-    public static Vector4f multiplyMatrix4ByVector3ToVector4(Matrix4x4 matrix, Vector3f vertex) {
-        return matrix.multiply(new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F));
     }
 }
