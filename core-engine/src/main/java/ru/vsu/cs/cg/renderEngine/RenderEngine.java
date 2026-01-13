@@ -23,7 +23,15 @@ public class RenderEngine {
     private static Model cameraGizmoModel;
 
     /**
-     * Основной метод рендеринга. Принимает список RenderEntity, а не SceneObject.
+     * Основной метод рендеринга
+     * @param pixelWriter Объект для отрисовки пикселей на экран
+     * @param width ширина экрана
+     * @param height высота экрана
+     * @param entities список моделей
+     * @param cameras список камер
+     * @param activeCamera активная камера
+     * @param rasterizer экземпляр растеризатора
+     * @param baseSettings основные настройки рендера
      */
     public void render(
             PixelWriter pixelWriter,
@@ -43,18 +51,16 @@ public class RenderEngine {
 
         Vector3f lightDirection = activeCamera.getLightDirection();
 
-        // 1. Рендеринг сущностей сцены
         for (RenderEntity entity : entities) {
-            // Комбинируем настройки сущности с базовыми настройками
             RasterizerSettings objectSettings = new RasterizerSettings(
-                    baseSettings.isUseTexture() && entity.isUseTexture(),
-                    baseSettings.isUseLighting() && entity.isUseLighting(),
-                    baseSettings.isDrawPolygonalGrid(),
+                    entity.isUseTexture(),
+                    entity.isUseLighting(),
+                    entity.isDrawPolygonalGrid(),
                     entity.getColor() != null ? entity.getColor() : baseSettings.getDefaultColor(),
                     baseSettings.getGridColor()
             );
 
-            renderMesh(
+            renderModel(
                     pixelWriter, width, height,
                     entity.getModel(),
                     entity.getTranslation(), entity.getRotation(), entity.getScale(),
@@ -63,7 +69,6 @@ public class RenderEngine {
             );
         }
 
-        // 2. Рендеринг маркеров других камер
         if (cameras != null) {
             Model gizmo = getCameraGizmo();
             RasterizerSettings gizmoSettings = new RasterizerSettings();
@@ -73,7 +78,7 @@ public class RenderEngine {
             for (Camera camera : cameras) {
                 if (camera == activeCamera) continue;
 
-                renderMesh(
+                renderModel(
                         pixelWriter, width, height,
                         gizmo,
                         camera.getPosition(), new Vector3f(0, 0, 0), new Vector3f(1, 1, 1),
@@ -84,7 +89,23 @@ public class RenderEngine {
         }
     }
 
-    private void renderMesh(
+    /**
+     * Метод рендера модели
+     * Здесь происходят все преобразования до растеризации
+     * @param pixelWriter Объект для отрисовки пикселей на экран
+     * @param width ширина экрана
+     * @param height высота экрана
+     * @param model модель для рендеринга
+     * @param translation вектор позиции
+     * @param rotation вектор поворота
+     * @param scale вектор растяжения
+     * @param viewProjectionMatrix матрица перспективы
+     * @param lightDirection вектор света
+     * @param rasterizer растеризатор
+     * @param settings настройки модели
+     * @param texture текстура модели
+     */
+    private void renderModel(
             PixelWriter pixelWriter,
             int width,
             int height,
@@ -117,7 +138,6 @@ public class RenderEngine {
             Vector4f v2Clip = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvpMatrix, v2);
             Vector4f v3Clip = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvpMatrix, v3);
 
-            // Отсечение по Near Plane
             if (v1Clip.getW() <= 0 || v2Clip.getW() <= 0 || v3Clip.getW() <= 0) continue;
 
             Vector3f v1NDC = v1Clip.toVector3Safe();
@@ -138,7 +158,6 @@ public class RenderEngine {
 
             Vector3f n1 = null, n2 = null, n3 = null;
             if (settings.isUseLighting() && !normalIndices.isEmpty()) {
-                // Применяем вращение к нормалям (используя ту же матрицу модели, предполагая равномерный scale)
                 n1 = GraphicConveyor.multiplyMatrix4ByVector3(modelMatrix, normals.get(normalIndices.get(0))).normalized();
                 n2 = GraphicConveyor.multiplyMatrix4ByVector3(modelMatrix, normals.get(normalIndices.get(1))).normalized();
                 n3 = GraphicConveyor.multiplyMatrix4ByVector3(modelMatrix, normals.get(normalIndices.get(2))).normalized();
@@ -152,6 +171,7 @@ public class RenderEngine {
             );
         }
     }
+
 
     private Model getCameraGizmo() {
         if (cameraGizmoModel == null) {

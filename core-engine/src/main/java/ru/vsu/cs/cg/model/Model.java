@@ -168,10 +168,14 @@ public final class Model {
         normals.addAll(newNormals);
 
         for (Polygon polygon : polygons) {
+            // Получаем список индексов нормалей (предполагаем, что List изменяемый)
             List<Integer> normalIndices = polygon.getNormalIndices();
-            if (normalIndices.isEmpty()) {
-                normalIndices.addAll(polygon.getVertexIndices());
-            }
+
+            // Обязательно очищаем старые индексы!
+            normalIndices.clear();
+
+            // Теперь индекс нормали должен совпадать с индексом вершины
+            normalIndices.addAll(polygon.getVertexIndices());
         }
     }
 

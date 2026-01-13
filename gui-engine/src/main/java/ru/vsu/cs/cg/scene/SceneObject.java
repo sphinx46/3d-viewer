@@ -3,8 +3,10 @@ package ru.vsu.cs.cg.scene;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vsu.cs.cg.rasterization.Texture;
 
 import java.util.UUID;
 
@@ -15,8 +17,10 @@ public class SceneObject {
     private String name;
     private Model model;
     private Transform transform;
+    private Texture texture;
     private Material material;
     private boolean visible;
+    private RasterizerSettings renderSettings;
 
     @JsonCreator
     public SceneObject(
@@ -25,18 +29,20 @@ public class SceneObject {
         @JsonProperty("model") Model model,
         @JsonProperty("transform") Transform transform,
         @JsonProperty("material") Material material,
-        @JsonProperty("visible") boolean visible) {
+        @JsonProperty("visible") boolean visible,
+        @JsonProperty("renderSettings") RasterizerSettings renderSettings) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.name = name != null ? name : generateDefaultName();
         this.model = model;
         this.transform = transform != null ? transform : new Transform();
         this.material = material != null ? material : new Material();
         this.visible = visible;
+        this.renderSettings = renderSettings != null ? renderSettings : new RasterizerSettings();
         LOG.debug("Создан SceneObject: id={}, name={}, visible={}", id, name, visible);
     }
 
     public SceneObject(String name, Model model) {
-        this(UUID.randomUUID().toString(), name, model, new Transform(), new Material(), true);
+        this(UUID.randomUUID().toString(), name, model, new Transform(), new Material(), true, null);
     }
 
     public SceneObject(Model model) {
@@ -75,7 +81,20 @@ public class SceneObject {
         LOG.debug("Видимость объекта '{}' изменена: {} -> {}", name, oldValue, visible);
     }
 
+    public RasterizerSettings getRenderSettings() { return renderSettings; }
+    public void setRenderSettings(RasterizerSettings renderSettings) {
+        this.renderSettings = renderSettings != null ? renderSettings : new RasterizerSettings();
+        LOG.debug("Настройки рендеринга объекта '{}' обновлены", name);
+    }
+
     public SceneObject copy() {
+        RasterizerSettings copiedSettings = new RasterizerSettings(
+            renderSettings.isUseTexture(),
+            renderSettings.isUseLighting(),
+            renderSettings.isDrawPolygonalGrid(),
+            renderSettings.getDefaultColor(),
+            renderSettings.getGridColor()
+        );
         SceneObject copy = new SceneObject(
             UUID.randomUUID().toString(),
             name + "_copy",
@@ -90,10 +109,19 @@ public class SceneObject {
                 material.getTexturePath(),
                 material.getShininess(), material.getReflectivity(), material.getTransparency()
             ),
-            visible
+            visible,
+            copiedSettings
         );
         LOG.debug("Создана копия объекта '{}' с id={}", name, copy.getId());
         return copy;
+    }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
     }
 
     @Override

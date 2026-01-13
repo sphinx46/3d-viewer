@@ -2,13 +2,19 @@ package ru.vsu.cs.cg.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import ru.vsu.cs.cg.rasterization.RasterizerSettings;
+import ru.vsu.cs.cg.rasterization.Texture;
 import ru.vsu.cs.cg.scene.Material;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
 import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 import ru.vsu.cs.cg.utils.validation.InputValidator;
+
+import java.io.File;
 
 public class MaterialController extends BaseController {
 
@@ -19,6 +25,8 @@ public class MaterialController extends BaseController {
     @FXML private Button loadTextureButton;
     @FXML private Button clearTextureButton;
     @FXML private CheckBox showTextureCheckbox;
+    @FXML private CheckBox useLightingCheckbox;
+    @FXML private CheckBox showPolygonalGridCheckbox;
     @FXML private Slider brightnessSlider;
     @FXML private TextField brightnessField;
     @FXML private Slider reflectionSlider;
@@ -62,6 +70,16 @@ public class MaterialController extends BaseController {
                 double value = InputValidator.parseDoubleSafe(newValue, 0.0);
                 material.setReflectivity(InputValidator.clamp(value, 0.0, 1.0));
             }));
+
+        // Обработчики для флажков рендеринга
+        showTextureCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
+            updateSelectedObjectRenderSettings(settings -> settings.setUseTexture(newValue)));
+
+        useLightingCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
+            updateSelectedObjectRenderSettings(settings -> settings.setUseLighting(newValue)));
+
+        showPolygonalGridCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
+            updateSelectedObjectRenderSettings(settings -> settings.setDrawPolygonalGrid(newValue)));
     }
 
     private void initializeButtonActions() {
@@ -71,23 +89,60 @@ public class MaterialController extends BaseController {
 
     private void loadTexture() {
         if (!hasSelectedObject()) {
-            DialogManager.showError("Нет выбранного объекта для загрузки текстуры");
             return;
         }
 
-        LOG.info("Загрузка текстуры для объекта '{}'", getSelectedObject().getName());
-        DialogManager.showInfo("Загрузка текстуры", "Функция загрузки текстуры в разработке");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Выберите файл текстуры");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Изображения", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
+                new FileChooser.ExtensionFilter("Все файлы", "*.*")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(loadTextureButton.getScene().getWindow());
+
+        if (selectedFile != null) {
+            try {
+                Image image = new Image(selectedFile.toURI().toString());
+
+                if (image.isError()) {
+                    throw new Exception("Не удалось прочитать формат изображения");
+                }
+
+                Texture newTexture = new Texture(image);
+
+                SceneObject selectedObject = getSelectedObject();
+
+                selectedObject.setTexture(newTexture);
+
+                selectedObject.getMaterial().setTexturePath(selectedFile.getAbsolutePath());
+
+                selectedObject.getRenderSettings().setUseTexture(true);
+                showTextureCheckbox.setSelected(true);
+
+                LOG.info("Текстура успешно загружена: {}", selectedFile.getName());
+
+            } catch (Exception e) {
+                LOG.error("Ошибка при загрузке текстуры", e);
+            }
+        }
     }
 
     private void clearTexture() {
         if (!hasSelectedObject()) {
-            DialogManager.showError("Нет выбранного объекта для очистки текстуры");
             return;
         }
 
-        getSelectedObject().getMaterial().setTexturePath(null);
-        LOG.info("Текстура очищена для объекта '{}'", getSelectedObject().getName());
-        DialogManager.showInfo("Очистка текстуры", "Текстура удалена из объекта");
+        SceneObject selectedObject = getSelectedObject();
+
+        selectedObject.setTexture(null);
+
+        selectedObject.getMaterial().setTexturePath(null);
+
+        selectedObject.getRenderSettings().setUseTexture(false);
+        showTextureCheckbox.setSelected(false);
+
+        LOG.info("Текстура удалена для объекта '{}'", selectedObject.getName());
     }
 
     @Override
@@ -99,6 +154,8 @@ public class MaterialController extends BaseController {
         brightnessSlider.setValue(0.5);
         reflectionSlider.setValue(0.3);
         showTextureCheckbox.setSelected(false);
+        useLightingCheckbox.setSelected(false);
+        showPolygonalGridCheckbox.setSelected(false);
     }
 
     @Override
@@ -111,6 +168,12 @@ public class MaterialController extends BaseController {
         materialTransparencyField.setText(UiFieldUtils.formatDouble(object.getMaterial().getTransparency()));
         brightnessSlider.setValue(0.5);
         reflectionSlider.setValue(0.3);
+
+        // Заполняем настройки рендеринга
+        RasterizerSettings settings = object.getRenderSettings();
+        showTextureCheckbox.setSelected(settings.isUseTexture());
+        useLightingCheckbox.setSelected(settings.isUseLighting());
+        showPolygonalGridCheckbox.setSelected(settings.isDrawPolygonalGrid());
     }
 
     @Override
@@ -122,6 +185,8 @@ public class MaterialController extends BaseController {
         loadTextureButton.setDisable(!editable);
         clearTextureButton.setDisable(!editable);
         showTextureCheckbox.setDisable(!editable);
+        useLightingCheckbox.setDisable(!editable);
+        showPolygonalGridCheckbox.setDisable(!editable);
         brightnessSlider.setDisable(!editable);
         reflectionSlider.setDisable(!editable);
     }
@@ -132,8 +197,19 @@ public class MaterialController extends BaseController {
         }
     }
 
+    private void updateSelectedObjectRenderSettings(RenderSettingsUpdater updater) {
+        if (hasSelectedObject()) {
+            updater.update(getSelectedObject().getRenderSettings());
+        }
+    }
+
     @FunctionalInterface
     private interface MaterialUpdater {
         void update(Material material);
+    }
+
+    @FunctionalInterface
+    private interface RenderSettingsUpdater {
+        void update(RasterizerSettings settings);
     }
 }

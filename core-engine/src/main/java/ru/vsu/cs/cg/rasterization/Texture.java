@@ -15,12 +15,8 @@ public class Texture {
     private double width;
     private double height;
 
-    public Texture(String url) {
-        if (url == null){
-            throw new NullPointerException("URL текстуры не может быть null");
-        }
+    public Texture(Image image) {
 
-        this.image = new Image(url);
         this.reader = image.getPixelReader();
 
         if (this.reader == null){

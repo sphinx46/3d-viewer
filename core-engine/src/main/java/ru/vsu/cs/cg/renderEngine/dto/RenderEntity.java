@@ -7,7 +7,6 @@ import ru.vsu.cs.cg.rasterization.Texture;
 
 /**
  * DTO для передачи данных о рендеринге из SceneObject в RenderEngine.
- * Разрывает зависимость ядра от сцены.
  */
 public class RenderEntity {
     private final Model model;
@@ -18,9 +17,10 @@ public class RenderEntity {
     private final Color color;
     private final boolean useTexture;
     private final boolean useLighting;
+    private final boolean drawPolygonalGrid;
 
     public RenderEntity(Model model, Vector3f translation, Vector3f rotation, Vector3f scale,
-                        Texture texture, Color color, boolean useTexture, boolean useLighting) {
+                        Texture texture, Color color, boolean useTexture, boolean useLighting, boolean drawPolygonalGrid) {
         this.model = model;
         this.translation = translation;
         this.rotation = rotation;
@@ -29,6 +29,7 @@ public class RenderEntity {
         this.color = color;
         this.useTexture = useTexture;
         this.useLighting = useLighting;
+        this.drawPolygonalGrid = drawPolygonalGrid;
     }
 
     public Model getModel() { return model; }
@@ -39,6 +40,7 @@ public class RenderEntity {
     public Color getColor() { return color; }
     public boolean isUseTexture() { return useTexture; }
     public boolean isUseLighting() { return useLighting; }
+    public boolean isDrawPolygonalGrid() { return drawPolygonalGrid; }
 
     @Override
     public String toString(){

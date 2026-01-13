@@ -61,6 +61,7 @@
                 </ImageView>
                 <Label style="-fx-font-weight: bold;" text="Освещение:" />
             </HBox>
+            <CheckBox fx:id="useLightingCheckbox" mnemonicParsing="false" text="Включить освещение" />
             <VBox spacing="12">
                 <HBox alignment="CENTER_LEFT" spacing="10">
                     <Label text="Яркость:" />
@@ -77,6 +78,14 @@
                     </HBox>
                 </HBox>
             </VBox>
+            <Separator prefWidth="200.0" />
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/grid.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Отображение:" />
+            </HBox>
+            <CheckBox fx:id="showPolygonalGridCheckbox" mnemonicParsing="false" text="Показать полигональную сетку" />
         </VBox>
     </content>
 </TitledPane>

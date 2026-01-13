@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CameraGizmo {
-
-    // Статическое поле, чтобы не пересоздавать модель каждый кадр
     private static Model cachedGizmo = null;
 
     /**
@@ -29,8 +27,7 @@ public class CameraGizmo {
         float h = 0.4f; // полувысота
         float len = 0.8f; // длина
 
-        // 1. Добавляем вершины
-        // 0-3: Основание пирамиды (задняя часть камеры)
+
         model.addVertex(new Vector3f(-w, h, 0));  // 0
         model.addVertex(new Vector3f(w, h, 0));   // 1
         model.addVertex(new Vector3f(w, -h, 0));  // 2

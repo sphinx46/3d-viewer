@@ -72,7 +72,7 @@ public class Scene {
             LOG.warn("Попытка добавить null объект в сцену");
             return;
         }
-
+        object.getModel().recomputeNormals();
         objects.add(object);
         LOG.info("Объект '{}' добавлен в сцену '{}'. Всего объектов: {}",
             object.getName(), name, objects.size());

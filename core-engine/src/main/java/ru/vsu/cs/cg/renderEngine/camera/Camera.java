@@ -4,7 +4,9 @@ import ru.vsu.cs.cg.math.Matrix4x4;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.renderEngine.GraphicConveyor;
 
-
+/**
+ * Класс камеры
+ */
 public class Camera {
     private final String id;
     private Vector3f position;
@@ -28,7 +30,7 @@ public class Camera {
 
     public Camera() {
         this("DefaultCamera_",
-                new Vector3f(0, 0, 5),
+                new Vector3f(0, 2, 5),
                 new Vector3f(0, 0, 0));
     }
 
@@ -41,10 +43,10 @@ public class Camera {
     }
 
     /**
-     * Направление света = направление взгляда камеры (от позиции к цели)
+     * Подсчет направления света
      */
     public Vector3f getLightDirection() {
-        Vector3f dir = target.subtract(position);
+        Vector3f dir = position.subtract(target);
         return dir.normalized();
     }
 
@@ -107,6 +109,4 @@ public class Camera {
     public void setFarPlane(float farPlane) {
         this.farPlane = farPlane;
     }
-
-    // Геттеры/сеттеры для полей...
 }
