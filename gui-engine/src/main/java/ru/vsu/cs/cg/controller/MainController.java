@@ -8,7 +8,8 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.command.CommandFactory;
-import ru.vsu.cs.cg.controller.factory.ControllerFactory;
+import ru.vsu.cs.cg.controller.command.impl.model.ModelLoadCommand;
+import ru.vsu.cs.cg.controller.command.impl.scene.SceneOpenCommand;
 import ru.vsu.cs.cg.controller.hotkeys.HotkeyManager;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
@@ -16,69 +17,96 @@ import ru.vsu.cs.cg.service.impl.RecentFilesCacheServiceImpl;
 import ru.vsu.cs.cg.utils.cache.CachePersistenceManager;
 import ru.vsu.cs.cg.utils.controller.ControllerUtils;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
+import ru.vsu.cs.cg.utils.file.PathManager;
 import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 
 import java.util.List;
 import java.util.Optional;
 
-import static ru.vsu.cs.cg.utils.file.PathManager.isSupportedSceneFormat;
-import static ru.vsu.cs.cg.utils.file.PathManager.validatePathForRead;
-
 public class MainController {
     private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
 
-    private TransformController transformController;
-    private MaterialController materialController;
+    @FXML
+    private TransformController transformPanelController;
+    @FXML
+    private MaterialController materialPanelController;
+    @FXML
+    private ModificationController modificationPanelController;
     private final SceneController sceneController = new SceneController();
     private HotkeyManager hotkeyManager;
     private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
     private CommandFactory commandFactory;
 
-    @FXML private AnchorPane anchorPane;
-    @FXML private TreeView<String> sceneTreeView;
-    @FXML private Button addObjectButton;
-    @FXML private Button deleteObjectButton;
-    @FXML private Button duplicateObjectButton;
+    @FXML
+    private AnchorPane anchorPane;
+    @FXML
+    private TreeView<String> sceneTreeView;
+    @FXML
+    private Button addObjectButton;
+    @FXML
+    private Button deleteObjectButton;
+    @FXML
+    private Button duplicateObjectButton;
 
-    @FXML private MenuItem menuThemeDark;
-    @FXML private MenuItem menuThemeLight;
-    @FXML private MenuItem menuFileOpen;
-    @FXML private MenuItem menuFileSave;
-    @FXML private MenuItem menuFileSaveAs;
-    @FXML private MenuItem menuFileExit;
-    @FXML private MenuItem menuFileNewCustom;
-    @FXML private MenuItem menuCreatePlane;
-    @FXML private MenuItem menuCreateCube;
-    @FXML private MenuItem menuCreateCone;
-    @FXML private MenuItem menuCreateCylinder;
-    @FXML private MenuItem menuCreateTeapot;
-    @FXML private MenuItem menuSceneNew;
-    @FXML private MenuItem menuSceneOpen;
-    @FXML private MenuItem menuSceneSave;
-    @FXML private MenuItem menuSceneSaveAs;
-    @FXML private MenuItem menuSceneReset;
-    @FXML private MenuItem menuWindowFullscreen;
-    @FXML private MenuItem menuWindowScreenshot;
-    @FXML private MenuItem menuHelpDocumentation;
-    @FXML private MenuItem menuHelpShortcuts;
-    @FXML private MenuItem menuHelpBugReport;
-    @FXML private MenuItem menuHelpAbout;
-    @FXML private Menu menuRecent;
-    @FXML private MenuItem menuRecentClear;
+    @FXML
+    private MenuItem menuThemeDark;
+    @FXML
+    private MenuItem menuThemeLight;
+    @FXML
+    private MenuItem menuFileOpen;
+    @FXML
+    private MenuItem menuFileSave;
+    @FXML
+    private MenuItem menuFileSaveAs;
+    @FXML
+    private MenuItem menuFileExit;
+    @FXML
+    private MenuItem menuFileNewCustom;
+    @FXML
+    private MenuItem menuCreatePlane;
+    @FXML
+    private MenuItem menuCreateCube;
+    @FXML
+    private MenuItem menuCreateCone;
+    @FXML
+    private MenuItem menuCreateCylinder;
+    @FXML
+    private MenuItem menuCreateTeapot;
+    @FXML
+    private MenuItem menuSceneNew;
+    @FXML
+    private MenuItem menuSceneOpen;
+    @FXML
+    private MenuItem menuSceneSave;
+    @FXML
+    private MenuItem menuSceneSaveAs;
+    @FXML
+    private MenuItem menuSceneReset;
+    @FXML
+    private MenuItem menuWindowFullscreen;
+    @FXML
+    private MenuItem menuWindowScreenshot;
+    @FXML
+    private MenuItem menuHelpDocumentation;
+    @FXML
+    private MenuItem menuHelpShortcuts;
+    @FXML
+    private MenuItem menuHelpBugReport;
+    @FXML
+    private MenuItem menuHelpAbout;
+    @FXML
+    private Menu menuRecent;
+    @FXML
+    private MenuItem menuRecentClear;
 
     @FXML
     private void initialize() {
-        LOG.info("Инициализация главного контроллера");
-
-        initializeControllers();
         initializeTooltips();
         initializeSceneTree();
         initializeMenuActions();
         initializeButtonActions();
         loadRecentFiles();
         initializeDependencies();
-
-        LOG.info("Главный контроллер успешно инициализирован");
     }
 
     public void initializeAfterStageSet() {
@@ -90,29 +118,41 @@ public class MainController {
             hotkeyManager = new HotkeyManager();
             hotkeyManager.setCommandFactory(commandFactory);
             hotkeyManager.registerGlobalHotkeys(anchorPane);
-
-            LOG.debug("Командная система инициализирована");
         } catch (Exception e) {
             LOG.error("Ошибка инициализации командной системы: {}", e.getMessage());
         }
     }
 
-    private void initializeControllers() {
-        transformController = ControllerFactory.createController("/fxml/transform-panel.fxml", TransformController.class);
-        materialController = ControllerFactory.createController("/fxml/material-panel.fxml", MaterialController.class);
-    }
-
     private void initializeDependencies() {
-        this.sceneController.setMainController(this);
-        this.sceneController.setTransformController(transformController);
-        this.sceneController.setMaterialController(materialController);
-        LOG.debug("Зависимости контроллеров инициализированы");
+        if (transformPanelController != null) {
+            transformPanelController.setSceneController(sceneController);
+            sceneController.setTransformController(transformPanelController);
+        }
+
+        if (materialPanelController != null) {
+            materialPanelController.setSceneController(sceneController);
+            sceneController.setMaterialController(materialPanelController);
+        }
+
+        if (modificationPanelController != null) {
+            modificationPanelController.setSceneController(sceneController);
+            sceneController.setModificationController(modificationPanelController);
+        }
+
+        sceneController.setMainController(this);
+        sceneController.updateUI();
     }
 
     private void initializeTooltips() {
         TooltipManager.addHotkeyTooltip(addObjectButton, "addObjectButton");
         TooltipManager.addHotkeyTooltip(deleteObjectButton, "deleteObjectButton");
         TooltipManager.addHotkeyTooltip(duplicateObjectButton, "duplicateObjectButton");
+    }
+
+    private void initializeButtonActions() {
+        addObjectButton.setOnAction(event -> executeCommand("model_load"));
+        deleteObjectButton.setOnAction(event -> executeCommand("object_delete"));
+        duplicateObjectButton.setOnAction(event -> executeCommand("object_duplicate"));
     }
 
     private void initializeSceneTree() {
@@ -132,7 +172,6 @@ public class MainController {
                 }
             }
         );
-        LOG.debug("Дерево сцены инициализировано");
     }
 
     private void initializeMenuActions() {
@@ -140,20 +179,8 @@ public class MainController {
         menuThemeLight.setOnAction(event -> executeCommand("theme_светлая"));
 
         menuFileOpen.setOnAction(event -> executeCommand("model_load"));
-        menuFileSave.setOnAction(event -> {
-            if (sceneController.hasSelectedObject()) {
-                executeCommand("model_save");
-            } else {
-                executeCommand("scene_save");
-            }
-        });
-        menuFileSaveAs.setOnAction(event -> {
-            if (sceneController.hasSelectedObject()) {
-                executeCommand("model_save");
-            } else {
-                executeCommand("scene_save");
-            }
-        });
+        menuFileSave.setOnAction(event -> executeSaveCommand());
+        menuFileSaveAs.setOnAction(event -> executeSaveCommand());
         menuFileExit.setOnAction(event -> handleExit());
         menuFileNewCustom.setOnAction(event -> executeCommand("custom_object_create"));
 
@@ -180,17 +207,18 @@ public class MainController {
         menuRecentClear.setOnAction(event -> clearRecentFiles());
     }
 
-    private void initializeButtonActions() {
-        addObjectButton.setOnAction(event -> executeCommand("model_load"));
-        deleteObjectButton.setOnAction(event -> executeCommand("object_delete"));
-        duplicateObjectButton.setOnAction(event -> executeCommand("object_duplicate"));
+    private void executeSaveCommand() {
+        if (sceneController.hasSelectedObject()) {
+            executeCommand("model_save");
+        } else {
+            executeCommand("scene_save");
+        }
     }
 
     private void executeCommand(String commandName) {
         if (commandFactory != null) {
             commandFactory.executeCommand(commandName);
         } else {
-            LOG.warn("CommandFactory не инициализирован для команды: {}", commandName);
             DialogManager.showError("Система команд не готова");
         }
     }
@@ -224,7 +252,6 @@ public class MainController {
                     }
                 }
             }
-            LOG.debug("Дерево сцены обновлено");
         });
     }
 
@@ -255,24 +282,37 @@ public class MainController {
 
         menuRecent.getItems().add(new SeparatorMenuItem());
         menuRecent.getItems().add(menuRecentClear);
-
-        LOG.debug("Меню недавних файлов обновлено");
     }
 
     private void openRecentFile(String filePath) {
         try {
-            validatePathForRead(filePath);
-
-            boolean isSceneFormat = isSupportedSceneFormat(filePath);
-            if (isSceneFormat) {
-                openSceneWithCheck(filePath);
-            } else {
-                sceneController.addModelToScene(filePath);
+            if (commandFactory == null) {
+                DialogManager.showError("Система команд не готова");
+                return;
             }
+
+            PathManager.validatePathForRead(filePath);
+
+            boolean isSceneFormat = filePath.toLowerCase().endsWith(".scene") ||
+                filePath.toLowerCase().endsWith(".3dscene");
+
+            if (isSceneFormat) {
+                SceneOpenCommand sceneCommand =
+                    (SceneOpenCommand) commandFactory.getCommand("scene_open");
+                if (sceneCommand != null) {
+                    sceneCommand.loadSceneFromPath(filePath);
+                }
+            } else {
+                ModelLoadCommand modelCommand =
+                    (ModelLoadCommand) commandFactory.getCommand("model_load");
+                if (modelCommand != null) {
+                    modelCommand.loadModelFromPath(filePath);
+                }
+            }
+
             recentFilesCacheService.addFile(filePath);
             updateRecentFilesMenu();
         } catch (Exception e) {
-            LOG.error("Ошибка загрузки недавнего файла '{}': {}", filePath, e.getMessage());
             DialogManager.showError("Не удалось загрузить файл: " + ControllerUtils.getFileName(filePath));
         }
     }
@@ -287,7 +327,6 @@ public class MainController {
             recentFilesCacheService.clearCache();
             CachePersistenceManager.saveRecentFiles(recentFilesCacheService.getRecentFiles());
             updateRecentFilesMenu();
-            LOG.info("Список недавних файлов очищен");
         }
     }
 
@@ -308,28 +347,6 @@ public class MainController {
             hotkeyManager.unregisterGlobalHotkeys(anchorPane);
         }
         Platform.exit();
-    }
-
-    private void openSceneWithCheck(String filePath) {
-        if (sceneController.hasUnsavedChanges() && !DialogManager.confirmUnsavedChanges()) {
-            return;
-        }
-
-        try {
-            validatePathForRead(filePath);
-
-            if (!isSupportedSceneFormat(filePath)) {
-                DialogManager.showError("Неподдерживаемый формат сцены");
-                return;
-            }
-
-            sceneController.loadScene(filePath);
-            recentFilesCacheService.addFile(filePath);
-            updateRecentFilesMenu();
-        } catch (Exception e) {
-            LOG.error("Ошибка загрузки сцены: {}", e.getMessage());
-            DialogManager.showError("Ошибка загрузки сцены: " + e.getMessage());
-        }
     }
 
     public SceneController getSceneController() {

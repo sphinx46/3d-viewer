@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.controller.factory.ControllerFactory;
 import ru.vsu.cs.cg.utils.window.StageManager;
 import ru.vsu.cs.cg.utils.window.WindowManager;
 
@@ -19,7 +18,6 @@ public class App extends Application {
             primaryStage = StageManager.createPrimaryStage();
             primaryStage.setOnCloseRequest(event -> {
                 LOG.info("Получен запрос на закрытие приложения");
-                ControllerFactory.clearCache();
                 Platform.exit();
             });
 

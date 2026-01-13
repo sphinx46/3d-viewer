@@ -23,7 +23,7 @@ public class DefaultModelAddCommand implements Command {
         try {
             sceneController.addDefaultModelToScene(modelType);
             LOG.info("Добавлена стандартная модель: {}", modelType.getDisplayName());
-            DialogManager.showSuccess("Модель '" + modelType.getDisplayName() + "' добавлена");
+            DialogManager.showModelLoadSuccess("Модель '" + modelType.getDisplayName() + "' добавлена");
         } catch (Exception e) {
             LOG.error("Ошибка добавления стандартной модели '{}': {}", modelType.getDisplayName(), e.getMessage());
             DialogManager.showError("Ошибка добавления модели: " + e.getMessage());

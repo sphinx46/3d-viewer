@@ -39,7 +39,7 @@ public class SceneSaveCommand implements Command {
                     return;
                 }
                 sceneController.saveScene(filePath);
-                DialogManager.showSuccess("Сцена сохранена");
+                DialogManager.showSceneSaveSuccess("Сцена сохранена");
             } else {
                 saveSceneAs();
             }
@@ -64,7 +64,7 @@ public class SceneSaveCommand implements Command {
                 CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
 
                 LOG.info("Сцена сохранена: {}", file.getName());
-                DialogManager.showSuccess("Сцена сохранена: " + file.getName());
+                DialogManager.showSceneSaveSuccess("Сцена сохранена: " + file.getName());
             } catch (Exception e) {
                 LOG.error("Ошибка сохранения сцены: {}", e.getMessage());
                 DialogManager.showError("Ошибка сохранения сцены: " + e.getMessage());
