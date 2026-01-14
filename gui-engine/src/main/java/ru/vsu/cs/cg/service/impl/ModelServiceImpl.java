@@ -26,14 +26,11 @@ public class ModelServiceImpl implements ModelService {
 
         try {
             return DefaultModelLoader.loadModel(modelType);
-
         } catch (ModelLoadException e) {
-            LOG.error("Ошибка загрузки стандартной модели '{}': {}",
-                modelType.getDisplayName(), e.getMessage(), e);
+            LOG.error("Ошибка загрузки стандартной модели '{}': {}", modelType.getDisplayName(), e.getMessage());
             throw e;
         } catch (Exception e) {
-            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}",
-                modelType.getDisplayName(), e.getMessage(), e);
+            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", modelType.getDisplayName(), e.getMessage());
             throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
@@ -49,10 +46,10 @@ public class ModelServiceImpl implements ModelService {
             String fileContent = readFileContent(filePath);
             return ObjReader.read(fileContent);
         } catch (ModelLoadException e) {
-            LOG.error("Ошибка загрузки модели '{}': {}", filePath, e.getMessage(), e);
+            LOG.error("Ошибка загрузки модели '{}': {}", filePath, e.getMessage());
             throw e;
         } catch (Exception e) {
-            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", filePath, e.getMessage(), e);
+            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", filePath, e.getMessage());
             throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
@@ -64,14 +61,7 @@ public class ModelServiceImpl implements ModelService {
     @Override
     public Model createCustomObject() {
         LOG.info("Создание пользовательского объекта (куб)");
-
-        try {
-            return DefaultModelLoader.loadModel(DefaultModelLoader.ModelType.CUBE);
-
-        } catch (Exception e) {
-            LOG.error("Ошибка создания пользовательского объекта: {}", e.getMessage(), e);
-            throw new ModelLoadException("Ошибка создания пользовательского объекта", e);
-        }
+        return loadDefaultModel(DefaultModelLoader.ModelType.CUBE);
     }
 
     @Override
@@ -86,15 +76,11 @@ public class ModelServiceImpl implements ModelService {
             normalizedPath = PathManager.ensureExtension(normalizedPath, ".obj");
             PathManager.validatePathForSave(normalizedPath);
 
-            String fileName = PathManager.getFileNameWithoutExtension(normalizedPath);
-            LOG.debug("Сохранение файла с именем: {}", fileName);
-
             ObjWriter.write(normalizedPath, model);
-
             LOG.info("Модель успешно сохранена в файл: {}", normalizedPath);
 
         } catch (Exception e) {
-            LOG.error("Ошибка сохранения модели в файл {}: {}", filePath, e.getMessage(), e);
+            LOG.error("Ошибка сохранения модели в файл {}: {}", filePath, e.getMessage());
             throw e;
         }
     }

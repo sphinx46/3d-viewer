@@ -69,7 +69,6 @@
                             <items>
                                 <MenuItem fx:id="menuCreatePlane" mnemonicParsing="false" text="Плоскость" />
                                 <MenuItem fx:id="menuCreateCube" mnemonicParsing="false" text="Куб" />
-                                <MenuItem fx:id="menuCreateCone" mnemonicParsing="false" text="Конус" />
                                 <MenuItem fx:id="menuCreateCylinder" mnemonicParsing="false" text="Цилиндр" />
                                 <MenuItem fx:id="menuCreateCapsule" mnemonicParsing="false" text="Капсула" />
                                 <MenuItem fx:id="menuCreateSphere" mnemonicParsing="false" text="Сфера" />

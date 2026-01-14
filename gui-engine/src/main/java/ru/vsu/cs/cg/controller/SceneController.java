@@ -132,20 +132,6 @@ public class SceneController {
         updateUI();
     }
 
-    public void saveSelectedModelToFile(String filePath) {
-        if (!hasSelectedObject()) {
-            throw new IllegalStateException("Нет выбранного объекта для сохранения");
-        }
-
-        Model modelToSave = currentScene.getSelectedObject().getModel();
-        if (modelToSave == null) {
-            throw new IllegalStateException("У выбранного объекта нет модели");
-        }
-
-        modelService.saveModelToFile(modelToSave, filePath);
-        modelModified = false;
-    }
-
     public void createNewScene() {
         currentScene = sceneService.createNewScene();
         clipboardObject = null;
@@ -277,6 +263,22 @@ public class SceneController {
         return copyName;
     }
 
+    public void saveSelectedModelWithTransformations(String filePath) {
+        if (!hasSelectedObject()) {
+            LOG.warn("Попытка сохранения модели без выбранного объекта");
+            return;
+        }
+
+        SceneObject selectedObject = getSelectedObject();
+        Model transformedModel = selectedObject.getTransformedModel();
+
+        ModelService modelService = new ModelServiceImpl();
+        modelService.saveModelToFile(transformedModel, filePath);
+
+        LOG.info("Модель '{}' сохранена с примененными трансформациями в файл: {}",
+            selectedObject.getName(), filePath);
+    }
+
     public void updateUI() {
         if (uiUpdateInProgress) {
             return;
@@ -299,5 +301,6 @@ public class SceneController {
         } finally {
             uiUpdateInProgress = false;
         }
+
     }
 }

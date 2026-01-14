@@ -116,6 +116,28 @@ public class SceneObject {
         return copy;
     }
 
+    public Model getTransformedModel() {
+        ru.vsu.cs.cg.math.Vector3f translation = new ru.vsu.cs.cg.math.Vector3f(
+            (float) transform.getPositionX(),
+            (float) transform.getPositionY(),
+            (float) transform.getPositionZ()
+        );
+
+        ru.vsu.cs.cg.math.Vector3f rotation = new ru.vsu.cs.cg.math.Vector3f(
+            (float) transform.getRotationX(),
+            (float) transform.getRotationY(),
+            (float) transform.getRotationZ()
+        );
+
+        ru.vsu.cs.cg.math.Vector3f scale = new ru.vsu.cs.cg.math.Vector3f(
+            (float) transform.getScaleX(),
+            (float) transform.getScaleY(),
+            (float) transform.getScaleZ()
+        );
+
+        return model.createTransformedCopy(translation, rotation, scale);
+    }
+
     public Texture getTexture() {
         return texture;
     }

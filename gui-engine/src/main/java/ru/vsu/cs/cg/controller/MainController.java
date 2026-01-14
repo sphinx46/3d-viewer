@@ -68,8 +68,6 @@ public class MainController {
     @FXML
     private MenuItem menuCreateCube;
     @FXML
-    private MenuItem menuCreateCone;
-    @FXML
     private MenuItem menuCreateCylinder;
     @FXML
     private MenuItem menuCreateCapsule;
@@ -219,7 +217,6 @@ public class MainController {
 
         menuCreatePlane.setOnAction(event -> executeCommand("model_add_plane"));
         menuCreateCube.setOnAction(event -> executeCommand("model_add_cube"));
-        menuCreateCone.setOnAction(event -> executeCommand("model_add_cone"));
         menuCreateCylinder.setOnAction(event -> executeCommand("model_add_cylinder"));
         menuCreateCapsule.setOnAction(event -> executeCommand("model_add_capsule"));
         menuCreateSphere.setOnAction(event -> executeCommand("model_add_sphere"));
