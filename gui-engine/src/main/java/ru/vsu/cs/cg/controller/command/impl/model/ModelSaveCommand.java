@@ -54,14 +54,14 @@ public class ModelSaveCommand implements Command {
                 }
 
                 String objectName = sceneController.getSelectedObject().getName();
-                sceneController.saveSelectedModelWithTransformations(filePath);
+                sceneController.saveSelectedModelWithMaterial(filePath);
                 recentFilesService.addFile(filePath);
                 CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
 
                 LOG.info("Модель '{}' сохранена с трансформациями и материалом: {}", objectName, file.getName());
                 DialogManager.showModelSaveSuccess("Модель '" + objectName + "' сохранена с примененными трансформациями и материалом");
             } catch (Exception e) {
-                LOG.error("Ошибка сохранения модели с трансформациями: {}", e.getMessage());
+                LOG.error("Ошибка сохранения модели с материалом: {}", e.getMessage());
                 DialogManager.showError("Ошибка сохранения модели: " + e.getMessage());
             }
         });

@@ -36,7 +36,7 @@ public class SceneObject {
         this.material = material != null ? material : new Material();
         this.visible = visible;
         this.renderSettings = renderSettings != null ? renderSettings : new RasterizerSettings();
-        LOG.debug("Создан SceneObject: id={}, name={}, visible={}", id, name, visible);
+        LOG.debug("Создан SceneObject: id={}, name={}", id, name);
     }
 
     public SceneObject(String name, Model model) {
@@ -55,15 +55,12 @@ public class SceneObject {
 
     public String getName() { return name; }
     public void setName(String name) {
-        String oldName = this.name;
         this.name = name != null ? name : generateDefaultName();
-        LOG.debug("Имя объекта изменено: '{}' -> '{}'", oldName, this.name);
     }
 
     public Model getModel() { return model; }
     public void setModel(Model model) {
         this.model = model;
-        LOG.debug("Модель объекта '{}' обновлена", name);
     }
 
     public Transform getTransform() { return transform; }
@@ -74,15 +71,12 @@ public class SceneObject {
 
     public boolean isVisible() { return visible; }
     public void setVisible(boolean visible) {
-        boolean oldValue = this.visible;
         this.visible = visible;
-        LOG.debug("Видимость объекта '{}' изменена: {} -> {}", name, oldValue, visible);
     }
 
     public RasterizerSettings getRenderSettings() { return renderSettings; }
     public void setRenderSettings(RasterizerSettings renderSettings) {
         this.renderSettings = renderSettings != null ? renderSettings : new RasterizerSettings();
-        LOG.debug("Настройки рендеринга объекта '{}' обновлены", name);
     }
 
     public SceneObject copy() {
@@ -110,8 +104,23 @@ public class SceneObject {
             visible,
             copiedSettings
         );
-        LOG.debug("Создана копия объекта '{}' с id={}", name, copy.getId());
         return copy;
+    }
+
+    public RasterizerSettings getRasterizerSettingsForExport() {
+        RasterizerSettings settings = new RasterizerSettings(
+            renderSettings.isUseTexture(),
+            renderSettings.isUseLighting(),
+            renderSettings.isDrawPolygonalGrid(),
+            renderSettings.getDefaultColor(),
+            renderSettings.getGridColor()
+        );
+
+        if (material.getTexturePath() != null && !material.getTexturePath().isEmpty()) {
+            settings.setUseTexture(true);
+        }
+
+        return settings;
     }
 
     public Model getTransformedModel() {
@@ -138,6 +147,19 @@ public class SceneObject {
         if (material.getTexturePath() != null) {
             transformedModel.setTexturePath(material.getTexturePath());
         }
+
+        if (renderSettings.isUseLighting()) {
+            transformedModel.setMaterialShininess((float) material.getShininess());
+        }
+
+        transformedModel.setMaterialColor(new float[]{
+            (float) material.getRed(),
+            (float) material.getGreen(),
+            (float) material.getBlue()
+        });
+
+        transformedModel.setMaterialTransparency((float) material.getTransparency());
+        transformedModel.setMaterialReflectivity((float) material.getReflectivity());
 
         return transformedModel;
     }

@@ -3,6 +3,7 @@ package ru.vsu.cs.cg.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import ru.vsu.cs.cg.scene.Scene;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.scene.Transform;
@@ -263,7 +264,7 @@ public class SceneController {
         return copyName;
     }
 
-    public void saveSelectedModelWithTransformations(String filePath) {
+    public void saveSelectedModelWithMaterial(String filePath) {
         if (!hasSelectedObject()) {
             LOG.warn("Попытка сохранения модели без выбранного объекта");
             return;
@@ -274,15 +275,24 @@ public class SceneController {
 
         ModelServiceImpl modelServiceImpl = (ModelServiceImpl) modelService;
         ru.vsu.cs.cg.scene.Material material = selectedObject.getMaterial();
+        RasterizerSettings renderSettings = selectedObject.getRasterizerSettingsForExport();
 
         String materialName = selectedObject.getName() + "_material";
         String texturePath = material.getTexturePath();
+
         float[] color = new float[]{
             (float) material.getRed(),
             (float) material.getGreen(),
             (float) material.getBlue()
         };
-        Float shininess = (float) material.getShininess();
+
+        transformedModel.setUseLighting(renderSettings.isUseLighting());
+        transformedModel.setUseTexture(renderSettings.isUseTexture());
+        transformedModel.setDrawPolygonalGrid(renderSettings.isDrawPolygonalGrid());
+
+        Float shininess = renderSettings.isUseLighting() ?
+            (float) material.getShininess() : null;
+
         Float transparency = (float) material.getTransparency();
         Float reflectivity = (float) material.getReflectivity();
 
@@ -297,8 +307,15 @@ public class SceneController {
             reflectivity
         );
 
-        LOG.info("Модель '{}' сохранена с примененными трансформациями и материалом в файл: {}",
-            selectedObject.getName(), filePath);
+        LOG.info("Модель '{}' сохранена с материалом: цвет=[{},{},{}], текстура={}, блеск={}, прозрачность={}, отражение={}, освещение={}, сетка={}",
+            selectedObject.getName(),
+            color[0], color[1], color[2],
+            texturePath != null ? texturePath : "нет",
+            shininess,
+            transparency,
+            reflectivity,
+            renderSettings.isUseLighting(),
+            renderSettings.isDrawPolygonalGrid());
     }
 
     public void updateUI() {

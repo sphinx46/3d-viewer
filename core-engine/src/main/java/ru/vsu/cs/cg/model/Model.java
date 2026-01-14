@@ -12,13 +12,20 @@ public final class Model {
     private final List<Vector2f> textureVertices;
     private final List<Vector3f> normals;
     private final List<Polygon> polygons;
+    private boolean useLighting = false;
+    private boolean useTexture = false;
+    private boolean drawPolygonalGrid = false;
     private volatile List<Polygon> triangulatedPolygonsCache = null;
 
     private String materialName;
     private String texturePath;
+    private float[] materialColor;
+    private Float materialShininess;
+    private Float materialTransparency;
+    private Float materialReflectivity;
 
     public Model() {
-        this(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, null);
+        this(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, null, null, null, null, null);
     }
 
     private Model(List<Vector3f> vertices,
@@ -26,13 +33,21 @@ public final class Model {
                   List<Vector3f> normals,
                   List<Polygon> polygons,
                   String materialName,
-                  String texturePath) {
+                  String texturePath,
+                  float[] materialColor,
+                  Float materialShininess,
+                  Float materialTransparency,
+                  Float materialReflectivity) {
         this.vertices = new ArrayList<>(Objects.requireNonNull(vertices));
         this.textureVertices = new ArrayList<>(Objects.requireNonNull(textureVertices));
         this.normals = new ArrayList<>(Objects.requireNonNull(normals));
         this.polygons = new ArrayList<>(Objects.requireNonNull(polygons));
         this.materialName = materialName;
         this.texturePath = texturePath;
+        this.materialColor = materialColor;
+        this.materialShininess = materialShininess;
+        this.materialTransparency = materialTransparency;
+        this.materialReflectivity = materialReflectivity;
     }
 
     public void addVertex(Vector3f vertex) {
@@ -182,8 +197,41 @@ public final class Model {
         this.texturePath = texturePath;
     }
 
+    public float[] getMaterialColor() {
+        return materialColor;
+    }
+
+    public void setMaterialColor(float[] materialColor) {
+        this.materialColor = materialColor;
+    }
+
+    public Float getMaterialShininess() {
+        return materialShininess;
+    }
+
+    public void setMaterialShininess(Float materialShininess) {
+        this.materialShininess = materialShininess;
+    }
+
+    public Float getMaterialTransparency() {
+        return materialTransparency;
+    }
+
+    public void setMaterialTransparency(Float materialTransparency) {
+        this.materialTransparency = materialTransparency;
+    }
+
+    public Float getMaterialReflectivity() {
+        return materialReflectivity;
+    }
+
+    public void setMaterialReflectivity(Float materialReflectivity) {
+        this.materialReflectivity = materialReflectivity;
+    }
+
     public Model copy() {
-        return new Model(vertices, textureVertices, normals, polygons, materialName, texturePath);
+        return new Model(vertices, textureVertices, normals, polygons, materialName, texturePath,
+            materialColor, materialShininess, materialTransparency, materialReflectivity);
     }
 
     public List<Vector3f> getTransformedVertices(Vector3f translation, Vector3f rotation, Vector3f scale) {
@@ -208,7 +256,20 @@ public final class Model {
             new ArrayList<>(normals),
             new ArrayList<>(polygons),
             materialName,
-            texturePath
+            texturePath,
+            materialColor,
+            materialShininess,
+            materialTransparency,
+            materialReflectivity
         );
     }
+
+    public boolean isUseLighting() { return useLighting; }
+    public void setUseLighting(boolean useLighting) { this.useLighting = useLighting; }
+
+    public boolean isUseTexture() { return useTexture; }
+    public void setUseTexture(boolean useTexture) { this.useTexture = useTexture; }
+
+    public boolean isDrawPolygonalGrid() { return drawPolygonalGrid; }
+    public void setDrawPolygonalGrid(boolean drawPolygonalGrid) { this.drawPolygonalGrid = drawPolygonalGrid; }
 }

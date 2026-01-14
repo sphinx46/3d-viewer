@@ -64,11 +64,19 @@ public class MaterialController extends BaseController {
         showTextureCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
             updateRenderSettings(s -> s.setUseTexture(newValue)));
 
-        showLightingCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
-            updateRenderSettings(s -> s.setUseLighting(newValue)));
+        showLightingCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            updateRenderSettings(s -> s.setUseLighting(newValue));
+            if (hasSelectedObject()) {
+                sceneController.markModelModified();
+            }
+        });
 
-        showPolygonalGridCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
-            updateRenderSettings(s -> s.setDrawPolygonalGrid(newValue)));
+        showPolygonalGridCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            updateRenderSettings(s -> s.setDrawPolygonalGrid(newValue));
+            if (hasSelectedObject()) {
+                sceneController.markModelModified();
+            }
+        });
     }
 
     private void initializeButtonActions() {
@@ -98,22 +106,23 @@ public class MaterialController extends BaseController {
                     throw new Exception("Не удалось прочитать формат изображения");
                 }
 
-                Texture newTexture = new Texture(image);
                 SceneObject selectedObject = getSelectedObject();
+                Material currentMaterial = selectedObject.getMaterial();
 
                 selectedObject.setMaterial(new Material(
-                    selectedObject.getMaterial().getRed(),
-                    selectedObject.getMaterial().getGreen(),
-                    selectedObject.getMaterial().getBlue(),
-                    selectedObject.getMaterial().getAlpha(),
+                    currentMaterial.getRed(),
+                    currentMaterial.getGreen(),
+                    currentMaterial.getBlue(),
+                    currentMaterial.getAlpha(),
                     selectedFile.getAbsolutePath(),
-                    selectedObject.getMaterial().getShininess(),
-                    selectedObject.getMaterial().getReflectivity(),
-                    selectedObject.getMaterial().getTransparency()
+                    currentMaterial.getShininess(),
+                    currentMaterial.getReflectivity(),
+                    currentMaterial.getTransparency()
                 ));
 
                 selectedObject.getRenderSettings().setUseTexture(true);
                 showTextureCheckbox.setSelected(true);
+                sceneController.markModelModified();
 
                 LOG.info("Текстура успешно загружена: {}", selectedFile.getName());
 
@@ -129,20 +138,22 @@ public class MaterialController extends BaseController {
         }
 
         SceneObject selectedObject = getSelectedObject();
+        Material currentMaterial = selectedObject.getMaterial();
 
         selectedObject.setMaterial(new Material(
-            selectedObject.getMaterial().getRed(),
-            selectedObject.getMaterial().getGreen(),
-            selectedObject.getMaterial().getBlue(),
-            selectedObject.getMaterial().getAlpha(),
+            currentMaterial.getRed(),
+            currentMaterial.getGreen(),
+            currentMaterial.getBlue(),
+            currentMaterial.getAlpha(),
             null,
-            selectedObject.getMaterial().getShininess(),
-            selectedObject.getMaterial().getReflectivity(),
-            selectedObject.getMaterial().getTransparency()
+            currentMaterial.getShininess(),
+            currentMaterial.getReflectivity(),
+            currentMaterial.getTransparency()
         ));
 
         selectedObject.getRenderSettings().setUseTexture(false);
         showTextureCheckbox.setSelected(false);
+        sceneController.markModelModified();
 
         LOG.info("Текстура удалена для объекта '{}'", selectedObject.getName());
     }
@@ -150,12 +161,14 @@ public class MaterialController extends BaseController {
     private void updateMaterial(java.util.function.Consumer<Material> updater) {
         if (hasSelectedObject()) {
             updater.accept(getSelectedObject().getMaterial());
+            sceneController.markModelModified();
         }
     }
 
     private void updateRenderSettings(java.util.function.Consumer<RasterizerSettings> updater) {
         if (hasSelectedObject()) {
             updater.accept(getSelectedObject().getRenderSettings());
+            sceneController.markModelModified();
         }
     }
 

@@ -44,7 +44,7 @@ public class ModelServiceImpl implements ModelService {
             PathManager.validatePathForRead(filePath);
 
             String fileContent = readFileContent(filePath);
-            return ObjReader.read(fileContent);
+            return ObjReader.readWithMaterial(fileContent, filePath);
         } catch (ModelLoadException e) {
             LOG.error("Ошибка загрузки модели '{}': {}", filePath, e.getMessage());
             throw e;

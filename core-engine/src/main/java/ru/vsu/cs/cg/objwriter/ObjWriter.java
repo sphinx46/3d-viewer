@@ -20,30 +20,10 @@ import java.util.Locale;
 
 public final class ObjWriter {
 
-    /**
-     * Записывает модель в файл OBJ.
-     *
-     * @param fileName имя файла для записи
-     * @param model модель для записи
-     * @throws ObjWriterException если возникает ошибка при записи файла
-     */
     public static void write(String fileName, Model model) {
         write(fileName, model, null, null, null, null, null, null);
     }
 
-    /**
-     * Записывает модель в файл OBJ с материалом.
-     *
-     * @param fileName имя файла для записи
-     * @param model модель для записи
-     * @param materialName имя материала
-     * @param texturePath путь к текстуре
-     * @param color цвет материала (RGB, значения от 0 до 1)
-     * @param shininess блеск материала
-     * @param transparency прозрачность материала
-     * @param reflectivity отражательная способность
-     * @throws ObjWriterException если возникает ошибка при записи файла
-     */
     public static void write(String fileName, Model model, String materialName,
                              String texturePath, float[] color, Float shininess,
                              Float transparency, Float reflectivity) {
@@ -60,11 +40,21 @@ public final class ObjWriter {
         }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            if (materialName != null) {
+            if (materialName != null || color != null || texturePath != null ||
+                shininess != null || transparency != null || reflectivity != null) {
+
                 String mtlFileName = getMtlFileName(fileName);
-                writeMaterialFile(mtlFileName, materialName, texturePath, color, shininess, transparency, reflectivity);
+                boolean useLighting = model.isUseLighting();
+                boolean useTexture = model.isUseTexture() || texturePath != null;
+                boolean drawPolygonalGrid = model.isDrawPolygonalGrid();
+
+                writeMaterialFile(mtlFileName, materialName, texturePath, color,
+                    shininess, transparency, reflectivity,
+                    useLighting, useTexture, drawPolygonalGrid);
                 writer.write("mtllib " + Paths.get(mtlFileName).getFileName() + "\n");
-                writer.write("usemtl " + materialName + "\n");
+                if (materialName != null) {
+                    writer.write("usemtl " + materialName + "\n");
+                }
             }
 
             writeVertices(writer, model.getVertices());
@@ -76,26 +66,17 @@ public final class ObjWriter {
         }
     }
 
-    /**
-     * Записывает материал в MTL файл.
-     *
-     * @param mtlFileName имя MTL файла
-     * @param materialName имя материала
-     * @param texturePath путь к текстуре
-     * @param color цвет материала
-     * @param shininess блеск материала
-     * @param transparency прозрачность
-     * @param reflectivity отражательная способность
-     * @throws IOException если возникает ошибка ввода-вывода
-     */
     private static void writeMaterialFile(String mtlFileName, String materialName,
                                           String texturePath, float[] color,
                                           Float shininess, Float transparency,
-                                          Float reflectivity) throws IOException {
+                                          Float reflectivity,
+                                          boolean useLighting, boolean useTexture,
+                                          boolean drawPolygonalGrid) throws IOException {
         File mtlFile = new File(mtlFileName);
 
         try (BufferedWriter mtlWriter = new BufferedWriter(new FileWriter(mtlFile))) {
-            mtlWriter.write("newmtl " + materialName + "\n");
+            String actualMaterialName = materialName != null ? materialName : "default_material";
+            mtlWriter.write("newmtl " + actualMaterialName + "\n");
 
             if (color != null && color.length >= 3) {
                 mtlWriter.write(String.format(Locale.US, "Kd %.6f %.6f %.6f\n", color[0], color[1], color[2]));
@@ -110,27 +91,31 @@ public final class ObjWriter {
 
             if (shininess != null) {
                 mtlWriter.write(String.format(Locale.US, "Ns %.6f\n", shininess * 1000));
+            } else {
+                mtlWriter.write("Ns 500.000000\n");
             }
 
             if (transparency != null) {
                 mtlWriter.write(String.format(Locale.US, "d %.6f\n", 1.0 - transparency));
+            } else {
+                mtlWriter.write("d 1.000000\n");
             }
 
             if (reflectivity != null) {
                 mtlWriter.write(String.format(Locale.US, "Ks %.6f %.6f %.6f\n",
                     reflectivity, reflectivity, reflectivity));
+            } else {
+                mtlWriter.write("Ks 0.200000 0.200000 0.200000\n");
             }
+
+            mtlWriter.write("# use_lighting " + useLighting + "\n");
+            mtlWriter.write("# use_texture " + useTexture + "\n");
+            mtlWriter.write("# draw_polygonal_grid " + drawPolygonalGrid + "\n");
 
             mtlWriter.write("illum 2\n");
         }
     }
 
-    /**
-     * Генерирует имя MTL файла на основе имени OBJ файла.
-     *
-     * @param objFileName имя OBJ файла
-     * @return имя MTL файла
-     */
     private static String getMtlFileName(String objFileName) {
         Path path = Paths.get(objFileName);
         String baseName = path.getFileName().toString();
@@ -140,13 +125,6 @@ public final class ObjWriter {
         return path.getParent().resolve(baseName + ".mtl").toString();
     }
 
-    /**
-     * Записывает вершины в файл OBJ.
-     *
-     * @param writer BufferedWriter для записи
-     * @param vertices список вершин
-     * @throws IOException если возникает ошибка ввода-вывода
-     */
     private static void writeVertices(BufferedWriter writer, List<Vector3f> vertices)
         throws IOException {
         DecimalFormat decimalFormat = createDecimalFormat();
@@ -158,13 +136,6 @@ public final class ObjWriter {
         }
     }
 
-    /**
-     * Записывает текстурные координаты в файл OBJ.
-     *
-     * @param writer BufferedWriter для записи
-     * @param textureVertices список текстурных координат
-     * @throws IOException если возникает ошибка ввода-вывода
-     */
     private static void writeTextureVertices(BufferedWriter writer, List<Vector2f> textureVertices)
         throws IOException {
         DecimalFormat decimalFormat = createDecimalFormat();
@@ -176,13 +147,6 @@ public final class ObjWriter {
         }
     }
 
-    /**
-     * Записывает нормали в файл OBJ.
-     *
-     * @param writer BufferedWriter для записи
-     * @param normals список нормалей
-     * @throws IOException если возникает ошибка ввода-вывода
-     */
     private static void writeNormals(BufferedWriter writer, List<Vector3f> normals)
         throws IOException {
         DecimalFormat decimalFormat = createDecimalFormat();
@@ -194,13 +158,6 @@ public final class ObjWriter {
         }
     }
 
-    /**
-     * Записывает полигоны в файл OBJ.
-     *
-     * @param writer BufferedWriter для записи
-     * @param polygons список полигонов
-     * @throws IOException если возникает ошибка ввода-вывода
-     */
     private static void writePolygons(BufferedWriter writer, List<Polygon> polygons)
         throws IOException {
         for (Polygon polygon : polygons) {
@@ -228,11 +185,8 @@ public final class ObjWriter {
         }
     }
 
-    /**
-     * Создает DecimalFormat с настройками для форматирования чисел.
-     *
-     * @return DecimalFormat с точкой в качестве разделителя
-     */
+
+
     private static DecimalFormat createDecimalFormat() {
         DecimalFormatSymbols customSymbols = new DecimalFormatSymbols(Locale.US);
         customSymbols.setDecimalSeparator('.');
