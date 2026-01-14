@@ -88,13 +88,7 @@ public class SceneObject {
     }
 
     public SceneObject copy() {
-        RasterizerSettings copiedSettings = new RasterizerSettings(
-            renderSettings.isUseTexture(),
-            renderSettings.isUseLighting(),
-            renderSettings.isDrawPolygonalGrid(),
-            renderSettings.getDefaultColor(),
-            renderSettings.getGridColor()
-        );
+        RasterizerSettings copiedSettings = renderSettings.copy();
         SceneObject copy = new SceneObject(
             UUID.randomUUID().toString(),
             name + "_copy",

@@ -20,6 +20,7 @@ public class GraphicConveyor {
         matrix.set(0, 3, tx);
         matrix.set(1, 3, ty);
         matrix.set(2, 3, tz);
+        matrix.set(3, 3, 1);
         return matrix;
     }
 
@@ -36,8 +37,10 @@ public class GraphicConveyor {
         matrix.set(0, 0, sx);
         matrix.set(1, 1, sy);
         matrix.set(2, 2, sz);
+        matrix.set(3, 3, 1);
         return matrix;
     }
+
 
     /**
      * Создает матрицу поворота вокруг оси X.
@@ -49,11 +52,12 @@ public class GraphicConveyor {
         Matrix4x4 matrix = new Matrix4x4();
         float cos = (float) Math.cos(angle);
         float sin = (float) Math.sin(angle);
-
+        matrix.set(0, 0, 1);
         matrix.set(1, 1, cos);
         matrix.set(1, 2, -sin);
         matrix.set(2, 1, sin);
         matrix.set(2, 2, cos);
+        matrix.set(3, 3, 1);
         return matrix;
     }
 
@@ -67,11 +71,12 @@ public class GraphicConveyor {
         Matrix4x4 matrix = new Matrix4x4();
         float cos = (float) Math.cos(angle);
         float sin = (float) Math.sin(angle);
-
         matrix.set(0, 0, cos);
         matrix.set(0, 2, sin);
+        matrix.set(1, 1, 1);
         matrix.set(2, 0, -sin);
         matrix.set(2, 2, cos);
+        matrix.set(3, 3, 1);
         return matrix;
     }
 
@@ -85,11 +90,12 @@ public class GraphicConveyor {
         Matrix4x4 matrix = new Matrix4x4();
         float cos = (float) Math.cos(angle);
         float sin = (float) Math.sin(angle);
-
         matrix.set(0, 0, cos);
         matrix.set(0, 1, -sin);
         matrix.set(1, 0, sin);
         matrix.set(1, 1, cos);
+        matrix.set(2, 2, 1);
+        matrix.set(3, 3, 1);
         return matrix;
     }
 
@@ -234,5 +240,12 @@ public class GraphicConveyor {
         Vector4f vertex4 = new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
         Vector4f result4 = matrix.multiply(vertex4);
         return result4.toVector3Safe();
+    }
+
+    public static Vector3f multiplyMatrix4ByVector3Normal(Matrix4x4 matrix, Vector3f normal) {
+        Vector4f normal4 = new Vector4f(normal.getX(), normal.getY(), normal.getZ(), 0.0F);
+        Vector4f result4 = matrix.multiply(normal4);
+        // Возвращаем (x, y, z) без деления на W, так как для вектора это не требуется
+        return new Vector3f(result4.getX(), result4.getY(), result4.getZ());
     }
 }
