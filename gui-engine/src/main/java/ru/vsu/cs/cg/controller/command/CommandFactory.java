@@ -4,6 +4,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vsu.cs.cg.controller.command.impl.camera.*;
 import ru.vsu.cs.cg.controller.command.impl.file.FileOpenCommand;
 import ru.vsu.cs.cg.controller.command.impl.info.AboutShowCommand;
 import ru.vsu.cs.cg.controller.command.impl.info.HotkeysShowCommand;
@@ -22,6 +23,7 @@ import ru.vsu.cs.cg.controller.command.impl.screen.ScreenshotCommand;
 import ru.vsu.cs.cg.controller.command.impl.theme.ThemeCommand;
 import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.controller.enums.TransformationMode;
+import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.utils.model.DefaultModelLoader;
 
@@ -73,6 +75,11 @@ public class CommandFactory {
 
         registerCommand(new HotkeysShowCommand());
         registerCommand(new AboutShowCommand());
+
+        registerCommand(new MenuCreateCameraCommand(sceneController, new Vector3f(5, 2, 0), "camera_left"));
+        registerCommand(new MenuCreateCameraCommand(sceneController, new Vector3f(-5, 2, 0), "camera_right"));
+        registerCommand(new MenuCreateCameraCommand(sceneController, new Vector3f(0, 6, 5), "camera_top"));
+        registerCommand(new MenuCreateCameraCommand(sceneController, new Vector3f(0, 2, 5), "camera_front"));
 
         registerCommand(new ObjectRenameCommand(sceneController));
 
