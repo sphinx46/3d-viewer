@@ -21,10 +21,11 @@ public final class DefaultModelLoader {
 
     public enum ModelType {
         CUBE("Куб"),
-        CONE("Конус"),
         CYLINDER("Цилиндр"),
         TEAPOT("Чайник"),
-        PLANE("Плоскость");
+        PLANE("Плоскость"),
+        CAPSULE("Капсула"),
+        SPHERE("Сфера");
 
         private final String displayName;
 
@@ -39,10 +40,11 @@ public final class DefaultModelLoader {
 
     static {
         MODEL_PATHS.put(ModelType.CUBE, MODELS_BASE_PATH + "cube.obj");
-        MODEL_PATHS.put(ModelType.CONE, MODELS_BASE_PATH + "cone.obj");
+        MODEL_PATHS.put(ModelType.SPHERE, MODELS_BASE_PATH + "sphere.obj");
         MODEL_PATHS.put(ModelType.CYLINDER, MODELS_BASE_PATH + "cylinder.obj");
         MODEL_PATHS.put(ModelType.TEAPOT, MODELS_BASE_PATH + "teapot.obj");
         MODEL_PATHS.put(ModelType.PLANE, MODELS_BASE_PATH + "plane.obj");
+        MODEL_PATHS.put(ModelType.CAPSULE, MODELS_BASE_PATH + "capsule.obj");
     }
 
     public static Model loadModel(ModelType modelType) {

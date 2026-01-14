@@ -90,20 +90,6 @@ public class SceneController {
         }
     }
 
-    public SceneObject createCustomObject() {
-        try {
-            SceneObject newObject = sceneService.addDefaultModelToScene(currentScene, "CUBE");
-            currentScene.selectObject(newObject);
-            markSceneModified();
-            markModelModified();
-            updateUI();
-            return newObject;
-        } catch (Exception e) {
-            LOG.error("Ошибка создания пользовательского объекта: {}", e.getMessage());
-            throw e;
-        }
-    }
-
     public void removeSelectedObject() {
         if (!hasSelectedObject()) {
             return;

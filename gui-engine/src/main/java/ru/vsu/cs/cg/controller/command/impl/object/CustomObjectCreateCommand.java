@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
+import ru.vsu.cs.cg.utils.model.DefaultModelLoader;
 
 public class CustomObjectCreateCommand implements Command {
     private static final Logger LOG = LoggerFactory.getLogger(CustomObjectCreateCommand.class);
@@ -18,7 +19,7 @@ public class CustomObjectCreateCommand implements Command {
     @Override
     public void execute() {
         try {
-            sceneController.createCustomObject();
+            sceneController.addDefaultModelToScene(DefaultModelLoader.ModelType.CUBE);
             LOG.info("Создан пользовательский объект");
             DialogManager.showInfo("Пользовательский объект", "Создан новый объект для редактирования");
         } catch (Exception e) {

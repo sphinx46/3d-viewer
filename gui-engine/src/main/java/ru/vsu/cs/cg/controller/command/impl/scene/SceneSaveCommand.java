@@ -3,8 +3,8 @@ package ru.vsu.cs.cg.controller.command.impl.scene;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.controller.SceneController;
+import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.utils.cache.CachePersistenceManager;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
@@ -18,30 +18,29 @@ public class SceneSaveCommand implements Command {
     private final Stage stage;
     private final SceneController sceneController;
     private final RecentFilesCacheService recentFilesService;
-    private final boolean saveAs;
 
     public SceneSaveCommand(Stage stage, SceneController sceneController,
-                            RecentFilesCacheService recentFilesService, boolean saveAs) {
+                            RecentFilesCacheService recentFilesService) {
         this.stage = stage;
         this.sceneController = sceneController;
         this.recentFilesService = recentFilesService;
-        this.saveAs = saveAs;
     }
 
     @Override
     public void execute() {
         try {
-            if (!saveAs && sceneController.getCurrentSceneFilePath() != null) {
-                String filePath = sceneController.getCurrentSceneFilePath();
-                if (!PathManager.isSupportedSceneFormat(filePath)) {
+            String currentFilePath = sceneController.getCurrentSceneFilePath();
+
+            if (currentFilePath != null) {
+                if (!PathManager.isSupportedSceneFormat(currentFilePath)) {
                     DialogManager.showError("Неподдерживаемый формат сцены");
-                    saveSceneAs();
+                    saveWithDialog();
                     return;
                 }
-                sceneController.saveScene(filePath);
+                sceneController.saveScene(currentFilePath);
                 DialogManager.showSceneSaveSuccess("Сцена сохранена");
             } else {
-                saveSceneAs();
+                saveWithDialog();
             }
         } catch (Exception e) {
             LOG.error("Ошибка сохранения сцены: {}", e.getMessage());
@@ -49,7 +48,7 @@ public class SceneSaveCommand implements Command {
         }
     }
 
-    private void saveSceneAs() {
+    private void saveWithDialog() {
         DialogManager.showSaveSceneDialog(stage, sceneController.getCurrentScene().getName()).ifPresent(file -> {
             try {
                 String filePath = file.getAbsolutePath();
@@ -74,11 +73,11 @@ public class SceneSaveCommand implements Command {
 
     @Override
     public String getName() {
-        return saveAs ? "scene_save_as" : "scene_save";
+        return "scene_save";
     }
 
     @Override
     public String getDescription() {
-        return saveAs ? "Сохранение сцены в новый файл" : "Сохранение текущей сцены";
+        return "Сохранение сцены";
     }
 }

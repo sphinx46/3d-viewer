@@ -4,15 +4,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vsu.cs.cg.controller.command.impl.file.FileOpenCommand;
 import ru.vsu.cs.cg.controller.command.impl.info.AboutShowCommand;
 import ru.vsu.cs.cg.controller.command.impl.info.HotkeysShowCommand;
 import ru.vsu.cs.cg.controller.command.impl.info.UrlOpenCommand;
 import ru.vsu.cs.cg.controller.command.impl.model.DefaultModelAddCommand;
-import ru.vsu.cs.cg.controller.command.impl.model.ModelLoadCommand;
 import ru.vsu.cs.cg.controller.command.impl.model.ModelSaveCommand;
 import ru.vsu.cs.cg.controller.command.impl.object.*;
 import ru.vsu.cs.cg.controller.command.impl.scene.SceneNewCommand;
-import ru.vsu.cs.cg.controller.command.impl.scene.SceneOpenCommand;
 import ru.vsu.cs.cg.controller.command.impl.scene.SceneResetCommand;
 import ru.vsu.cs.cg.controller.command.impl.scene.SceneSaveCommand;
 import ru.vsu.cs.cg.controller.command.impl.screen.FullscreenToggleCommand;
@@ -42,10 +41,8 @@ public class CommandFactory {
         registerCommand(new ThemeCommand(anchorPane, "/static/css/theme-dark.css", "Тёмная"));
         registerCommand(new ThemeCommand(anchorPane, "/static/css/theme-light.css", "Светлая"));
 
-        registerCommand(new ModelLoadCommand(stage, sceneController, recentFilesService));
-        registerCommand(new SceneSaveCommand(stage, sceneController, recentFilesService, false));
-        registerCommand(new SceneSaveCommand(stage, sceneController, recentFilesService, true));
-        registerCommand(new SceneOpenCommand(stage, sceneController, recentFilesService));
+        registerCommand(new SceneSaveCommand(stage, sceneController, recentFilesService));
+        registerCommand(new FileOpenCommand(stage, sceneController, recentFilesService));
         registerCommand(new SceneNewCommand(sceneController));
         registerCommand(new SceneResetCommand(sceneController));
 

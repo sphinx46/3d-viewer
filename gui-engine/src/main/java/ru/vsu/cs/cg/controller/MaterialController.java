@@ -10,7 +10,6 @@ import ru.vsu.cs.cg.rasterization.Texture;
 import ru.vsu.cs.cg.scene.Material;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
-import ru.vsu.cs.cg.utils.dialog.DialogManager;
 import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 import ru.vsu.cs.cg.utils.validation.InputValidator;
 
@@ -25,7 +24,7 @@ public class MaterialController extends BaseController {
     @FXML private Button loadTextureButton;
     @FXML private Button clearTextureButton;
     @FXML private CheckBox showTextureCheckbox;
-    @FXML private CheckBox useLightingCheckbox;
+    @FXML private CheckBox showLightingCheckbox;
     @FXML private CheckBox showPolygonalGridCheckbox;
     @FXML private Slider brightnessSlider;
     @FXML private TextField brightnessField;
@@ -71,11 +70,10 @@ public class MaterialController extends BaseController {
                 material.setReflectivity(InputValidator.clamp(value, 0.0, 1.0));
             }));
 
-        // Обработчики для флажков рендеринга
         showTextureCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
             updateSelectedObjectRenderSettings(settings -> settings.setUseTexture(newValue)));
 
-        useLightingCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
+        showLightingCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
             updateSelectedObjectRenderSettings(settings -> settings.setUseLighting(newValue)));
 
         showPolygonalGridCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
@@ -95,8 +93,8 @@ public class MaterialController extends BaseController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Выберите файл текстуры");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Изображения", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
-                new FileChooser.ExtensionFilter("Все файлы", "*.*")
+            new FileChooser.ExtensionFilter("Изображения", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
+            new FileChooser.ExtensionFilter("Все файлы", "*.*")
         );
 
         File selectedFile = fileChooser.showOpenDialog(loadTextureButton.getScene().getWindow());
@@ -110,13 +108,10 @@ public class MaterialController extends BaseController {
                 }
 
                 Texture newTexture = new Texture(image);
-
                 SceneObject selectedObject = getSelectedObject();
 
                 selectedObject.setTexture(newTexture);
-
                 selectedObject.getMaterial().setTexturePath(selectedFile.getAbsolutePath());
-
                 selectedObject.getRenderSettings().setUseTexture(true);
                 showTextureCheckbox.setSelected(true);
 
@@ -136,9 +131,7 @@ public class MaterialController extends BaseController {
         SceneObject selectedObject = getSelectedObject();
 
         selectedObject.setTexture(null);
-
         selectedObject.getMaterial().setTexturePath(null);
-
         selectedObject.getRenderSettings().setUseTexture(false);
         showTextureCheckbox.setSelected(false);
 
@@ -154,7 +147,7 @@ public class MaterialController extends BaseController {
         brightnessSlider.setValue(0.5);
         reflectionSlider.setValue(0.3);
         showTextureCheckbox.setSelected(false);
-        useLightingCheckbox.setSelected(false);
+        showLightingCheckbox.setSelected(false);
         showPolygonalGridCheckbox.setSelected(false);
     }
 
@@ -169,10 +162,9 @@ public class MaterialController extends BaseController {
         brightnessSlider.setValue(0.5);
         reflectionSlider.setValue(0.3);
 
-        // Заполняем настройки рендеринга
         RasterizerSettings settings = object.getRenderSettings();
         showTextureCheckbox.setSelected(settings.isUseTexture());
-        useLightingCheckbox.setSelected(settings.isUseLighting());
+        showLightingCheckbox.setSelected(settings.isUseLighting());
         showPolygonalGridCheckbox.setSelected(settings.isDrawPolygonalGrid());
     }
 
@@ -185,7 +177,7 @@ public class MaterialController extends BaseController {
         loadTextureButton.setDisable(!editable);
         clearTextureButton.setDisable(!editable);
         showTextureCheckbox.setDisable(!editable);
-        useLightingCheckbox.setDisable(!editable);
+        showLightingCheckbox.setDisable(!editable);
         showPolygonalGridCheckbox.setDisable(!editable);
         brightnessSlider.setDisable(!editable);
         reflectionSlider.setDisable(!editable);

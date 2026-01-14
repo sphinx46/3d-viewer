@@ -8,8 +8,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.command.CommandFactory;
-import ru.vsu.cs.cg.controller.command.impl.model.ModelLoadCommand;
-import ru.vsu.cs.cg.controller.command.impl.scene.SceneOpenCommand;
+import ru.vsu.cs.cg.controller.command.impl.file.FileOpenCommand;
 import ru.vsu.cs.cg.controller.hotkeys.HotkeyManager;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
@@ -32,11 +31,14 @@ public class MainController {
     private MaterialController materialPanelController;
     @FXML
     private ModificationController modificationPanelController;
+    @FXML
+    private CameraController cameraPanelController;
+
     private final SceneController sceneController = new SceneController();
     private HotkeyManager hotkeyManager;
     private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
     private CommandFactory commandFactory;
-    private RenderController renderController; // Новый контроллер
+    private RenderController renderController;
 
     @FXML
     private AnchorPane anchorPane;
@@ -56,13 +58,11 @@ public class MainController {
     @FXML
     private MenuItem menuFileOpen;
     @FXML
-    private MenuItem menuFileSave;
+    private MenuItem menuFileSaveScene;
     @FXML
-    private MenuItem menuFileSaveAs;
+    private MenuItem menuFileSaveModel;
     @FXML
     private MenuItem menuFileExit;
-    @FXML
-    private MenuItem menuFileNewCustom;
     @FXML
     private MenuItem menuCreatePlane;
     @FXML
@@ -72,21 +72,39 @@ public class MainController {
     @FXML
     private MenuItem menuCreateCylinder;
     @FXML
+    private MenuItem menuCreateCapsule;
+    @FXML
+    private MenuItem menuCreateSphere;
+    @FXML
     private MenuItem menuCreateTeapot;
     @FXML
-    private MenuItem menuSceneNew;
+    private MenuItem menuViewNewWindow;
     @FXML
-    private MenuItem menuSceneOpen;
+    private MenuItem menuViewFullscreen;
     @FXML
-    private MenuItem menuSceneSave;
+    private MenuItem menuViewScreenshot;
     @FXML
-    private MenuItem menuSceneSaveAs;
+    private MenuItem menuViewDefault;
     @FXML
-    private MenuItem menuSceneReset;
+    private MenuItem menuViewHorizontal;
     @FXML
-    private MenuItem menuWindowFullscreen;
+    private MenuItem menuViewVertical;
     @FXML
-    private MenuItem menuWindowScreenshot;
+    private MenuItem menuViewCascade;
+    @FXML
+    private MenuItem menuViewGridHelper;
+    @FXML
+    private MenuItem menuViewCameraHelper;
+    @FXML
+    private MenuItem menuViewLightHelper;
+    @FXML
+    private MenuItem menuCameraFront;
+    @FXML
+    private MenuItem menuCameraTop;
+    @FXML
+    private MenuItem menuCameraRight;
+    @FXML
+    private MenuItem menuCameraLeft;
     @FXML
     private MenuItem menuHelpDocumentation;
     @FXML
@@ -111,11 +129,8 @@ public class MainController {
         initializeDependencies();
 
         this.renderController.start();
-
-        LOG.info("Главный контроллер успешно инициализирован");
+        LOG.info("Главный контроллер инициализирован");
     }
-
-
 
     public void initializeAfterStageSet() {
         try {
@@ -136,7 +151,6 @@ public class MainController {
     }
 
     private void initializeDependencies() {
-        LOG.debug("Зависимости контроллеров инициализированы");
         if (transformPanelController != null) {
             transformPanelController.setSceneController(sceneController);
             sceneController.setTransformController(transformPanelController);
@@ -151,8 +165,8 @@ public class MainController {
             modificationPanelController.setSceneController(sceneController);
             sceneController.setModificationController(modificationPanelController);
         }
-        this.sceneController.setRenderController(renderController);
 
+        this.sceneController.setRenderController(renderController);
         sceneController.setMainController(this);
         sceneController.updateUI();
     }
@@ -164,9 +178,15 @@ public class MainController {
     }
 
     private void initializeButtonActions() {
-        addObjectButton.setOnAction(event -> executeCommand("model_load"));
+        addObjectButton.setOnAction(event -> openFileWithFormatCheck());
         deleteObjectButton.setOnAction(event -> executeCommand("object_delete"));
         duplicateObjectButton.setOnAction(event -> executeCommand("object_duplicate"));
+    }
+
+    private void openFileWithFormatCheck() {
+        if (commandFactory != null) {
+            commandFactory.executeCommand("file_open");
+        }
     }
 
     private void initializeSceneTree() {
@@ -192,26 +212,34 @@ public class MainController {
         menuThemeDark.setOnAction(event -> executeCommand("theme_тёмная"));
         menuThemeLight.setOnAction(event -> executeCommand("theme_светлая"));
 
-        menuFileOpen.setOnAction(event -> executeCommand("model_load"));
-        menuFileSave.setOnAction(event -> executeSaveCommand());
-        menuFileSaveAs.setOnAction(event -> executeSaveCommand());
+        menuFileOpen.setOnAction(event -> openFileWithFormatCheck());
+        menuFileSaveScene.setOnAction(event -> executeCommand("scene_save"));
+        menuFileSaveModel.setOnAction(event -> executeCommand("model_save"));
         menuFileExit.setOnAction(event -> handleExit());
-        menuFileNewCustom.setOnAction(event -> executeCommand("custom_object_create"));
 
         menuCreatePlane.setOnAction(event -> executeCommand("model_add_plane"));
         menuCreateCube.setOnAction(event -> executeCommand("model_add_cube"));
         menuCreateCone.setOnAction(event -> executeCommand("model_add_cone"));
         menuCreateCylinder.setOnAction(event -> executeCommand("model_add_cylinder"));
+        menuCreateCapsule.setOnAction(event -> executeCommand("model_add_capsule"));
+        menuCreateSphere.setOnAction(event -> executeCommand("model_add_sphere"));
         menuCreateTeapot.setOnAction(event -> executeCommand("model_add_teapot"));
 
-        menuSceneNew.setOnAction(event -> executeCommand("scene_new"));
-        menuSceneOpen.setOnAction(event -> executeCommand("scene_open"));
-        menuSceneSave.setOnAction(event -> executeCommand("scene_save"));
-        menuSceneSaveAs.setOnAction(event -> executeCommand("scene_save_as"));
-        menuSceneReset.setOnAction(event -> executeCommand("scene_reset"));
+        menuViewNewWindow.setOnAction(event -> executeCommand("window_new"));
+        menuViewFullscreen.setOnAction(event -> executeCommand("fullscreen_toggle"));
+        menuViewScreenshot.setOnAction(event -> executeCommand("screenshot_take"));
+        menuViewDefault.setOnAction(event -> executeCommand("layout_default"));
+        menuViewHorizontal.setOnAction(event -> executeCommand("layout_horizontal"));
+        menuViewVertical.setOnAction(event -> executeCommand("layout_vertical"));
+        menuViewCascade.setOnAction(event -> executeCommand("layout_cascade"));
+        menuViewGridHelper.setOnAction(event -> executeCommand("grid_toggle"));
+        menuViewCameraHelper.setOnAction(event -> executeCommand("camera_indicators_toggle"));
+        menuViewLightHelper.setOnAction(event -> executeCommand("light_indicators_toggle"));
 
-        menuWindowFullscreen.setOnAction(event -> executeCommand("fullscreen_toggle"));
-        menuWindowScreenshot.setOnAction(event -> executeCommand("screenshot_take"));
+        menuCameraFront.setOnAction(event -> executeCommand("camera_front"));
+        menuCameraTop.setOnAction(event -> executeCommand("camera_top"));
+        menuCameraRight.setOnAction(event -> executeCommand("camera_right"));
+        menuCameraLeft.setOnAction(event -> executeCommand("camera_left"));
 
         menuHelpDocumentation.setOnAction(event -> executeCommand("url_open_документацию"));
         menuHelpShortcuts.setOnAction(event -> executeCommand("hotkeys_show"));
@@ -219,14 +247,6 @@ public class MainController {
         menuHelpAbout.setOnAction(event -> executeCommand("about_show"));
 
         menuRecentClear.setOnAction(event -> clearRecentFiles());
-    }
-
-    private void executeSaveCommand() {
-        if (sceneController.hasSelectedObject()) {
-            executeCommand("model_save");
-        } else {
-            executeCommand("scene_save");
-        }
     }
 
     private void executeCommand(String commandName) {
@@ -311,23 +331,23 @@ public class MainController {
                 filePath.toLowerCase().endsWith(".3dscene");
 
             if (isSceneFormat) {
-                SceneOpenCommand sceneCommand =
-                    (SceneOpenCommand) commandFactory.getCommand("scene_open");
-                if (sceneCommand != null) {
-                    sceneCommand.loadSceneFromPath(filePath);
+                FileOpenCommand openCommand =
+                    (FileOpenCommand) commandFactory.getCommand("file_open");
+                if (openCommand != null) {
+                    openCommand.openSceneFile(filePath);
                 }
             } else {
-                ModelLoadCommand modelCommand =
-                    (ModelLoadCommand) commandFactory.getCommand("model_load");
-                if (modelCommand != null) {
-                    modelCommand.loadModelFromPath(filePath);
+                FileOpenCommand openCommand =
+                    (FileOpenCommand) commandFactory.getCommand("file_open");
+                if (openCommand!= null) {
+                    openCommand.openModelFile(filePath);
                 }
             }
 
             recentFilesCacheService.addFile(filePath);
             updateRecentFilesMenu();
         } catch (Exception e) {
-            DialogManager.showError("Не удалось загрузить файл: " + ControllerUtils.getFileName(filePath));
+            LOG.error("Не удалось загрузить файл: {}", ControllerUtils.getFileName(filePath));
         }
     }
 

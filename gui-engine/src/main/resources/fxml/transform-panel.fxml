@@ -30,8 +30,6 @@
                 </ImageView>
                 <Label style="-fx-font-weight: bold;" text="Видимость:" />
                 <CheckBox fx:id="visibilityCheckbox" mnemonicParsing="false" selected="true" />
-                <Label style="-fx-font-weight: bold;" text="Имя объекта:" />
-                <TextField fx:id="objectNameField" promptText="Имя объекта" />
             </HBox>
             <Label style="-fx-font-weight: bold;" text="Позиция:" />
             <GridPane hgap="8" vgap="5">
