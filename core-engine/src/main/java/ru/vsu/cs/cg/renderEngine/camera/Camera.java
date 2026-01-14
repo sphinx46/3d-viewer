@@ -29,7 +29,7 @@ public class Camera {
     }
 
     public Camera() {
-        this("DefaultCamera_",
+        this("DefaultCamera_0",
                 new Vector3f(0, 2, 5),
                 new Vector3f(0, 0, 0));
     }

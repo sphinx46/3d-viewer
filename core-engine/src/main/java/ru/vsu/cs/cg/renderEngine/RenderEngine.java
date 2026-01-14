@@ -168,7 +168,9 @@ public class RenderEngine {
             }
 
             rasterizer.drawTriangle(
-                    pixelWriter, screenV1, screenV2, screenV3,
+                    pixelWriter,
+                    width, height,
+                    screenV1, screenV2, screenV3,
                     vt1, vt2, vt3,
                     n1, n2, n3,
                     texture, lightDirection, settings
