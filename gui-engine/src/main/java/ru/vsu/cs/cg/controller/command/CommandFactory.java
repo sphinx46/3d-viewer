@@ -11,6 +11,8 @@ import ru.vsu.cs.cg.controller.command.impl.info.UrlOpenCommand;
 import ru.vsu.cs.cg.controller.command.impl.model.DefaultModelAddCommand;
 import ru.vsu.cs.cg.controller.command.impl.model.ModelSaveCommand;
 import ru.vsu.cs.cg.controller.command.impl.object.*;
+import ru.vsu.cs.cg.controller.command.impl.visualization.AxisToggleCommand;
+import ru.vsu.cs.cg.controller.command.impl.visualization.GridToggleCommand;
 import ru.vsu.cs.cg.controller.command.impl.scene.SceneNewCommand;
 import ru.vsu.cs.cg.controller.command.impl.scene.SceneResetCommand;
 import ru.vsu.cs.cg.controller.command.impl.scene.SceneSaveCommand;
@@ -56,6 +58,9 @@ public class CommandFactory {
         }
         registerCommand(new ModelSaveCommand(stage, sceneController, recentFilesService));
         registerCommand(new CustomObjectCreateCommand(sceneController));
+
+        registerCommand(new GridToggleCommand(sceneController));
+        registerCommand(new AxisToggleCommand(sceneController));
 
         registerCommand(new ScreenshotCommand(stage));
         registerCommand(new FullscreenToggleCommand(stage));

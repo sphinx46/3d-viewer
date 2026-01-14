@@ -6,6 +6,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
@@ -157,13 +158,20 @@
                 <SeparatorMenuItem />
                 <Menu mnemonicParsing="false" text="Вспомогательные элементы">
                     <items>
-                        <MenuItem fx:id="menuViewGridHelper" mnemonicParsing="false" text="Фоновая сетка">
+                        <CheckMenuItem fx:id="menuViewGridHelper" mnemonicParsing="false" text="Фоновая сетка">
                             <graphic>
                                 <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                                     <Image url="@/static/images/icons/top-menu/grid.png" />
                                 </ImageView>
                             </graphic>
-                        </MenuItem>
+                        </CheckMenuItem>
+                        <CheckMenuItem fx:id="menuViewCoordinateAxisHelper" mnemonicParsing="false" text="Координатная ось">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/top-menu/axis.png" />
+                                </ImageView>
+                            </graphic>
+                        </CheckMenuItem>
                         <MenuItem fx:id="menuViewCameraHelper" mnemonicParsing="false" text="Индикаторы камер">
                             <graphic>
                                 <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">

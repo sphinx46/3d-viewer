@@ -17,22 +17,10 @@ import javafx.scene.paint.Color;
 import ru.vsu.cs.cg.rasterization.Texture;
 import ru.vsu.cs.cg.renderEngine.dto.RenderEntity;
 
-
 public class RenderEngine {
 
     private static Model cameraGizmoModel;
 
-    /**
-     * Основной метод рендеринга
-     * @param pixelWriter Объект для отрисовки пикселей на экран
-     * @param width ширина экрана
-     * @param height высота экрана
-     * @param entities список моделей
-     * @param cameras список камер
-     * @param activeCamera активная камера
-     * @param rasterizer экземпляр растеризатора
-     * @param baseSettings основные настройки рендера
-     */
     public void render(
         PixelWriter pixelWriter,
         int width,
@@ -41,7 +29,8 @@ public class RenderEngine {
         List<Camera> cameras,
         Camera activeCamera,
         Rasterizer rasterizer,
-        RasterizerSettings baseSettings) {
+        RasterizerSettings baseSettings,
+        boolean gridVisible) {
 
         if (activeCamera == null) return;
 
@@ -49,7 +38,9 @@ public class RenderEngine {
         Matrix4x4 projectionMatrix = activeCamera.getProjectionMatrix();
         Matrix4x4 viewProjectionMatrix = projectionMatrix.multiply(viewMatrix);
 
-        renderGrid(pixelWriter, width, height, activeCamera, rasterizer, baseSettings);
+        if (gridVisible) {
+            renderGrid(pixelWriter, width, height, activeCamera, rasterizer, baseSettings);
+        }
 
         Vector3f lightDirection = activeCamera.getLightDirection();
 
@@ -89,22 +80,6 @@ public class RenderEngine {
         }
     }
 
-    /**
-     * Метод рендера модели
-     * Здесь происходят все преобразования до растеризации
-     * @param pixelWriter Объект для отрисовки пикселей на экран
-     * @param width ширина экрана
-     * @param height высота экрана
-     * @param model модель для рендеринга
-     * @param translation вектор позиции
-     * @param rotation вектор поворота
-     * @param scale вектор растяжения
-     * @param viewProjectionMatrix матрица перспективы
-     * @param lightDirection вектор света
-     * @param rasterizer растеризатор
-     * @param settings настройки модели
-     * @param texture текстура модели
-     */
     private void renderModel(
         PixelWriter pixelWriter,
         int width,
@@ -147,7 +122,6 @@ public class RenderEngine {
             if (v1NDC.getZ() > 1.0f && v2NDC.getZ() > 1.0f && v3NDC.getZ() > 1.0f) continue;
             if (v1NDC.getZ() < -1.0f && v2NDC.getZ() < -1.0f && v3NDC.getZ() < -1.0f) continue;
 
-
             Vector2f p1 = GraphicConveyor.vertexToPoint(v1NDC, width, height);
             Vector2f p2 = GraphicConveyor.vertexToPoint(v2NDC, width, height);
             Vector2f p3 = GraphicConveyor.vertexToPoint(v3NDC, width, height);
@@ -178,10 +152,6 @@ public class RenderEngine {
         }
     }
 
-
-    /**
-     * Отрисовка сетки на плоскости Y=0
-     */
     private void renderGrid(
         PixelWriter pixelWriter,
         int width,
@@ -213,9 +183,6 @@ public class RenderEngine {
         }
     }
 
-    /**
-     * Отрисовка линии
-     */
     private void processAndDrawLine(
         PixelWriter pixelWriter,
         int width,
@@ -263,9 +230,6 @@ public class RenderEngine {
         );
     }
 
-    /**
-     * Рисует оси XYZ из центра переданной сущности
-     */
     public void renderObjectGizmo(
         PixelWriter pixelWriter,
         int width,
@@ -301,9 +265,6 @@ public class RenderEngine {
         renderLineWithMatrix(pixelWriter, width, height, center, zAxis, Color.BLUE, mvpMatrix, rasterizer);
     }
 
-    /**
-     * Вспомогательный метод для отрисовки линий
-     */
     private void renderLineWithMatrix(
         PixelWriter pixelWriter,
         int width,
@@ -341,7 +302,6 @@ public class RenderEngine {
 
         rasterizer.drawLine(pixelWriter, width, height, screenV1, screenV2, color, true);
     }
-
 
     private Model getCameraGizmo() {
         if (cameraGizmoModel == null) {

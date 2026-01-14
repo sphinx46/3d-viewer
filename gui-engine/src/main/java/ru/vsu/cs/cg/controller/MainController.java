@@ -90,7 +90,9 @@ public class MainController {
     @FXML
     private MenuItem menuViewCascade;
     @FXML
-    private MenuItem menuViewGridHelper;
+    private CheckMenuItem menuViewGridHelper;
+    @FXML
+    private CheckMenuItem menuViewCoordinateAxisHelper;
     @FXML
     private MenuItem menuViewCameraHelper;
     @FXML
@@ -141,6 +143,8 @@ public class MainController {
             hotkeyManager = new HotkeyManager();
             hotkeyManager.setCommandFactory(commandFactory);
             hotkeyManager.registerGlobalHotkeys(anchorPane);
+
+            initializeMenuCheckmarks();
         } catch (Exception e) {
             LOG.error("Ошибка инициализации командной системы: {}", e.getMessage());
         }
@@ -203,6 +207,8 @@ public class MainController {
                         objectName = objectName.replace(" (скрыт)", "");
                     }
                     sceneController.handleSceneObjectSelection(objectName);
+
+                    updateCoordinateAxisMenuState();
                 }
             }
         );
@@ -231,7 +237,17 @@ public class MainController {
         menuViewHorizontal.setOnAction(event -> executeCommand("layout_horizontal"));
         menuViewVertical.setOnAction(event -> executeCommand("layout_vertical"));
         menuViewCascade.setOnAction(event -> executeCommand("layout_cascade"));
-        menuViewGridHelper.setOnAction(event -> executeCommand("grid_toggle"));
+        menuViewGridHelper.setOnAction(event -> {
+            executeCommand("grid_toggle");
+            menuViewGridHelper.setSelected(sceneController.getCurrentScene().isGridVisible());
+        });
+        menuViewCoordinateAxisHelper.setOnAction(event -> {
+            executeCommand("axis_toggle");
+            if (sceneController.hasSelectedObject()) {
+                boolean axisVisible = sceneController.getSelectedObject().getRenderSettings().isDrawAxisLines();
+                menuViewCoordinateAxisHelper.setSelected(axisVisible);
+            }
+        });
         menuViewCameraHelper.setOnAction(event -> executeCommand("camera_indicators_toggle"));
         menuViewLightHelper.setOnAction(event -> executeCommand("light_indicators_toggle"));
 
@@ -254,6 +270,26 @@ public class MainController {
         } else {
             DialogManager.showError("Система команд не готова");
         }
+    }
+
+    private void initializeMenuCheckmarks() {
+        Platform.runLater(() -> {
+            menuViewGridHelper.setSelected(sceneController.getCurrentScene().isGridVisible());
+            updateCoordinateAxisMenuState();
+        });
+    }
+
+    private void updateCoordinateAxisMenuState() {
+        Platform.runLater(() -> {
+            if (sceneController.hasSelectedObject()) {
+                boolean axisVisible = sceneController.getSelectedObject().getRenderSettings().isDrawAxisLines();
+                menuViewCoordinateAxisHelper.setSelected(axisVisible);
+                menuViewCoordinateAxisHelper.setDisable(false);
+            } else {
+                menuViewCoordinateAxisHelper.setSelected(false);
+                menuViewCoordinateAxisHelper.setDisable(true);
+            }
+        });
     }
 
     public void updateSceneTree() {

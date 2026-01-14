@@ -17,27 +17,31 @@ public class Scene {
     private String name;
     private final List<SceneObject> objects;
     private SceneObject selectedObject;
+    private boolean gridVisible = true;
 
     @JsonCreator
     public Scene(
         @JsonProperty("id") String id,
         @JsonProperty("name") String name,
         @JsonProperty("objects") List<SceneObject> objects,
-        @JsonProperty("selectedObjectId") String selectedObjectId) {
+        @JsonProperty("selectedObjectId") String selectedObjectId,
+        @JsonProperty("gridVisible") Boolean gridVisible) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.name = name != null ? name : "Новая сцена";
         this.objects = objects != null ? new ArrayList<>(objects) : new ArrayList<>();
         this.selectedObject = null;
+        this.gridVisible = gridVisible != null ? gridVisible : true;
 
         if (selectedObjectId != null) {
             findObjectById(selectedObjectId).ifPresent(obj -> this.selectedObject = obj);
         }
 
-        LOG.debug("Создана сцена: id={}, name={}, объектов={}", this.id, this.name, this.objects.size());
+        LOG.debug("Создана сцена: id={}, name={}, объектов={}, gridVisible={}",
+            this.id, this.name, this.objects.size(), this.gridVisible);
     }
 
     public Scene() {
-        this(UUID.randomUUID().toString(), "Новая сцена", new ArrayList<>(), null);
+        this(UUID.randomUUID().toString(), "Новая сцена", new ArrayList<>(), null, true);
     }
 
     public String getId() { return id; }
@@ -52,6 +56,12 @@ public class Scene {
     public List<SceneObject> getObjects() { return new ArrayList<>(objects); }
 
     public SceneObject getSelectedObject() { return selectedObject; }
+
+    public boolean isGridVisible() { return gridVisible; }
+    public void setGridVisible(boolean gridVisible) {
+        this.gridVisible = gridVisible;
+        LOG.debug("Видимость сетки изменена: {}", gridVisible);
+    }
 
     public Optional<SceneObject> findObjectById(String id) {
         if (id == null) return Optional.empty();
@@ -143,8 +153,8 @@ public class Scene {
 
     @Override
     public String toString() {
-        return String.format("Scene{id='%s', name='%s', objects=%d, selected=%s}",
-            id, name, objects.size(),
+        return String.format("Scene{id='%s', name='%s', objects=%d, gridVisible=%s, selected=%s}",
+            id, name, objects.size(), gridVisible,
             selectedObject != null ? selectedObject.getName() : "null");
     }
 }

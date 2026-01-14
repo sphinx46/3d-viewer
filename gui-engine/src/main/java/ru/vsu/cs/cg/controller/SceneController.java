@@ -237,6 +237,23 @@ public class SceneController {
         markModelModified();
     }
 
+    public void toggleGridVisibility() {
+        currentScene.setGridVisible(!currentScene.isGridVisible());
+        LOG.info("Видимость сетки переключена: {}", currentScene.isGridVisible());
+        markSceneModified();
+    }
+
+    public void toggleAxisVisibility() {
+        if (hasSelectedObject()) {
+            SceneObject selected = getSelectedObject();
+            RasterizerSettings settings = selected.getRenderSettings();
+            boolean newState = !settings.isDrawAxisLines();
+            settings.setDrawAxisLines(newState);
+            LOG.info("Оси XYZ для объекта '{}' переключены: {}", selected.getName(), newState);
+            markSceneModified();
+        }
+    }
+
     public Scene getCurrentScene() {
         return currentScene;
     }
