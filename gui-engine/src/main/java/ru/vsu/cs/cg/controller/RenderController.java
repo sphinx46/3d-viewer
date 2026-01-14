@@ -23,10 +23,8 @@ public class RenderController {
     private Canvas canvas;
     private AnimationTimer animationTimer;
 
-    // Ссылка на менеджер, который связывает GUI и Core-Engine
     private final SceneManager sceneManager;
 
-    // Для управления камерой
     private double lastMouseX;
     private double lastMouseY;
 
@@ -40,22 +38,21 @@ public class RenderController {
     }
 
     private void initializeCanvas() {
-        // Создаем Canvas и привязываем его к размерам контейнера
         this.canvas = new Canvas(800, 600);
         canvasContainer.getChildren().add(0, canvas); // Добавляем первым (на задний план)
 
-        // Привязка размеров (Binding)
         canvas.widthProperty().bind(canvasContainer.widthProperty());
         canvas.heightProperty().bind(canvasContainer.heightProperty());
 
-        // Слушатели изменения размера для обновления буферов рендеринга
         canvas.widthProperty().addListener((obs, oldVal, newVal) ->
                 sceneManager.resize(newVal.intValue(), (int) canvas.getHeight()));
         canvas.heightProperty().addListener((obs, oldVal, newVal) ->
                 sceneManager.resize((int) canvas.getWidth(), newVal.intValue()));
 
-        // Первичная инициализация размера
         sceneManager.resize((int) canvas.getWidth(), (int) canvas.getHeight());
+
+        Camera camera = new Camera();
+        sceneManager.addCamera(camera);
     }
 
     private void initializeTimeline() {
@@ -72,12 +69,9 @@ public class RenderController {
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        // 1. Очистка фона
-        // Можно вынести цвет фона в настройки
         gc.setFill(Color.rgb(30, 30, 30));
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        // 2. Вызов движка рендеринга
         JavaFXPixelWriterAdapter pixelWriter = new JavaFXPixelWriterAdapter(gc.getPixelWriter());
         sceneManager.render(pixelWriter);
     }
@@ -98,7 +92,6 @@ public class RenderController {
      */
     public void setScene(Scene scene) {
         sceneManager.setScene(scene);
-        // При смене сцены можно сбросить камеру или настройки, если нужно
     }
 
     public SceneManager getSceneManager() {

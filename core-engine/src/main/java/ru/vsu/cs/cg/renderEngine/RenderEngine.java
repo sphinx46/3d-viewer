@@ -144,6 +144,10 @@ public class RenderEngine {
             Vector3f v2NDC = v2Clip.toVector3Safe();
             Vector3f v3NDC = v3Clip.toVector3Safe();
 
+            if (v1NDC.getZ() > 1.0f && v2NDC.getZ() > 1.0f && v3NDC.getZ() > 1.0f) continue;
+            if (v1NDC.getZ() < -1.0f && v2NDC.getZ() < -1.0f && v3NDC.getZ() < -1.0f) continue;
+
+
             Vector2f p1 = GraphicConveyor.vertexToPoint(v1NDC, width, height);
             Vector2f p2 = GraphicConveyor.vertexToPoint(v2NDC, width, height);
             Vector2f p3 = GraphicConveyor.vertexToPoint(v3NDC, width, height);

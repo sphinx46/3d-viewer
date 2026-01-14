@@ -8,8 +8,6 @@ import ru.vsu.cs.cg.renderEngine.camera.Camera;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.rasterization.Rasterizer;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
@@ -18,11 +16,8 @@ import ru.vsu.cs.cg.rasterization.ZBuffer;
 import ru.vsu.cs.cg.renderEngine.PixelWriter;
 import ru.vsu.cs.cg.renderEngine.RenderEngine;
 import ru.vsu.cs.cg.renderEngine.dto.RenderEntity;
-import ru.vsu.cs.cg.renderEngine.camera.Camera;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SceneManager {
@@ -83,13 +78,7 @@ public class SceneManager {
      */
     public void render(PixelWriter pixelWriter) {
         if (activeCamera == null) {
-            if (!cameras.isEmpty()) {
-                setActiveCamera(cameras.get(0));
-            } else {
-                Camera camera = new Camera();
-                cameras.add(camera);
-                setActiveCamera(camera);
-            }
+            setActiveCamera(cameras.get(0));
         }
 
         zBuffer.clear();
@@ -130,10 +119,6 @@ public class SceneManager {
             );
 
             renderEntities.add(entity);
-        }
-
-        for (RenderEntity entity: renderEntities){
-            LOG.debug("{}", entity.toString());
         }
 
         renderEngine.render(
@@ -202,6 +187,21 @@ public class SceneManager {
             camera.setAspectRatio((float) width / height);
             if (activeCamera == null) activeCamera = camera;
         }
+    }
+
+    public void removeCamera(Camera camera) {
+        if (camera == null) return;
+
+        if (cameras.size() <= 1) {
+            throw new IllegalStateException("Нельзя удалить единственную камеру в сцене.");
+        }
+
+        cameras.remove(camera);
+
+        if (activeCamera == camera) {
+            activeCamera = cameras.isEmpty() ? null : cameras.get(0);
+        }
+        LOG.info("Камера '{}' удалена", camera.getId());
     }
 
     // --- Геттеры и сеттеры ---

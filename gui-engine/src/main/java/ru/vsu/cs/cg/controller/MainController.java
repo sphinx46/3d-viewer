@@ -31,6 +31,8 @@ public class MainController {
     @FXML
     private MaterialController materialPanelController;
     @FXML
+    private CameraController cameraPanelController;
+    @FXML
     private ModificationController modificationPanelController;
     private final SceneController sceneController = new SceneController();
     private HotkeyManager hotkeyManager;
@@ -108,6 +110,9 @@ public class MainController {
         initializeButtonActions();
         loadRecentFiles();
         initializeRender();
+        cameraPanelController.initialize();
+        cameraPanelController.setSceneManager(renderController.getSceneManager());
+
         initializeDependencies();
 
         this.renderController.start();
