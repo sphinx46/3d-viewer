@@ -109,27 +109,16 @@ public final class ObjReader {
         return model;
     }
 
-    private static String getMtlFilePath(String objFilePath, String materialName) {
-        Path objPath = Paths.get(objFilePath);
-        String baseName = getFileNameWithoutExtension(objFilePath);
-        return objPath.getParent().resolve(baseName + ".mtl").toString();
-    }
-
-    private static String getFileNameWithoutExtension(String filePath) {
-        Path path = Paths.get(filePath);
-        String fileName = path.getFileName().toString();
-        int dotIndex = fileName.lastIndexOf('.');
-        return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
-    }
-
     private static void loadMaterialFromMtl(String objFilePath, Model model) throws IOException {
-        String mtlFilePath = getMtlFilePath(objFilePath, model.getMaterialName());
-        if (!Files.exists(Paths.get(mtlFilePath))) {
-            LOG.debug("MTL файл не найден: {}", mtlFilePath);
+        Path objPath = Paths.get(objFilePath);
+        String mtlFileName = getMtlFileName(objFilePath, model.getMaterialName());
+
+        if (mtlFileName == null || !Files.exists(Paths.get(mtlFileName))) {
+            LOG.debug("MTL файл не найден: {}", mtlFileName);
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(mtlFilePath))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(mtlFileName))) {
             String line;
             String currentMaterialName = null;
             float[] color = {0.8f, 0.8f, 0.8f};
@@ -168,9 +157,25 @@ public final class ObjReader {
                         }
                     } else if (line.startsWith("map_Kd ")) {
                         String textureFileName = line.substring(7).trim();
-                        Path texturePathObj = Paths.get(mtlFilePath).getParent().resolve(textureFileName);
-                        texturePath = texturePathObj.toString();
-                        useTexture = true;
+                        Path mtlDir = Paths.get(mtlFileName).getParent();
+
+                        if (textureFileName != null && !textureFileName.isEmpty()) {
+                            if (textureFileName.startsWith("#")) {
+                                LOG.warn("Текстура закомментирована: {}", textureFileName);
+                                continue;
+                            }
+
+                            Path texturePathObj = mtlDir.resolve(textureFileName);
+
+                            if (Files.exists(texturePathObj)) {
+                                texturePath = texturePathObj.toString();
+                                useTexture = true;
+                                LOG.debug("Текстура найдена: {}", texturePath);
+                            } else {
+                                LOG.warn("Файл текстуры не найден: {}", texturePathObj);
+                                useTexture = false;
+                            }
+                        }
                     } else if (line.startsWith("Ns ")) {
                         shininess = Float.parseFloat(line.substring(3).trim()) / 1000.0f;
                         useLighting = shininess > 0;
@@ -201,6 +206,32 @@ public final class ObjReader {
         }
     }
 
+    private static String getMtlFileName(String objFilePath, String materialName) {
+        Path objPath = Paths.get(objFilePath);
+        String baseName = getFileNameWithoutExtension(objFilePath);
+
+        Path possibleMtlPath = objPath.getParent().resolve(baseName + ".mtl");
+        if (Files.exists(possibleMtlPath)) {
+            return possibleMtlPath.toString();
+        }
+
+        if (materialName != null && materialName.toLowerCase().endsWith(".mtl")) {
+            Path materialPath = objPath.getParent().resolve(materialName);
+            if (Files.exists(materialPath)) {
+                return materialPath.toString();
+            }
+        }
+
+        return null;
+    }
+
+    private static String getFileNameWithoutExtension(String filePath) {
+        Path path = Paths.get(filePath);
+        String fileName = path.getFileName().toString();
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+    }
+
     private static void applyMaterialToModel(Model model, float[] color, String texturePath,
                                              Float shininess, Float transparency, Float reflectivity,
                                              boolean useLighting, boolean useTexture, boolean drawPolygonalGrid) {
@@ -213,7 +244,7 @@ public final class ObjReader {
         model.setUseTexture(useTexture);
         model.setDrawPolygonalGrid(drawPolygonalGrid);
 
-        LOG.debug("Применен материал: цвет=[{},{},{}], текстура={}, блеск={}, прозрачность={}, отражение={}, освещение={}, текстура={}, сетка={}",
+        LOG.info("Применен материал: цвет=[{},{},{}], текстура={}, блеск={}, прозрачность={}, отражение={}, освещение={}, текстура={}, сетка={}",
             color[0], color[1], color[2], texturePath, shininess, transparency, reflectivity,
             useLighting, useTexture, drawPolygonalGrid);
     }

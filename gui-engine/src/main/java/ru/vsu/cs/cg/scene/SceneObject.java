@@ -80,7 +80,6 @@ public class SceneObject {
     }
 
     public SceneObject copy() {
-        RasterizerSettings copiedSettings = renderSettings.copy();
         SceneObject copy = new SceneObject(
             UUID.randomUUID().toString(),
             name + "_copy",
@@ -96,19 +95,9 @@ public class SceneObject {
                 material.getShininess(), material.getReflectivity(), material.getTransparency()
             ),
             visible,
-            copiedSettings
+            renderSettings.copy()
         );
         return copy;
-    }
-
-    public RasterizerSettings getRasterizerSettingsForExport() {
-        RasterizerSettings settings = renderSettings.copy();
-
-        if (material.getTexturePath() != null && !material.getTexturePath().isEmpty()) {
-            settings.setUseTexture(true);
-        }
-
-        return settings;
     }
 
     public Model getTransformedModel() {
@@ -148,6 +137,10 @@ public class SceneObject {
 
         transformedModel.setMaterialTransparency((float) material.getTransparency());
         transformedModel.setMaterialReflectivity((float) material.getReflectivity());
+
+        transformedModel.setUseLighting(renderSettings.isUseLighting());
+        transformedModel.setUseTexture(renderSettings.isUseTexture() || material.getTexturePath() != null);
+        transformedModel.setDrawPolygonalGrid(renderSettings.isDrawPolygonalGrid());
 
         return transformedModel;
     }

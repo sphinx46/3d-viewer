@@ -51,13 +51,6 @@ public class SceneManager {
         this.rasterizer = new Rasterizer(zBuffer);
     }
 
-    /**
-     * метод изменения размер
-     * обновляет Z-буфер и камеры
-     *
-     * @param width новая ширина
-     * @param height новая высота
-     */
     public void resize(int width, int height) {
         if (width <= 0 || height <= 0) return;
         this.width = width;
@@ -73,12 +66,14 @@ public class SceneManager {
         }
     }
 
-    /**
-     * Основной метод отрисовки сцены
-     */
     public void render(PixelWriter pixelWriter) {
-        if (activeCamera == null) {
+        if (activeCamera == null && !cameras.isEmpty()) {
             setActiveCamera(cameras.get(0));
+        }
+
+        if (activeCamera == null) {
+            LOG.warn("Нет активной камеры для рендеринга");
+            return;
         }
 
         zBuffer.clear();
@@ -104,35 +99,29 @@ public class SceneManager {
             objectRenderSettings.setDefaultColor(m.getColor());
 
             RenderEntity entity = new RenderEntity(
-                    object.getModel(),
-                    translation,
-                    rotation,
-                    scale,
-                    texture,
-                    objectRenderSettings
+                object.getModel(),
+                translation,
+                rotation,
+                scale,
+                texture,
+                objectRenderSettings
             );
 
             renderEntities.add(entity);
         }
 
         renderEngine.render(
-                pixelWriter,
-                width,
-                height,
-                renderEntities,
-                cameras,
-                activeCamera,
-                rasterizer,
-                renderSettings
+            pixelWriter,
+            width,
+            height,
+            renderEntities,
+            cameras,
+            activeCamera,
+            rasterizer,
+            renderSettings
         );
     }
 
-    /**
-     * Получает текстуру из кеша
-     * Иначе подгружает текстуру
-     * @param path путь до текстуры
-     * @return текстура объекта
-     */
     private Texture getOrLoadTexture(String path) {
         if (path == null || path.isEmpty()) {
             return null;
@@ -143,38 +132,33 @@ public class SceneManager {
         }
 
         try {
-            String url;
             File file = new File(path);
 
-            if (file.exists()) {
-                url = file.toURI().toString();
-            } else {
-                url = path;
+            if (!file.exists()) {
+                LOG.warn("Файл текстуры не найден: {}", path);
+                return null;
             }
 
+            String url = file.toURI().toString();
             Image image = new Image(url);
 
             if (image.isError()) {
-                if (image.getException() != null) {
-                    throw image.getException();
-                }
-                throw new Exception("Некорректный формат изображения или ошибка чтения");
+                LOG.error("Ошибка загрузки текстуры: {}", path);
+                return null;
             }
 
             Texture texture = new Texture(image);
             textureCache.put(path, texture);
+
+            LOG.debug("Текстура загружена в кэш: {}", path);
             return texture;
 
         } catch (Exception e) {
-            LOG.error("Не удалось загрузить текстуру: " + path, e);
+            LOG.error("Не удалось загрузить текстуру: {}", path, e);
             return null;
         }
     }
 
-    /**
-     * Добавляет камеру на сцену
-     * @param camera новая камера
-     */
     public void addCamera(Camera camera) {
         if (camera != null && !cameras.contains(camera)) {
             cameras.add(camera);
@@ -197,8 +181,6 @@ public class SceneManager {
         }
         LOG.info("Камера '{}' удалена", camera.getId());
     }
-
-    // --- Геттеры и сеттеры ---
 
     public void setRenderSettings(RasterizerSettings settings) {
         this.renderSettings = settings;
@@ -240,7 +222,7 @@ public class SceneManager {
 
     public void clearScene() {
         scene.clear();
-        textureCache.clear(); // Очищаем кэш при очистке сцены
+        textureCache.clear();
         LOG.info("Сцена очищена через SceneManager");
     }
 

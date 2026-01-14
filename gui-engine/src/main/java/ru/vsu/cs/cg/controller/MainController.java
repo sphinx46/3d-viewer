@@ -26,107 +26,60 @@ import java.util.Optional;
 public class MainController {
     private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
 
-    @FXML
-    private AnchorPane viewerContainer;
-    @FXML
-    private TransformController transformPanelController;
-    @FXML
-    private MaterialController materialPanelController;
-    @FXML
-    private CameraController cameraPanelController;
-    @FXML
-    private ModificationController modificationPanelController;
-
+    @FXML private AnchorPane viewerContainer;
+    @FXML private TransformController transformPanelController;
+    @FXML private MaterialController materialPanelController;
+    @FXML private CameraController cameraPanelController;
+    @FXML private ModificationController modificationPanelController;
 
     private final SceneController sceneController = new SceneController();
-    private HotkeyManager hotkeyManager;
     private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
+    private HotkeyManager hotkeyManager;
     private CommandFactory commandFactory;
     private RenderController renderController;
 
-    @FXML
-    private AnchorPane anchorPane;
-    @FXML
-    private TreeView<String> sceneTreeView;
-    @FXML
-    private Button addObjectButton;
-    @FXML
-    private Button deleteObjectButton;
-    @FXML
-    private Button duplicateObjectButton;
+    @FXML private AnchorPane anchorPane;
+    @FXML private TreeView<String> sceneTreeView;
+    @FXML private Button addObjectButton;
+    @FXML private Button deleteObjectButton;
+    @FXML private Button duplicateObjectButton;
 
-    @FXML
-    private MenuItem menuThemeDark;
-    @FXML
-    private MenuItem menuThemeLight;
-    @FXML
-    private MenuItem menuFileOpen;
-    @FXML
-    private MenuItem menuFileSaveScene;
-    @FXML
-    private MenuItem menuFileSaveModel;
-    @FXML
-    private MenuItem menuFileExit;
-    @FXML
-    private MenuItem menuCreatePlane;
-    @FXML
-    private MenuItem menuCreateCube;
-    @FXML
-    private MenuItem menuCreateCylinder;
-    @FXML
-    private MenuItem menuCreateCapsule;
-    @FXML
-    private MenuItem menuCreateSphere;
-    @FXML
-    private MenuItem menuCreateTeapot;
-    @FXML
-    private MenuItem menuViewNewWindow;
-    @FXML
-    private MenuItem menuViewFullscreen;
-    @FXML
-    private MenuItem menuViewScreenshot;
-    @FXML
-    private MenuItem menuViewDefault;
-    @FXML
-    private MenuItem menuViewHorizontal;
-    @FXML
-    private MenuItem menuViewVertical;
-    @FXML
-    private MenuItem menuViewCascade;
-    @FXML
-    private CheckMenuItem menuViewGridHelper;
-    @FXML
-    private CheckMenuItem menuViewCoordinateAxisHelper;
-    @FXML
-    private MenuItem menuViewCameraHelper;
-    @FXML
-    private MenuItem menuViewLightHelper;
-    @FXML
-    private MenuItem menuCameraFront;
-    @FXML
-    private MenuItem menuCameraTop;
-    @FXML
-    private MenuItem menuCameraRight;
-    @FXML
-    private MenuItem menuCameraLeft;
-    @FXML
-    private MenuItem menuHelpDocumentation;
-    @FXML
-    private MenuItem menuHelpShortcuts;
-    @FXML
-    private MenuItem menuHelpBugReport;
-    @FXML
-    private MenuItem menuHelpAbout;
-    @FXML
-    private Menu menuRecent;
-    @FXML
-    private MenuItem menuRecentClear;
-    @FXML
-    private Button moveToolButton;
-    @FXML
-    private Button rotateToolButton;
-    @FXML
-    private Button scaleToolButton;
+    @FXML private MenuItem menuThemeDark;
+    @FXML private MenuItem menuThemeLight;
+    @FXML private MenuItem menuFileOpen;
+    @FXML private MenuItem menuFileSaveScene;
+    @FXML private MenuItem menuFileSaveModel;
+    @FXML private MenuItem menuFileExit;
+    @FXML private MenuItem menuCreatePlane;
+    @FXML private MenuItem menuCreateCube;
+    @FXML private MenuItem menuCreateCylinder;
+    @FXML private MenuItem menuCreateCapsule;
+    @FXML private MenuItem menuCreateSphere;
+    @FXML private MenuItem menuCreateTeapot;
+    @FXML private MenuItem menuViewNewWindow;
+    @FXML private MenuItem menuViewFullscreen;
+    @FXML private MenuItem menuViewScreenshot;
+    @FXML private MenuItem menuViewDefault;
+    @FXML private MenuItem menuViewHorizontal;
+    @FXML private MenuItem menuViewVertical;
+    @FXML private MenuItem menuViewCascade;
+    @FXML private CheckMenuItem menuViewGridHelper;
+    @FXML private CheckMenuItem menuViewCoordinateAxisHelper;
+    @FXML private MenuItem menuViewCameraHelper;
+    @FXML private MenuItem menuViewLightHelper;
+    @FXML private MenuItem menuCameraFront;
+    @FXML private MenuItem menuCameraTop;
+    @FXML private MenuItem menuCameraRight;
+    @FXML private MenuItem menuCameraLeft;
+    @FXML private MenuItem menuHelpDocumentation;
+    @FXML private MenuItem menuHelpShortcuts;
+    @FXML private MenuItem menuHelpBugReport;
+    @FXML private MenuItem menuHelpAbout;
+    @FXML private Menu menuRecent;
+    @FXML private MenuItem menuRecentClear;
+    @FXML private Button moveToolButton;
+    @FXML private Button rotateToolButton;
+    @FXML private Button scaleToolButton;
 
     @FXML
     private void initialize() {
@@ -141,13 +94,11 @@ public class MainController {
         cameraPanelController.setSceneManager(renderController.getSceneManager());
 
         initializeDependencies();
-        cameraPanelController.initialize();
         cameraPanelController.setSceneManager(renderController.getSceneManager());
 
         this.renderController.start();
         LOG.info("Главный контроллер инициализирован");
     }
-
 
     private void initializeDependencies() {
         if (transformPanelController != null) {
@@ -198,15 +149,9 @@ public class MainController {
     }
 
     private void initializeButtonActions() {
-        addObjectButton.setOnAction(event -> openFileWithFormatCheck());
+        addObjectButton.setOnAction(event -> executeCommand("file_open"));
         deleteObjectButton.setOnAction(event -> executeCommand("object_delete"));
         duplicateObjectButton.setOnAction(event -> executeCommand("object_duplicate"));
-    }
-
-    private void openFileWithFormatCheck() {
-        if (commandFactory != null) {
-            commandFactory.executeCommand("file_open");
-        }
     }
 
     private void initializeSceneTree() {
@@ -223,7 +168,6 @@ public class MainController {
                         objectName = objectName.replace(" (скрыт)", "");
                     }
                     sceneController.handleSceneObjectSelection(objectName);
-
                     updateCoordinateAxisMenuState();
                 }
             }
@@ -233,8 +177,7 @@ public class MainController {
     private void initializeMenuActions() {
         menuThemeDark.setOnAction(event -> executeCommand("theme_тёмная"));
         menuThemeLight.setOnAction(event -> executeCommand("theme_светлая"));
-
-        menuFileOpen.setOnAction(event -> openFileWithFormatCheck());
+        menuFileOpen.setOnAction(event -> executeCommand("file_open"));
         menuFileSaveScene.setOnAction(event -> executeCommand("scene_save"));
         menuFileSaveModel.setOnAction(event -> executeCommand("model_save"));
         menuFileExit.setOnAction(event -> handleExit());
@@ -253,17 +196,9 @@ public class MainController {
         menuViewHorizontal.setOnAction(event -> executeCommand("layout_horizontal"));
         menuViewVertical.setOnAction(event -> executeCommand("layout_vertical"));
         menuViewCascade.setOnAction(event -> executeCommand("layout_cascade"));
-        menuViewGridHelper.setOnAction(event -> {
-            executeCommand("grid_toggle");
-            menuViewGridHelper.setSelected(sceneController.getCurrentScene().isGridVisible());
-        });
-        menuViewCoordinateAxisHelper.setOnAction(event -> {
-            executeCommand("axis_toggle");
-            if (sceneController.hasSelectedObject()) {
-                boolean axisVisible = sceneController.getSelectedObject().getRenderSettings().isDrawAxisLines();
-                menuViewCoordinateAxisHelper.setSelected(axisVisible);
-            }
-        });
+
+        menuViewGridHelper.setOnAction(event -> executeCommand("grid_toggle"));
+        menuViewCoordinateAxisHelper.setOnAction(event -> executeCommand("axis_toggle"));
         menuViewCameraHelper.setOnAction(event -> executeCommand("camera_indicators_toggle"));
         menuViewLightHelper.setOnAction(event -> executeCommand("light_indicators_toggle"));
 
@@ -290,8 +225,8 @@ public class MainController {
 
     private void initializeMenuCheckmarks() {
         Platform.runLater(() -> {
-            menuViewGridHelper.setSelected(sceneController.getCurrentScene().isGridVisible());
-            menuViewCoordinateAxisHelper.setSelected(sceneController.getSelectedObject().getRenderSettings().isDrawAxisLines());
+            menuViewGridHelper.setSelected(true);
+            menuViewCoordinateAxisHelper.setSelected(false);
             updateCoordinateAxisMenuState();
         });
     }
@@ -413,15 +348,13 @@ public class MainController {
                 filePath.toLowerCase().endsWith(".3dscene");
 
             if (isSceneFormat) {
-                FileOpenCommand openCommand =
-                    (FileOpenCommand) commandFactory.getCommand("file_open");
+                FileOpenCommand openCommand = (FileOpenCommand) commandFactory.getCommand("file_open");
                 if (openCommand != null) {
                     openCommand.openSceneFile(filePath);
                 }
             } else {
-                FileOpenCommand openCommand =
-                    (FileOpenCommand) commandFactory.getCommand("file_open");
-                if (openCommand!= null) {
+                FileOpenCommand openCommand = (FileOpenCommand) commandFactory.getCommand("file_open");
+                if (openCommand != null) {
                     openCommand.openModelFile(filePath);
                 }
             }

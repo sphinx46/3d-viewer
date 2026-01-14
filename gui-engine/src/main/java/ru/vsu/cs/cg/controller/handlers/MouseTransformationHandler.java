@@ -20,7 +20,7 @@ public class MouseTransformationHandler {
     private boolean isDragging = false;
 
     private static final double MOVE_SENSITIVITY = 0.02;
-    private static final double ROTATE_SENSITIVITY = 0.5;
+    private static final double ROTATE_SENSITIVITY = 0.1;
     private static final double SCALE_SENSITIVITY = 0.01;
 
     public MouseTransformationHandler(SceneController sceneController) {

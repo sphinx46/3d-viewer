@@ -11,6 +11,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -72,9 +73,14 @@ public final class ObjWriter {
                                           Float reflectivity,
                                           boolean useLighting, boolean useTexture,
                                           boolean drawPolygonalGrid) throws IOException {
-        File mtlFile = new File(mtlFileName);
+        Path mtlPath = Paths.get(mtlFileName);
+        Path mtlDir = mtlPath.getParent();
 
-        try (BufferedWriter mtlWriter = new BufferedWriter(new FileWriter(mtlFile))) {
+        if (mtlDir != null && !Files.exists(mtlDir)) {
+            Files.createDirectories(mtlDir);
+        }
+
+        try (BufferedWriter mtlWriter = new BufferedWriter(new FileWriter(mtlFileName))) {
             String actualMaterialName = materialName != null ? materialName : "default_material";
             mtlWriter.write("newmtl " + actualMaterialName + "\n");
 
@@ -84,9 +90,23 @@ public final class ObjWriter {
                 mtlWriter.write("Kd 0.800000 0.800000 0.800000\n");
             }
 
-            if (texturePath != null) {
-                Path texturePathObj = Paths.get(texturePath);
-                mtlWriter.write("map_Kd " + texturePathObj.getFileName() + "\n");
+            if (texturePath != null && !texturePath.isEmpty()) {
+                try {
+                    Path textureSourcePath = Paths.get(texturePath);
+                    if (Files.exists(textureSourcePath)) {
+                        Path textureTargetPath = mtlDir.resolve(textureSourcePath.getFileName());
+
+                        if (!Files.exists(textureTargetPath)) {
+                            Files.copy(textureSourcePath, textureTargetPath);
+                        }
+
+                        mtlWriter.write("map_Kd " + textureSourcePath.getFileName() + "\n");
+                    } else {
+                        mtlWriter.write("# map_Kd " + texturePath + " (file not found)\n");
+                    }
+                } catch (Exception e) {
+                    mtlWriter.write("# map_Kd " + texturePath + " (error: " + e.getMessage() + ")\n");
+                }
             }
 
             if (shininess != null) {
@@ -184,8 +204,6 @@ public final class ObjWriter {
             writer.newLine();
         }
     }
-
-
 
     private static DecimalFormat createDecimalFormat() {
         DecimalFormatSymbols customSymbols = new DecimalFormatSymbols(Locale.US);

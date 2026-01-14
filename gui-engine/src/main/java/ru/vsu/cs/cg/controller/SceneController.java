@@ -327,7 +327,7 @@ public class SceneController {
 
         ModelServiceImpl modelServiceImpl = (ModelServiceImpl) modelService;
         ru.vsu.cs.cg.scene.Material material = selectedObject.getMaterial();
-        RasterizerSettings renderSettings = selectedObject.getRasterizerSettingsForExport();
+        RasterizerSettings renderSettings = selectedObject.getRenderSettings();
 
         String materialName = selectedObject.getName() + "_material";
         String texturePath = material.getTexturePath();
@@ -337,10 +337,6 @@ public class SceneController {
             (float) material.getGreen(),
             (float) material.getBlue()
         };
-
-        transformedModel.setUseLighting(renderSettings.isUseLighting());
-        transformedModel.setUseTexture(renderSettings.isUseTexture());
-        transformedModel.setDrawPolygonalGrid(renderSettings.isDrawPolygonalGrid());
 
         Float shininess = renderSettings.isUseLighting() ?
             (float) material.getShininess() : null;
