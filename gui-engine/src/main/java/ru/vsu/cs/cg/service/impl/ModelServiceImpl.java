@@ -26,14 +26,11 @@ public class ModelServiceImpl implements ModelService {
 
         try {
             return DefaultModelLoader.loadModel(modelType);
-
         } catch (ModelLoadException e) {
-            LOG.error("Ошибка загрузки стандартной модели '{}': {}",
-                modelType.getDisplayName(), e.getMessage(), e);
+            LOG.error("Ошибка загрузки стандартной модели '{}': {}", modelType.getDisplayName(), e.getMessage());
             throw e;
         } catch (Exception e) {
-            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}",
-                modelType.getDisplayName(), e.getMessage(), e);
+            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", modelType.getDisplayName(), e.getMessage());
             throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
@@ -47,12 +44,12 @@ public class ModelServiceImpl implements ModelService {
             PathManager.validatePathForRead(filePath);
 
             String fileContent = readFileContent(filePath);
-            return ObjReader.read(fileContent);
+            return ObjReader.readWithMaterial(fileContent, filePath);
         } catch (ModelLoadException e) {
-            LOG.error("Ошибка загрузки модели '{}': {}", filePath, e.getMessage(), e);
+            LOG.error("Ошибка загрузки модели '{}': {}", filePath, e.getMessage());
             throw e;
         } catch (Exception e) {
-            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", filePath, e.getMessage(), e);
+            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", filePath, e.getMessage());
             throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
@@ -64,14 +61,7 @@ public class ModelServiceImpl implements ModelService {
     @Override
     public Model createCustomObject() {
         LOG.info("Создание пользовательского объекта (куб)");
-
-        try {
-            return DefaultModelLoader.loadModel(DefaultModelLoader.ModelType.CUBE);
-
-        } catch (Exception e) {
-            LOG.error("Ошибка создания пользовательского объекта: {}", e.getMessage(), e);
-            throw new ModelLoadException("Ошибка создания пользовательского объекта", e);
-        }
+        return loadDefaultModel(DefaultModelLoader.ModelType.CUBE);
     }
 
     @Override
@@ -86,15 +76,37 @@ public class ModelServiceImpl implements ModelService {
             normalizedPath = PathManager.ensureExtension(normalizedPath, ".obj");
             PathManager.validatePathForSave(normalizedPath);
 
-            String fileName = PathManager.getFileNameWithoutExtension(normalizedPath);
-            LOG.debug("Сохранение файла с именем: {}", fileName);
-
             ObjWriter.write(normalizedPath, model);
-
             LOG.info("Модель успешно сохранена в файл: {}", normalizedPath);
 
         } catch (Exception e) {
-            LOG.error("Ошибка сохранения модели в файл {}: {}", filePath, e.getMessage(), e);
+            LOG.error("Ошибка сохранения модели в файл {}: {}", filePath, e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    public void saveModelWithMaterial(Model model, String filePath, String materialName,
+                                      String texturePath, float[] color, Float shininess,
+                                      Float transparency, Float reflectivity) {
+        LOG.info("Сохранение модели с материалом '{}' в файл: {}", materialName, filePath);
+
+        try {
+            validateModel(model);
+            InputValidator.validateNotEmpty(filePath, "Путь к файлу");
+            InputValidator.validateNotEmpty(materialName, "Имя материала");
+
+            String normalizedPath = PathManager.normalizePath(filePath);
+            normalizedPath = PathManager.ensureExtension(normalizedPath, ".obj");
+            PathManager.validatePathForSave(normalizedPath);
+
+            ObjWriter.write(normalizedPath, model, materialName, texturePath,
+                color, shininess, transparency, reflectivity);
+
+            LOG.info("Модель с материалом '{}' успешно сохранена в файл: {}", materialName, normalizedPath);
+
+        } catch (Exception e) {
+            LOG.error("Ошибка сохранения модели с материалом в файл {}: {}", filePath, e.getMessage());
             throw e;
         }
     }

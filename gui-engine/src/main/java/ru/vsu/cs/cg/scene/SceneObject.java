@@ -6,7 +6,6 @@ import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.rasterization.Texture;
 
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ public class SceneObject {
     private String name;
     private Model model;
     private Transform transform;
-    private Texture texture;
     private Material material;
     private boolean visible;
     private RasterizerSettings renderSettings;
@@ -38,7 +36,7 @@ public class SceneObject {
         this.material = material != null ? material : new Material();
         this.visible = visible;
         this.renderSettings = renderSettings != null ? renderSettings : new RasterizerSettings();
-        LOG.debug("Создан SceneObject: id={}, name={}, visible={}", id, name, visible);
+        LOG.debug("Создан SceneObject: id={}, name={}", id, name);
     }
 
     public SceneObject(String name, Model model) {
@@ -57,15 +55,12 @@ public class SceneObject {
 
     public String getName() { return name; }
     public void setName(String name) {
-        String oldName = this.name;
         this.name = name != null ? name : generateDefaultName();
-        LOG.debug("Имя объекта изменено: '{}' -> '{}'", oldName, this.name);
     }
 
     public Model getModel() { return model; }
     public void setModel(Model model) {
         this.model = model;
-        LOG.debug("Модель объекта '{}' обновлена", name);
     }
 
     public Transform getTransform() { return transform; }
@@ -76,15 +71,12 @@ public class SceneObject {
 
     public boolean isVisible() { return visible; }
     public void setVisible(boolean visible) {
-        boolean oldValue = this.visible;
         this.visible = visible;
-        LOG.debug("Видимость объекта '{}' изменена: {} -> {}", name, oldValue, visible);
     }
 
     public RasterizerSettings getRenderSettings() { return renderSettings; }
     public void setRenderSettings(RasterizerSettings renderSettings) {
         this.renderSettings = renderSettings != null ? renderSettings : new RasterizerSettings();
-        LOG.debug("Настройки рендеринга объекта '{}' обновлены", name);
     }
 
     public SceneObject copy() {
@@ -106,16 +98,58 @@ public class SceneObject {
             visible,
             copiedSettings
         );
-        LOG.debug("Создана копия объекта '{}' с id={}", name, copy.getId());
         return copy;
     }
 
-    public Texture getTexture() {
-        return texture;
+    public RasterizerSettings getRasterizerSettingsForExport() {
+        RasterizerSettings settings = renderSettings.copy();
+
+        if (material.getTexturePath() != null && !material.getTexturePath().isEmpty()) {
+            settings.setUseTexture(true);
+        }
+
+        return settings;
     }
 
-    public void setTexture(Texture texture) {
-        this.texture = texture;
+    public Model getTransformedModel() {
+        ru.vsu.cs.cg.math.Vector3f translation = new ru.vsu.cs.cg.math.Vector3f(
+            (float) transform.getPositionX(),
+            (float) transform.getPositionY(),
+            (float) transform.getPositionZ()
+        );
+
+        ru.vsu.cs.cg.math.Vector3f rotation = new ru.vsu.cs.cg.math.Vector3f(
+            (float) transform.getRotationX(),
+            (float) transform.getRotationY(),
+            (float) transform.getRotationZ()
+        );
+
+        ru.vsu.cs.cg.math.Vector3f scale = new ru.vsu.cs.cg.math.Vector3f(
+            (float) transform.getScaleX(),
+            (float) transform.getScaleY(),
+            (float) transform.getScaleZ()
+        );
+
+        Model transformedModel = model.createTransformedCopy(translation, rotation, scale);
+
+        if (material.getTexturePath() != null) {
+            transformedModel.setTexturePath(material.getTexturePath());
+        }
+
+        if (renderSettings.isUseLighting()) {
+            transformedModel.setMaterialShininess((float) material.getShininess());
+        }
+
+        transformedModel.setMaterialColor(new float[]{
+            (float) material.getRed(),
+            (float) material.getGreen(),
+            (float) material.getBlue()
+        });
+
+        transformedModel.setMaterialTransparency((float) material.getTransparency());
+        transformedModel.setMaterialReflectivity((float) material.getReflectivity());
+
+        return transformedModel;
     }
 
     @Override

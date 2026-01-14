@@ -8,9 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.exceptions.ModelLoadException;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.rasterization.RasterizerSettings;
+import ru.vsu.cs.cg.scene.Material;
 import ru.vsu.cs.cg.scene.Scene;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.json.JavaFxJacksonModule;
+import ru.vsu.cs.cg.scene.Transform;
 import ru.vsu.cs.cg.service.ModelService;
 import ru.vsu.cs.cg.service.SceneService;
 import ru.vsu.cs.cg.utils.model.DefaultModelLoader;
@@ -23,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 public class SceneServiceImpl implements SceneService {
     private static final Logger LOG = LoggerFactory.getLogger(SceneServiceImpl.class);
@@ -124,10 +128,24 @@ public class SceneServiceImpl implements SceneService {
             Model model = modelService.loadModel(modelFilePath);
             String modelName = PathManager.getFileNameWithoutExtension(modelFilePath);
 
-            SceneObject sceneObject = createUniqueSceneObject(scene, modelName, model);
+            Material material = createMaterialFromModel(model);
+
+            RasterizerSettings renderSettings = createRenderSettingsFromModel(model);
+
+            SceneObject sceneObject = new SceneObject(
+                UUID.randomUUID().toString(),
+                modelName,
+                model,
+                new Transform(),
+                material,
+                true,
+                renderSettings
+            );
+
             scene.addObject(sceneObject);
 
-            LOG.info("Модель '{}' добавлена в сцену как объект '{}'", modelFilePath, sceneObject.getName());
+            LOG.info("Модель '{}' добавлена в сцену как объект '{}' с материалом",
+                modelFilePath, sceneObject.getName());
             return sceneObject;
 
         } catch (Exception e) {
@@ -135,6 +153,53 @@ public class SceneServiceImpl implements SceneService {
             throw e;
         }
     }
+
+    private Material createMaterialFromModel(Model model) {
+        Material material = new Material();
+
+        if (model.getMaterialColor() != null && model.getMaterialColor().length >= 3) {
+            material.setRed(model.getMaterialColor()[0]);
+            material.setGreen(model.getMaterialColor()[1]);
+            material.setBlue(model.getMaterialColor()[2]);
+        }
+
+        material.setTexturePath(model.getTexturePath());
+
+        if (model.getMaterialShininess() != null) {
+            material.setShininess(model.getMaterialShininess());
+        }
+
+        if (model.getMaterialTransparency() != null) {
+            material.setTransparency(model.getMaterialTransparency());
+        }
+
+        if (model.getMaterialReflectivity() != null) {
+            material.setReflectivity(model.getMaterialReflectivity());
+        }
+
+        LOG.debug("Создан материал из модели: цвет=[{},{},{}], текстура={}, блеск={}, прозрачность={}, отражение={}",
+            material.getRed(), material.getGreen(), material.getBlue(),
+            material.getTexturePath(),
+            material.getShininess(),
+            material.getTransparency(),
+            material.getReflectivity());
+
+        return material;
+    }
+
+    private RasterizerSettings createRenderSettingsFromModel(Model model) {
+        RasterizerSettings settings = new RasterizerSettings();
+
+        settings.setUseTexture(model.isUseTexture() || model.getTexturePath() != null);
+        settings.setUseLighting(model.isUseLighting() || model.getMaterialShininess() != null);
+        settings.setDrawPolygonalGrid(model.isDrawPolygonalGrid());
+
+        LOG.debug("Созданы настройки рендеринга из модели: текстура={}, освещение={}, сетка={}",
+            settings.isUseTexture(), settings.isUseLighting(), settings.isDrawPolygonalGrid());
+
+        return settings;
+    }
+
 
     @Override
     public SceneObject addDefaultModelToScene(Scene scene, String modelType) {

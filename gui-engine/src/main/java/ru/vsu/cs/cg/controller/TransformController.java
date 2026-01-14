@@ -11,7 +11,6 @@ import ru.vsu.cs.cg.utils.validation.InputValidator;
 public class TransformController extends BaseController {
 
     @FXML private CheckBox visibilityCheckbox;
-    @FXML private TextField objectNameField;
     @FXML private TextField positionX;
     @FXML private TextField positionY;
     @FXML private TextField positionZ;
@@ -40,13 +39,6 @@ public class TransformController extends BaseController {
     private void initializeListeners() {
         applyTransformButton.setOnAction(event -> handleApplyTransform());
         resetTransformButton.setOnAction(event -> handleResetTransform());
-
-        objectNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (hasSelectedObject()) {
-                sceneController.getSelectedObject().setName(newValue);
-                LOG.debug("Имя объекта изменено на: {}", newValue);
-            }
-        });
 
         visibilityCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (hasSelectedObject()) {
@@ -102,7 +94,6 @@ public class TransformController extends BaseController {
 
     @Override
     protected void clearFields() {
-        objectNameField.clear();
         visibilityCheckbox.setSelected(false);
         UiFieldUtils.clearTextFields(positionX, positionY, positionZ,
             rotationX, rotationY, rotationZ,
@@ -113,7 +104,6 @@ public class TransformController extends BaseController {
     protected void populateFields(SceneObject object) {
         if (object == null) return;
 
-        objectNameField.setText(object.getName());
         visibilityCheckbox.setSelected(object.isVisible());
         UiFieldUtils.setTextField(positionX, object.getTransform().getPositionX());
         UiFieldUtils.setTextField(positionY, object.getTransform().getPositionY());
@@ -128,7 +118,6 @@ public class TransformController extends BaseController {
 
     @Override
     protected void setFieldsEditable(boolean editable) {
-        objectNameField.setEditable(editable);
         visibilityCheckbox.setDisable(!editable);
         UiFieldUtils.setTextFieldsEditable(editable, positionX, positionY, positionZ,
             rotationX, rotationY, rotationZ,

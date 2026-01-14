@@ -9,6 +9,12 @@ import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.model.Polygon;
 import ru.vsu.cs.cg.utils.MessageConstants;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -20,11 +26,14 @@ public final class ObjReader {
     private static final String OBJ_TEXTURE_TOKEN = "vt";
     private static final String OBJ_NORMAL_TOKEN = "vn";
     private static final String OBJ_FACE_TOKEN = "f";
+    private static final String OBJ_MATERIAL_LIB_TOKEN = "mtllib";
+    private static final String OBJ_USE_MATERIAL_TOKEN = "usemtl";
 
     public static Model read(String fileContent) {
         LOG.debug("Начало парсинга OBJ файла");
 
         Model result = new Model();
+        String currentMaterialName = null;
 
         int lineInd = 0;
         Scanner scanner = new Scanner(fileContent);
@@ -53,6 +62,19 @@ public final class ObjReader {
                 case OBJ_FACE_TOKEN:
                     result.addPolygon(parseFace(wordsInLine, lineInd));
                     break;
+                case OBJ_MATERIAL_LIB_TOKEN:
+                    if (!wordsInLine.isEmpty()) {
+                        result.setMaterialName(wordsInLine.get(0));
+                        LOG.trace("Установлено имя файла материалов: {}", wordsInLine.get(0));
+                    }
+                    break;
+                case OBJ_USE_MATERIAL_TOKEN:
+                    if (!wordsInLine.isEmpty()) {
+                        currentMaterialName = wordsInLine.get(0);
+                        result.setMaterialName(currentMaterialName);
+                        LOG.trace("Установлено имя материала: {}", currentMaterialName);
+                    }
+                    break;
                 default:
                     LOG.trace("Неизвестный токен '{}' в строке {}", token, lineInd);
             }
@@ -60,13 +82,140 @@ public final class ObjReader {
 
         scanner.close();
 
-        LOG.info("OBJ файл успешно прочитан: вершин={}, текстур={}, нормалей={}, полигонов={}",
+        LOG.info("OBJ файл успешно прочитан: вершин={}, текстур={}, нормалей={}, полигонов={}, материал={}",
             result.getVertices().size(),
             result.getTextureVertices().size(),
             result.getNormals().size(),
-            result.getPolygons().size());
+            result.getPolygons().size(),
+            result.getMaterialName());
 
         return result;
+    }
+
+    public static Model readWithMaterial(String fileContent, String filePath) {
+        LOG.debug("Начало парсинга OBJ файла с материалом: {}", filePath);
+
+        Model model = read(fileContent);
+
+        if (model.getMaterialName() != null) {
+            try {
+                loadMaterialFromMtl(filePath, model);
+                LOG.info("Материал '{}' загружен для модели", model.getMaterialName());
+            } catch (Exception e) {
+                LOG.warn("Не удалось загрузить материал '{}': {}", model.getMaterialName(), e.getMessage());
+            }
+        }
+
+        return model;
+    }
+
+    private static String getMtlFilePath(String objFilePath, String materialName) {
+        Path objPath = Paths.get(objFilePath);
+        String baseName = getFileNameWithoutExtension(objFilePath);
+        return objPath.getParent().resolve(baseName + ".mtl").toString();
+    }
+
+    private static String getFileNameWithoutExtension(String filePath) {
+        Path path = Paths.get(filePath);
+        String fileName = path.getFileName().toString();
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+    }
+
+    private static void loadMaterialFromMtl(String objFilePath, Model model) throws IOException {
+        String mtlFilePath = getMtlFilePath(objFilePath, model.getMaterialName());
+        if (!Files.exists(Paths.get(mtlFilePath))) {
+            LOG.debug("MTL файл не найден: {}", mtlFilePath);
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(mtlFilePath))) {
+            String line;
+            String currentMaterialName = null;
+            float[] color = {0.8f, 0.8f, 0.8f};
+            String texturePath = null;
+            Float shininess = null;
+            Float transparency = null;
+            Float reflectivity = null;
+            boolean useLighting = false;
+            boolean useTexture = false;
+            boolean drawPolygonalGrid = false;
+
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("newmtl ")) {
+                    if (currentMaterialName != null && currentMaterialName.equals(model.getMaterialName())) {
+                        applyMaterialToModel(model, color, texturePath, shininess, transparency, reflectivity,
+                            useLighting, useTexture, drawPolygonalGrid);
+                        return;
+                    }
+                    currentMaterialName = line.substring(7).trim();
+                    color = new float[]{0.8f, 0.8f, 0.8f};
+                    texturePath = null;
+                    shininess = null;
+                    transparency = null;
+                    reflectivity = null;
+                    useLighting = false;
+                    useTexture = false;
+                    drawPolygonalGrid = false;
+                } else if (currentMaterialName != null && currentMaterialName.equals(model.getMaterialName())) {
+                    if (line.startsWith("Kd ")) {
+                        String[] parts = line.substring(3).trim().split("\\s+");
+                        if (parts.length >= 3) {
+                            color[0] = Float.parseFloat(parts[0]);
+                            color[1] = Float.parseFloat(parts[1]);
+                            color[2] = Float.parseFloat(parts[2]);
+                        }
+                    } else if (line.startsWith("map_Kd ")) {
+                        String textureFileName = line.substring(7).trim();
+                        Path texturePathObj = Paths.get(mtlFilePath).getParent().resolve(textureFileName);
+                        texturePath = texturePathObj.toString();
+                        useTexture = true;
+                    } else if (line.startsWith("Ns ")) {
+                        shininess = Float.parseFloat(line.substring(3).trim()) / 1000.0f;
+                        useLighting = shininess > 0;
+                    } else if (line.startsWith("d ") || line.startsWith("Tr ")) {
+                        String[] parts = line.split("\\s+");
+                        if (parts.length > 1) {
+                            transparency = 1.0f - Float.parseFloat(parts[1]);
+                        }
+                    } else if (line.startsWith("Ks ")) {
+                        String[] parts = line.substring(3).trim().split("\\s+");
+                        if (parts.length >= 1) {
+                            reflectivity = Float.parseFloat(parts[0]);
+                        }
+                    } else if (line.startsWith("# use_lighting ")) {
+                        useLighting = Boolean.parseBoolean(line.substring(15).trim());
+                    } else if (line.startsWith("# use_texture ")) {
+                        useTexture = Boolean.parseBoolean(line.substring(14).trim());
+                    } else if (line.startsWith("# draw_polygonal_grid ")) {
+                        drawPolygonalGrid = Boolean.parseBoolean(line.substring(22).trim());
+                    }
+                }
+            }
+
+            if (currentMaterialName != null && currentMaterialName.equals(model.getMaterialName())) {
+                applyMaterialToModel(model, color, texturePath, shininess, transparency, reflectivity,
+                    useLighting, useTexture, drawPolygonalGrid);
+            }
+        }
+    }
+
+    private static void applyMaterialToModel(Model model, float[] color, String texturePath,
+                                             Float shininess, Float transparency, Float reflectivity,
+                                             boolean useLighting, boolean useTexture, boolean drawPolygonalGrid) {
+        model.setMaterialColor(color);
+        model.setTexturePath(texturePath);
+        model.setMaterialShininess(shininess);
+        model.setMaterialTransparency(transparency);
+        model.setMaterialReflectivity(reflectivity);
+        model.setUseLighting(useLighting);
+        model.setUseTexture(useTexture);
+        model.setDrawPolygonalGrid(drawPolygonalGrid);
+
+        LOG.debug("Применен материал: цвет=[{},{},{}], текстура={}, блеск={}, прозрачность={}, отражение={}, освещение={}, текстура={}, сетка={}",
+            color[0], color[1], color[2], texturePath, shininess, transparency, reflectivity,
+            useLighting, useTexture, drawPolygonalGrid);
     }
 
     private static Vector3f parseVertex(final ArrayList<String> wordsInLineWithoutToken,

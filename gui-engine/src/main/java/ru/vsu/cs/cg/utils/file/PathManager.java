@@ -16,7 +16,7 @@ import java.util.List;
 public final class PathManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(PathManager.class);
-    private static final List<String> SUPPORTED_3D_FORMATS = Arrays.asList(".obj", ".stl", ".fbx", ".3ds");
+    private static final List<String> SUPPORTED_3D_FORMATS = List.of(".obj");
     private static final List<String> SUPPORTED_SCENE_FORMATS = Arrays.asList(".3dscene", ".json");
 
     private PathManager() {
@@ -71,6 +71,10 @@ public final class PathManager {
     public static boolean isSupportedSceneFormat(String filePath) {
         String extension = getFileExtension(filePath);
         return SUPPORTED_SCENE_FORMATS.contains(extension);
+    }
+
+    public static boolean isSupportedFileFormat(String filePath) {
+        return isSupportedSceneFormat(filePath) || isSupported3DFormat(filePath);
     }
 
     public static void validatePathForSave(String filePath) {

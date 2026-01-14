@@ -10,7 +10,6 @@ import ru.vsu.cs.cg.rasterization.Texture;
 import ru.vsu.cs.cg.scene.Material;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
-import ru.vsu.cs.cg.utils.dialog.DialogManager;
 import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 import ru.vsu.cs.cg.utils.validation.InputValidator;
 
@@ -25,7 +24,7 @@ public class MaterialController extends BaseController {
     @FXML private Button loadTextureButton;
     @FXML private Button clearTextureButton;
     @FXML private CheckBox showTextureCheckbox;
-    @FXML private CheckBox useLightingCheckbox;
+    @FXML private CheckBox showLightingCheckbox;
     @FXML private CheckBox showPolygonalGridCheckbox;
     @FXML private Slider brightnessSlider;
     @FXML private TextField brightnessField;
@@ -51,35 +50,33 @@ public class MaterialController extends BaseController {
         UiFieldUtils.bindSliderToField(reflectionSlider, reflectionField, 0.3, 0.0, 1.0);
 
         colorPicker.valueProperty().addListener((observable, oldValue, newValue) ->
-            updateSelectedObjectMaterial(material -> material.setColor(newValue)));
+            updateMaterial(m -> m.setColor(newValue)));
 
         materialShininessField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateSelectedObjectMaterial(material -> {
-                double value = InputValidator.parseDoubleSafe(newValue, 0.5);
-                material.setShininess(InputValidator.clamp(value, 0.0, 1.0));
-            }));
+            updateMaterial(m -> m.setShininess(InputValidator.clamp(InputValidator.parseDoubleSafe(newValue, 0.5), 0.0, 1.0))));
 
         materialTransparencyField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateSelectedObjectMaterial(material -> {
-                double value = InputValidator.parseDoubleSafe(newValue, 0.0);
-                material.setTransparency(InputValidator.clamp(value, 0.0, 1.0));
-            }));
+            updateMaterial(m -> m.setTransparency(InputValidator.clamp(InputValidator.parseDoubleSafe(newValue, 0.0), 0.0, 1.0))));
 
         materialReflectivityField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateSelectedObjectMaterial(material -> {
-                double value = InputValidator.parseDoubleSafe(newValue, 0.0);
-                material.setReflectivity(InputValidator.clamp(value, 0.0, 1.0));
-            }));
+            updateMaterial(m -> m.setReflectivity(InputValidator.clamp(InputValidator.parseDoubleSafe(newValue, 0.0), 0.0, 1.0))));
 
-        // Обработчики для флажков рендеринга
         showTextureCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
-            updateSelectedObjectRenderSettings(settings -> settings.setUseTexture(newValue)));
+            updateRenderSettings(s -> s.setUseTexture(newValue)));
 
-        useLightingCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
-            updateSelectedObjectRenderSettings(settings -> settings.setUseLighting(newValue)));
+        showLightingCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            updateRenderSettings(s -> s.setUseLighting(newValue));
+            if (hasSelectedObject()) {
+                sceneController.markModelModified();
+            }
+        });
 
-        showPolygonalGridCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
-            updateSelectedObjectRenderSettings(settings -> settings.setDrawPolygonalGrid(newValue)));
+        showPolygonalGridCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            updateRenderSettings(s -> s.setDrawPolygonalGrid(newValue));
+            if (hasSelectedObject()) {
+                sceneController.markModelModified();
+            }
+        });
     }
 
     private void initializeButtonActions() {
@@ -95,8 +92,8 @@ public class MaterialController extends BaseController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Выберите файл текстуры");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Изображения", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
-                new FileChooser.ExtensionFilter("Все файлы", "*.*")
+            new FileChooser.ExtensionFilter("Изображения", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
+            new FileChooser.ExtensionFilter("Все файлы", "*.*")
         );
 
         File selectedFile = fileChooser.showOpenDialog(loadTextureButton.getScene().getWindow());
@@ -109,16 +106,23 @@ public class MaterialController extends BaseController {
                     throw new Exception("Не удалось прочитать формат изображения");
                 }
 
-                Texture newTexture = new Texture(image);
-
                 SceneObject selectedObject = getSelectedObject();
+                Material currentMaterial = selectedObject.getMaterial();
 
-                selectedObject.setTexture(newTexture);
-
-                selectedObject.getMaterial().setTexturePath(selectedFile.getAbsolutePath());
+                selectedObject.setMaterial(new Material(
+                    currentMaterial.getRed(),
+                    currentMaterial.getGreen(),
+                    currentMaterial.getBlue(),
+                    currentMaterial.getAlpha(),
+                    selectedFile.getAbsolutePath(),
+                    currentMaterial.getShininess(),
+                    currentMaterial.getReflectivity(),
+                    currentMaterial.getTransparency()
+                ));
 
                 selectedObject.getRenderSettings().setUseTexture(true);
                 showTextureCheckbox.setSelected(true);
+                sceneController.markModelModified();
 
                 LOG.info("Текстура успешно загружена: {}", selectedFile.getName());
 
@@ -134,15 +138,38 @@ public class MaterialController extends BaseController {
         }
 
         SceneObject selectedObject = getSelectedObject();
+        Material currentMaterial = selectedObject.getMaterial();
 
-        selectedObject.setTexture(null);
-
-        selectedObject.getMaterial().setTexturePath(null);
+        selectedObject.setMaterial(new Material(
+            currentMaterial.getRed(),
+            currentMaterial.getGreen(),
+            currentMaterial.getBlue(),
+            currentMaterial.getAlpha(),
+            null,
+            currentMaterial.getShininess(),
+            currentMaterial.getReflectivity(),
+            currentMaterial.getTransparency()
+        ));
 
         selectedObject.getRenderSettings().setUseTexture(false);
         showTextureCheckbox.setSelected(false);
+        sceneController.markModelModified();
 
         LOG.info("Текстура удалена для объекта '{}'", selectedObject.getName());
+    }
+
+    private void updateMaterial(java.util.function.Consumer<Material> updater) {
+        if (hasSelectedObject()) {
+            updater.accept(getSelectedObject().getMaterial());
+            sceneController.markModelModified();
+        }
+    }
+
+    private void updateRenderSettings(java.util.function.Consumer<RasterizerSettings> updater) {
+        if (hasSelectedObject()) {
+            updater.accept(getSelectedObject().getRenderSettings());
+            sceneController.markModelModified();
+        }
     }
 
     @Override
@@ -154,7 +181,7 @@ public class MaterialController extends BaseController {
         brightnessSlider.setValue(0.5);
         reflectionSlider.setValue(0.3);
         showTextureCheckbox.setSelected(false);
-        useLightingCheckbox.setSelected(false);
+        showLightingCheckbox.setSelected(false);
         showPolygonalGridCheckbox.setSelected(false);
     }
 
@@ -169,10 +196,9 @@ public class MaterialController extends BaseController {
         brightnessSlider.setValue(0.5);
         reflectionSlider.setValue(0.3);
 
-        // Заполняем настройки рендеринга
         RasterizerSettings settings = object.getRenderSettings();
         showTextureCheckbox.setSelected(settings.isUseTexture());
-        useLightingCheckbox.setSelected(settings.isUseLighting());
+        showLightingCheckbox.setSelected(settings.isUseLighting());
         showPolygonalGridCheckbox.setSelected(settings.isDrawPolygonalGrid());
     }
 
@@ -185,31 +211,9 @@ public class MaterialController extends BaseController {
         loadTextureButton.setDisable(!editable);
         clearTextureButton.setDisable(!editable);
         showTextureCheckbox.setDisable(!editable);
-        useLightingCheckbox.setDisable(!editable);
+        showLightingCheckbox.setDisable(!editable);
         showPolygonalGridCheckbox.setDisable(!editable);
         brightnessSlider.setDisable(!editable);
         reflectionSlider.setDisable(!editable);
-    }
-
-    private void updateSelectedObjectMaterial(MaterialUpdater updater) {
-        if (hasSelectedObject()) {
-            updater.update(getSelectedObject().getMaterial());
-        }
-    }
-
-    private void updateSelectedObjectRenderSettings(RenderSettingsUpdater updater) {
-        if (hasSelectedObject()) {
-            updater.update(getSelectedObject().getRenderSettings());
-        }
-    }
-
-    @FunctionalInterface
-    private interface MaterialUpdater {
-        void update(Material material);
-    }
-
-    @FunctionalInterface
-    private interface RenderSettingsUpdater {
-        void update(RasterizerSettings settings);
     }
 }

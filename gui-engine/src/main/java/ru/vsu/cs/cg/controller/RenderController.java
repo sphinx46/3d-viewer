@@ -45,9 +45,9 @@ public class RenderController {
         canvas.heightProperty().bind(canvasContainer.heightProperty());
 
         canvas.widthProperty().addListener((obs, oldVal, newVal) ->
-                sceneManager.resize(newVal.intValue(), (int) canvas.getHeight()));
+            sceneManager.resize(newVal.intValue(), (int) canvas.getHeight()));
         canvas.heightProperty().addListener((obs, oldVal, newVal) ->
-                sceneManager.resize((int) canvas.getWidth(), newVal.intValue()));
+            sceneManager.resize((int) canvas.getWidth(), newVal.intValue()));
 
         sceneManager.resize((int) canvas.getWidth(), (int) canvas.getHeight());
 

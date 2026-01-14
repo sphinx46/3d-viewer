@@ -39,6 +39,32 @@ public final class DialogManager {
         showDialog(Alert.AlertType.INFORMATION, MessageConstants.SCENE_LOAD_SUCCESS, message);
     }
 
+    public static Optional<File> showOpenFileDialog(Stage ownerStage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Открыть файл");
+
+        FileChooser.ExtensionFilter sceneFilter = new FileChooser.ExtensionFilter(
+            "Файлы сцены (.3dscene, .json)", "*.3dscene", "*.json"
+        );
+        FileChooser.ExtensionFilter modelFilter = new FileChooser.ExtensionFilter(
+            "3D модели (.obj)", "*.obj"
+        );
+        FileChooser.ExtensionFilter allSupportedFilter = new FileChooser.ExtensionFilter(
+            "Все поддерживаемые файлы",
+            "*.3dscene", "*.json", "*.obj"
+        );
+
+        fileChooser.getExtensionFilters().addAll(sceneFilter, modelFilter, allSupportedFilter);
+        fileChooser.setSelectedExtensionFilter(allSupportedFilter);
+
+        File file = fileChooser.showOpenDialog(ownerStage);
+        if (file != null && !PathManager.isSupportedFileFormat(file.getAbsolutePath())) {
+            showError("Неподдерживаемый формат файла. Поддерживаемые форматы: .3dscene, .json, .obj");
+            return Optional.empty();
+        }
+        return Optional.ofNullable(file);
+    }
+
 
     public static void showError(String message) {
         showDialog(Alert.AlertType.ERROR, MessageConstants.MODEL_LOAD_ERROR, message);
@@ -62,21 +88,6 @@ public final class DialogManager {
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
-    public static Optional<File> showOpenSceneDialog(Stage ownerStage) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Открыть сцену");
-        fileChooser.getExtensionFilters().add(
-            new FileChooser.ExtensionFilter("3D сцены", "*.3dscene")
-        );
-
-        File file = fileChooser.showOpenDialog(ownerStage);
-        if (file != null && !PathManager.isSupportedSceneFormat(file.getAbsolutePath())) {
-            showError("Неподдерживаемый формат сцены. Используйте .3dscene");
-            return Optional.empty();
-        }
-        return Optional.ofNullable(file);
-    }
-
     public static Optional<File> showSaveSceneDialog(Stage ownerStage, String defaultSceneName) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Сохранить сцену");
@@ -95,25 +106,6 @@ public final class DialogManager {
             if (!path.toLowerCase().endsWith(".3dscene")) {
                 file = new File(path + ".3dscene");
             }
-        }
-        return Optional.ofNullable(file);
-    }
-
-    public static Optional<File> showOpenModelDialog(Stage ownerStage) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Открыть 3D модель");
-        fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("OBJ файлы", "*.obj"),
-            new FileChooser.ExtensionFilter("STL файлы", "*.stl"),
-            new FileChooser.ExtensionFilter("FBX файлы", "*.fbx"),
-            new FileChooser.ExtensionFilter("3DS файлы", "*.3ds"),
-            new FileChooser.ExtensionFilter("Все файлы", "*.*")
-        );
-
-        File file = fileChooser.showOpenDialog(ownerStage);
-        if (file != null && !PathManager.isSupported3DFormat(file.getAbsolutePath())) {
-            showError("Неподдерживаемый формат модели");
-            return Optional.empty();
         }
         return Optional.ofNullable(file);
     }

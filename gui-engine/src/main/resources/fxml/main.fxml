@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.control.TreeItem?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -16,27 +18,31 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane fx:id="anchorPane" prefHeight="800.0" prefWidth="1400.0" styleClass="root" stylesheets="@/static/css/theme-light.css" xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.MainController">
     <MenuBar prefHeight="32.0" prefWidth="1400.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <Menu mnemonicParsing="false" text="Файл">
             <items>
-                <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" text="Открыть модель">
+                <MenuItem fx:id="menuFileOpen" mnemonicParsing="false" text="Открыть">
                     <graphic>
                         <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                             <Image url="@/static/images/icons/top-menu/open.png" />
                         </ImageView>
                     </graphic>
                 </MenuItem>
-                <MenuItem fx:id="menuFileSave" mnemonicParsing="false" text="Сохранить модель">
+                <Menu mnemonicParsing="false" text="Сохранить">
                     <graphic>
                         <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                             <Image url="@/static/images/icons/top-menu/content-save.png" />
                         </ImageView>
                     </graphic>
-                </MenuItem>
+                    <items>
+                        <MenuItem fx:id="menuFileSaveScene" mnemonicParsing="false" text="Сохранить сцену" />
+                        <MenuItem fx:id="menuFileSaveModel" mnemonicParsing="false" text="Сохранить модель" />
+                    </items>
+                </Menu>
                 <SeparatorMenuItem />
                 <Menu fx:id="menuRecent" mnemonicParsing="false" text="Недавно использованное">
                     <items>
@@ -44,14 +50,6 @@
                         <MenuItem fx:id="menuRecentClear" mnemonicParsing="false" text="Очистить список" />
                     </items>
                 </Menu>
-                <SeparatorMenuItem />
-                <MenuItem fx:id="menuFileSaveAs" mnemonicParsing="false" text="Сохранить модель как">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/top-menu/content-save-as.png" />
-                        </ImageView>
-                    </graphic>
-                </MenuItem>
                 <SeparatorMenuItem />
                 <MenuItem fx:id="menuFileExit" mnemonicParsing="false" text="Выход">
                     <graphic>
@@ -62,106 +60,70 @@
                 </MenuItem>
             </items>
         </Menu>
-        <Menu mnemonicParsing="false" text="Сцена">
+        <Menu mnemonicParsing="false" text="Добавить">
             <items>
-                <MenuItem fx:id="menuSceneNew" mnemonicParsing="false" text="Новая сцена">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/top-menu/create.png" />
-                        </ImageView>
-                    </graphic>
+                <MenuItem fx:id="menuSceneNew" mnemonicParsing="false" text="Сцена">
                 </MenuItem>
-                <MenuItem fx:id="menuSceneOpen" mnemonicParsing="false" text="Открыть сцену">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/top-menu/open.png" />
-                        </ImageView>
-                    </graphic>
-                </MenuItem>
-                <MenuItem fx:id="menuSceneSave" mnemonicParsing="false" text="Сохранить сцену" />
-                <MenuItem fx:id="menuSceneSaveAs" mnemonicParsing="false" text="Сохранить сцену как" />
-                <SeparatorMenuItem />
-                <Menu mnemonicParsing="false" text="Добавить объект">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/right-menu/plus.png" />
-                        </ImageView>
-                    </graphic>
+                <Menu mnemonicParsing="false" text="Модель">
                     <items>
                         <Menu mnemonicParsing="false" text="Стандартные объекты">
                             <items>
                                 <MenuItem fx:id="menuCreatePlane" mnemonicParsing="false" text="Плоскость" />
                                 <MenuItem fx:id="menuCreateCube" mnemonicParsing="false" text="Куб" />
-                                <MenuItem fx:id="menuCreateCone" mnemonicParsing="false" text="Конус" />
                                 <MenuItem fx:id="menuCreateCylinder" mnemonicParsing="false" text="Цилиндр" />
+                                <MenuItem fx:id="menuCreateCapsule" mnemonicParsing="false" text="Капсула" />
+                                <MenuItem fx:id="menuCreateSphere" mnemonicParsing="false" text="Сфера" />
                                 <MenuItem fx:id="menuCreateTeapot" mnemonicParsing="false" text="Чайник" />
                             </items>
                         </Menu>
                         <MenuItem fx:id="menuFileNewCustom" mnemonicParsing="false" text="Пользовательский объект" />
                     </items>
                 </Menu>
+                <Menu mnemonicParsing="false" text="Камера">
+                    <items>
+                        <MenuItem fx:id="menuCameraFront" mnemonicParsing="false" text="Вид спереди">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/top-menu/front.png" />
+                                </ImageView>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="menuCameraTop" mnemonicParsing="false" text="Вид сверху">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/top-menu/top.png" />
+                                </ImageView>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="menuCameraRight" mnemonicParsing="false" text="Вид справа">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/top-menu/right.png" />
+                                </ImageView>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="menuCameraLeft" mnemonicParsing="false" text="Вид слева">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/top-menu/left.png" />
+                                </ImageView>
+                            </graphic>
+                        </MenuItem>
+                    </items>
+                </Menu>
                 <SeparatorMenuItem />
-                <MenuItem fx:id="menuSceneReset" mnemonicParsing="false" text="Сбросить изменения" />
-            </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Камера">
-            <items>
-                <MenuItem fx:id="menuCameraCreate" mnemonicParsing="false" text="Добавить камеру">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/right-menu/plus.png" />
-                        </ImageView>
-                    </graphic>
-                </MenuItem>
-                <MenuItem fx:id="menuCameraDelete" mnemonicParsing="false" text="Удалить камеру">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/right-menu/minus.png" />
-                        </ImageView>
-                    </graphic>
-                </MenuItem>
-                <SeparatorMenuItem />
-                <MenuItem fx:id="menuCameraFront" mnemonicParsing="false" text="Вид спереди">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/top-menu/front.png" />
-                        </ImageView>
-                    </graphic>
-                </MenuItem>
-                <MenuItem fx:id="menuCameraTop" mnemonicParsing="false" text="Вид сверху">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/top-menu/top.png" />
-                        </ImageView>
-                    </graphic>
-                </MenuItem>
-                <MenuItem fx:id="menuCameraRight" mnemonicParsing="false" text="Вид справа">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/top-menu/right.png" />
-                        </ImageView>
-                    </graphic>
-                </MenuItem>
-                <MenuItem fx:id="menuCameraLeft" mnemonicParsing="false" text="Вид слева">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/top-menu/left.png" />
-                        </ImageView>
-                    </graphic>
-                </MenuItem>
-                <SeparatorMenuItem />
-                <MenuItem fx:id="menuCameraFrame" mnemonicParsing="false" text="Обрамить выделенное">
-                    <graphic>
-                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                            <Image url="@/static/images/icons/top-menu/frame.png" />
-                        </ImageView>
-                    </graphic>
+                <MenuItem fx:id="menuSceneReset" mnemonicParsing="false" text="Сбросить изменения" >
+                <graphic>
+                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                        <Image url="@/static/images/icons/top-menu/undo.png" />
+                    </ImageView>
+                </graphic>
                 </MenuItem>
             </items>
         </Menu>
-        <Menu mnemonicParsing="false" text="Окно">
+        <Menu mnemonicParsing="false" text="Просмотр">
             <items>
-                <MenuItem fx:id="menuWindowNew" mnemonicParsing="false" text="Новое окно">
+                <MenuItem fx:id="menuViewNewWindow" mnemonicParsing="false" text="Новое окно">
                     <graphic>
                         <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                             <Image url="@/static/images/icons/top-menu/new-window-open.png" />
@@ -169,7 +131,7 @@
                     </graphic>
                 </MenuItem>
                 <SeparatorMenuItem />
-                <MenuItem fx:id="menuWindowFullscreen" mnemonicParsing="false" text="Полноэкранный режим">
+                <MenuItem fx:id="menuViewFullscreen" mnemonicParsing="false" text="Полноэкранный режим">
                     <graphic>
                         <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                             <Image url="@/static/images/icons/top-menu/fullscreen.png" />
@@ -177,7 +139,7 @@
                     </graphic>
                 </MenuItem>
                 <SeparatorMenuItem />
-                <MenuItem fx:id="menuWindowScreenshot" mnemonicParsing="false" text="Сделать снимок экрана">
+                <MenuItem fx:id="menuViewScreenshot" mnemonicParsing="false" text="Сделать снимок экрана">
                     <graphic>
                         <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
                             <Image url="@/static/images/icons/top-menu/screenshot.png" />
@@ -187,10 +149,43 @@
                 <SeparatorMenuItem />
                 <Menu mnemonicParsing="false" text="Расположение окон">
                     <items>
-                        <MenuItem fx:id="menuWindowDefault" mnemonicParsing="false" text="По умолчанию" />
-                        <MenuItem fx:id="menuWindowHorizontal" mnemonicParsing="false" text="Горизонтальное" />
-                        <MenuItem fx:id="menuWindowVertical" mnemonicParsing="false" text="Вертикальное" />
-                        <MenuItem fx:id="menuWindowCascade" mnemonicParsing="false" text="Каскадом" />
+                        <MenuItem fx:id="menuViewDefault" mnemonicParsing="false" text="По умолчанию" />
+                        <MenuItem fx:id="menuViewHorizontal" mnemonicParsing="false" text="Горизонтальное" />
+                        <MenuItem fx:id="menuViewVertical" mnemonicParsing="false" text="Вертикальное" />
+                        <MenuItem fx:id="menuViewCascade" mnemonicParsing="false" text="Каскадом" />
+                    </items>
+                </Menu>
+                <SeparatorMenuItem />
+                <Menu mnemonicParsing="false" text="Вспомогательные элементы">
+                    <items>
+                        <CheckMenuItem fx:id="menuViewGridHelper" mnemonicParsing="false" text="Фоновая сетка">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/top-menu/grid.png" />
+                                </ImageView>
+                            </graphic>
+                        </CheckMenuItem>
+                        <CheckMenuItem fx:id="menuViewCoordinateAxisHelper" mnemonicParsing="false" text="Координатная ось">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/top-menu/axis.png" />
+                                </ImageView>
+                            </graphic>
+                        </CheckMenuItem>
+                        <MenuItem fx:id="menuViewCameraHelper" mnemonicParsing="false" text="Индикаторы камер">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/right-menu/camera.png" />
+                                </ImageView>
+                            </graphic>
+                        </MenuItem>
+                        <MenuItem fx:id="menuViewLightHelper" mnemonicParsing="false" text="Индикаторы источника света">
+                            <graphic>
+                                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                    <Image url="@/static/images/icons/right-menu/lightbulb.png" />
+                                </ImageView>
+                            </graphic>
+                        </MenuItem>
                     </items>
                 </Menu>
             </items>
@@ -248,13 +243,6 @@
             </padding>
             <VBox alignment="CENTER" spacing="20" VBox.vgrow="ALWAYS">
                 <VBox alignment="CENTER" spacing="20.0">
-                    <Button fx:id="selectToolButton" maxWidth="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" styleClass="tool-button">
-                        <graphic>
-                            <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
-                                <Image url="@/static/images/icons/left-menu/cursor-pointer.png" />
-                            </ImageView>
-                        </graphic>
-                    </Button>
                     <Button fx:id="moveToolButton" maxWidth="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" styleClass="tool-button">
                         <graphic>
                             <ImageView fitHeight="24" fitWidth="24" preserveRatio="true">
@@ -286,7 +274,8 @@
                     <AnchorPane fx:id="viewerContainer" />
                 </center>
             </BorderPane>
-            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="350.0" vbarPolicy="AS_NEEDED">
+            <Region minWidth="3" prefWidth="3" maxWidth="3" style="-fx-background-color: #cccccc;" HBox.hgrow="NEVER" />
+            <ScrollPane fx:id="rightPanelScroll" fitToWidth="true" hbarPolicy="NEVER" prefWidth="350.0" minWidth="250.0" maxWidth="500.0" vbarPolicy="AS_NEEDED">
                 <VBox spacing="15" style="-fx-padding: 15;">
                     <TitledPane animated="false" collapsible="true" text="Сцена">
                         <graphic>
@@ -313,7 +302,13 @@
                                             </ImageView>
                                         </graphic>
                                     </Button>
-                                    <Button fx:id="duplicateObjectButton" style="-fx-font-weight: bold;" text="Дублировать" />
+                                    <Button fx:id="duplicateObjectButton" style="-fx-font-weight: bold;" text="Дублировать" >
+                                    <graphic>
+                                        <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                                            <Image url="@/static/images/icons/top-menu/copy.png" />
+                                        </ImageView>
+                                    </graphic>
+                                    </Button>
                                 </HBox>
                                 <TreeView fx:id="sceneTreeView" prefHeight="150.0" style="-fx-font-size: 13px;" />
                             </VBox>
