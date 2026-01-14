@@ -34,14 +34,14 @@ public class RenderEngine {
      * @param baseSettings основные настройки рендера
      */
     public void render(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            List<RenderEntity> entities,
-            List<Camera> cameras,
-            Camera activeCamera,
-            Rasterizer rasterizer,
-            RasterizerSettings baseSettings) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        List<RenderEntity> entities,
+        List<Camera> cameras,
+        Camera activeCamera,
+        Rasterizer rasterizer,
+        RasterizerSettings baseSettings) {
 
         if (activeCamera == null) return;
 
@@ -53,19 +53,19 @@ public class RenderEngine {
 
         for (RenderEntity entity : entities) {
             RasterizerSettings objectSettings = new RasterizerSettings(
-                    entity.isUseTexture(),
-                    entity.isUseLighting(),
-                    entity.isDrawPolygonalGrid(),
-                    entity.getColor() != null ? entity.getColor() : baseSettings.getDefaultColor(),
-                    baseSettings.getGridColor()
+                entity.isUseTexture(),
+                entity.isUseLighting(),
+                entity.isDrawPolygonalGrid(),
+                entity.getColor() != null ? entity.getColor() : baseSettings.getDefaultColor(),
+                baseSettings.getGridColor()
             );
 
             renderModel(
-                    pixelWriter, width, height,
-                    entity.getModel(),
-                    entity.getTranslation(), entity.getRotation(), entity.getScale(),
-                    viewProjectionMatrix, lightDirection,
-                    rasterizer, objectSettings, entity.getTexture()
+                pixelWriter, width, height,
+                entity.getModel(),
+                entity.getTranslation(), entity.getRotation(), entity.getScale(),
+                viewProjectionMatrix, lightDirection,
+                rasterizer, objectSettings, entity.getTexture()
             );
         }
 
@@ -79,11 +79,11 @@ public class RenderEngine {
                 if (camera == activeCamera) continue;
 
                 renderModel(
-                        pixelWriter, width, height,
-                        gizmo,
-                        camera.getPosition(), new Vector3f(0, 0, 0), new Vector3f(1, 1, 1),
-                        viewProjectionMatrix, lightDirection,
-                        rasterizer, gizmoSettings, null
+                    pixelWriter, width, height,
+                    gizmo,
+                    camera.getPosition(), new Vector3f(0, 0, 0), new Vector3f(1, 1, 1),
+                    viewProjectionMatrix, lightDirection,
+                    rasterizer, gizmoSettings, null
                 );
             }
         }
@@ -106,16 +106,16 @@ public class RenderEngine {
      * @param texture текстура модели
      */
     private void renderModel(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            Model model,
-            Vector3f translation, Vector3f rotation, Vector3f scale,
-            Matrix4x4 viewProjectionMatrix,
-            Vector3f lightDirection,
-            Rasterizer rasterizer,
-            RasterizerSettings settings,
-            Texture texture) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        Model model,
+        Vector3f translation, Vector3f rotation, Vector3f scale,
+        Matrix4x4 viewProjectionMatrix,
+        Vector3f lightDirection,
+        Rasterizer rasterizer,
+        RasterizerSettings settings,
+        Texture texture) {
 
         Matrix4x4 modelMatrix = GraphicConveyor.rotateScaleTranslate(translation, rotation, scale);
         Matrix4x4 mvpMatrix = viewProjectionMatrix.multiply(modelMatrix);
@@ -144,6 +144,10 @@ public class RenderEngine {
             Vector3f v2NDC = v2Clip.toVector3Safe();
             Vector3f v3NDC = v3Clip.toVector3Safe();
 
+            if (v1NDC.getZ() > 1.0f && v2NDC.getZ() > 1.0f && v3NDC.getZ() > 1.0f) continue;
+            if (v1NDC.getZ() < -1.0f && v2NDC.getZ() < -1.0f && v3NDC.getZ() < -1.0f) continue;
+
+
             Vector2f p1 = GraphicConveyor.vertexToPoint(v1NDC, width, height);
             Vector2f p2 = GraphicConveyor.vertexToPoint(v2NDC, width, height);
             Vector2f p3 = GraphicConveyor.vertexToPoint(v3NDC, width, height);
@@ -164,10 +168,10 @@ public class RenderEngine {
             }
 
             rasterizer.drawTriangle(
-                    pixelWriter, screenV1, screenV2, screenV3,
-                    vt1, vt2, vt3,
-                    n1, n2, n3,
-                    texture, lightDirection, settings
+                pixelWriter, screenV1, screenV2, screenV3,
+                vt1, vt2, vt3,
+                n1, n2, n3,
+                texture, lightDirection, settings
             );
         }
     }
@@ -189,8 +193,8 @@ public class RenderEngine {
             cameraGizmoModel.setNormals(ns);
 
             int[][] indices = {
-                    {0,1,2}, {0,2,3}, {4,5,6}, {4,6,7}, {0,4,7}, {0,7,3},
-                    {1,5,6}, {1,6,2}, {3,2,6}, {3,6,7}, {0,1,5}, {0,5,4}
+                {0,1,2}, {0,2,3}, {4,5,6}, {4,6,7}, {0,4,7}, {0,7,3},
+                {1,5,6}, {1,6,2}, {3,2,6}, {3,6,7}, {0,1,5}, {0,5,4}
             };
             for(int[] f : indices) {
                 ArrayList<Integer> v = new ArrayList<>(); for(int i : f) v.add(i);

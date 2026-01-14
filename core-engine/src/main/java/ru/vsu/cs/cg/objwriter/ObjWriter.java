@@ -11,6 +11,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
@@ -26,11 +28,30 @@ public final class ObjWriter {
      * @throws ObjWriterException если возникает ошибка при записи файла
      */
     public static void write(String fileName, Model model) {
-        File file = new File(fileName);
+        write(fileName, model, null, null, null, null, null, null);
+    }
+
+    /**
+     * Записывает модель в файл OBJ с материалом.
+     *
+     * @param fileName имя файла для записи
+     * @param model модель для записи
+     * @param materialName имя материала
+     * @param texturePath путь к текстуре
+     * @param color цвет материала (RGB, значения от 0 до 1)
+     * @param shininess блеск материала
+     * @param transparency прозрачность материала
+     * @param reflectivity отражательная способность
+     * @throws ObjWriterException если возникает ошибка при записи файла
+     */
+    public static void write(String fileName, Model model, String materialName,
+                             String texturePath, float[] color, Float shininess,
+                             Float transparency, Float reflectivity) {
+        File objFile = new File(fileName);
 
         try {
-            if (file.createNewFile()) {
-                System.out.println(MessageConstants.FILE_CREATED_MESSAGE + file.getName());
+            if (objFile.createNewFile()) {
+                System.out.println(MessageConstants.FILE_CREATED_MESSAGE + objFile.getName());
             } else {
                 System.out.println(MessageConstants.FILE_ALREADY_EXISTS_MESSAGE);
             }
@@ -39,6 +60,13 @@ public final class ObjWriter {
         }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            if (materialName != null) {
+                String mtlFileName = getMtlFileName(fileName);
+                writeMaterialFile(mtlFileName, materialName, texturePath, color, shininess, transparency, reflectivity);
+                writer.write("mtllib " + Paths.get(mtlFileName).getFileName() + "\n");
+                writer.write("usemtl " + materialName + "\n");
+            }
+
             writeVertices(writer, model.getVertices());
             writeTextureVertices(writer, model.getTextureVertices());
             writeNormals(writer, model.getNormals());
@@ -49,6 +77,70 @@ public final class ObjWriter {
     }
 
     /**
+     * Записывает материал в MTL файл.
+     *
+     * @param mtlFileName имя MTL файла
+     * @param materialName имя материала
+     * @param texturePath путь к текстуре
+     * @param color цвет материала
+     * @param shininess блеск материала
+     * @param transparency прозрачность
+     * @param reflectivity отражательная способность
+     * @throws IOException если возникает ошибка ввода-вывода
+     */
+    private static void writeMaterialFile(String mtlFileName, String materialName,
+                                          String texturePath, float[] color,
+                                          Float shininess, Float transparency,
+                                          Float reflectivity) throws IOException {
+        File mtlFile = new File(mtlFileName);
+
+        try (BufferedWriter mtlWriter = new BufferedWriter(new FileWriter(mtlFile))) {
+            mtlWriter.write("newmtl " + materialName + "\n");
+
+            if (color != null && color.length >= 3) {
+                mtlWriter.write(String.format(Locale.US, "Kd %.6f %.6f %.6f\n", color[0], color[1], color[2]));
+            } else {
+                mtlWriter.write("Kd 0.800000 0.800000 0.800000\n");
+            }
+
+            if (texturePath != null) {
+                Path texturePathObj = Paths.get(texturePath);
+                mtlWriter.write("map_Kd " + texturePathObj.getFileName() + "\n");
+            }
+
+            if (shininess != null) {
+                mtlWriter.write(String.format(Locale.US, "Ns %.6f\n", shininess * 1000));
+            }
+
+            if (transparency != null) {
+                mtlWriter.write(String.format(Locale.US, "d %.6f\n", 1.0 - transparency));
+            }
+
+            if (reflectivity != null) {
+                mtlWriter.write(String.format(Locale.US, "Ks %.6f %.6f %.6f\n",
+                    reflectivity, reflectivity, reflectivity));
+            }
+
+            mtlWriter.write("illum 2\n");
+        }
+    }
+
+    /**
+     * Генерирует имя MTL файла на основе имени OBJ файла.
+     *
+     * @param objFileName имя OBJ файла
+     * @return имя MTL файла
+     */
+    private static String getMtlFileName(String objFileName) {
+        Path path = Paths.get(objFileName);
+        String baseName = path.getFileName().toString();
+        if (baseName.toLowerCase().endsWith(".obj")) {
+            baseName = baseName.substring(0, baseName.length() - 4);
+        }
+        return path.getParent().resolve(baseName + ".mtl").toString();
+    }
+
+    /**
      * Записывает вершины в файл OBJ.
      *
      * @param writer BufferedWriter для записи
@@ -56,12 +148,12 @@ public final class ObjWriter {
      * @throws IOException если возникает ошибка ввода-вывода
      */
     private static void writeVertices(BufferedWriter writer, List<Vector3f> vertices)
-            throws IOException {
+        throws IOException {
         DecimalFormat decimalFormat = createDecimalFormat();
 
         for (Vector3f vertex : vertices) {
             writer.write("v " + decimalFormat.format(vertex.getX()) + " " +
-                    decimalFormat.format(vertex.getY()) + " " + decimalFormat.format(vertex.getZ()));
+                decimalFormat.format(vertex.getY()) + " " + decimalFormat.format(vertex.getZ()));
             writer.newLine();
         }
     }
@@ -74,12 +166,12 @@ public final class ObjWriter {
      * @throws IOException если возникает ошибка ввода-вывода
      */
     private static void writeTextureVertices(BufferedWriter writer, List<Vector2f> textureVertices)
-            throws IOException {
+        throws IOException {
         DecimalFormat decimalFormat = createDecimalFormat();
 
         for (Vector2f textureVertex : textureVertices) {
             writer.write("vt " + decimalFormat.format(textureVertex.getX()) + " "
-                    + decimalFormat.format(textureVertex.getY()));
+                + decimalFormat.format(textureVertex.getY()));
             writer.newLine();
         }
     }
@@ -92,12 +184,12 @@ public final class ObjWriter {
      * @throws IOException если возникает ошибка ввода-вывода
      */
     private static void writeNormals(BufferedWriter writer, List<Vector3f> normals)
-            throws IOException {
+        throws IOException {
         DecimalFormat decimalFormat = createDecimalFormat();
 
         for (Vector3f normal : normals) {
             writer.write("vn " + decimalFormat.format(normal.getX()) + " "
-                    + decimalFormat.format(normal.getY()) + " " + decimalFormat.format(normal.getZ()));
+                + decimalFormat.format(normal.getY()) + " " + decimalFormat.format(normal.getZ()));
             writer.newLine();
         }
     }
@@ -110,7 +202,7 @@ public final class ObjWriter {
      * @throws IOException если возникает ошибка ввода-вывода
      */
     private static void writePolygons(BufferedWriter writer, List<Polygon> polygons)
-            throws IOException {
+        throws IOException {
         for (Polygon polygon : polygons) {
             writer.write("f ");
             List<Integer> vertexIndices = polygon.getVertexIndices();
@@ -120,7 +212,7 @@ public final class ObjWriter {
             for (int i = 0; i < vertexIndices.size(); i++) {
                 if (!textureVertexIndices.isEmpty()) {
                     writer.write(vertexIndices.get(i) + 1 + "/"
-                            + (textureVertexIndices.get(i) + 1));
+                        + (textureVertexIndices.get(i) + 1));
                 } else {
                     writer.write(String.valueOf(vertexIndices.get(i) + 1));
                 }

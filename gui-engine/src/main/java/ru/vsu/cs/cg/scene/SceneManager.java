@@ -4,12 +4,9 @@ import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.renderEngine.camera.Camera;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.rasterization.Rasterizer;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
@@ -18,11 +15,7 @@ import ru.vsu.cs.cg.rasterization.ZBuffer;
 import ru.vsu.cs.cg.renderEngine.PixelWriter;
 import ru.vsu.cs.cg.renderEngine.RenderEngine;
 import ru.vsu.cs.cg.renderEngine.dto.RenderEntity;
-import ru.vsu.cs.cg.renderEngine.camera.Camera;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SceneManager {
@@ -47,7 +40,6 @@ public class SceneManager {
         this.renderEngine = new RenderEngine();
         this.renderSettings = new RasterizerSettings();
         initBuffers(width, height);
-
         LOG.info("SceneManager создан");
     }
 
@@ -56,13 +48,6 @@ public class SceneManager {
         this.rasterizer = new Rasterizer(zBuffer);
     }
 
-    /**
-     * метод изменения размер
-     * обновляет Z-буфер и камеры
-     *
-     * @param width новая ширина
-     * @param height новая высота
-     */
     public void resize(int width, int height) {
         if (width <= 0 || height <= 0) return;
         this.width = width;
@@ -78,82 +63,62 @@ public class SceneManager {
         }
     }
 
-    /**
-     * Основной метод отрисовки сцены
-     */
     public void render(PixelWriter pixelWriter) {
         if (activeCamera == null) {
-            if (!cameras.isEmpty()) {
-                setActiveCamera(cameras.get(0));
-            } else {
-                Camera camera = new Camera();
-                cameras.add(camera);
-                setActiveCamera(camera);
-            }
+            setActiveCamera(cameras.get(0));
         }
 
         zBuffer.clear();
 
-        List<RenderEntity> renderEntities = new ArrayList<>();
-
-        for (SceneObject object : scene.getObjects()) {
-            if (!object.isVisible()) continue;
-
-            Transform t = object.getTransform();
-            Vector3f translation = new Vector3f((float) t.getPositionX(), (float) t.getPositionY(), (float) t.getPositionZ());
-            Vector3f rotation = new Vector3f((float) t.getRotationX(), (float) t.getRotationY(), (float) t.getRotationZ());
-            Vector3f scale = new Vector3f((float) t.getScaleX(), (float) t.getScaleY(), (float) t.getScaleZ());
-
-            Material m = object.getMaterial();
-            Texture texture = null;
-
-            if (m.getTexturePath() != null && !m.getTexturePath().isEmpty()) {
-                texture = getOrLoadTexture(m.getTexturePath());
-            }
-
-            RasterizerSettings objectRenderSettings = object.getRenderSettings();
-            boolean useTexture = (texture != null) && objectRenderSettings.isUseTexture();
-            boolean useLighting = objectRenderSettings.isUseLighting();
-            boolean drawPolygonalGrid = objectRenderSettings.isDrawPolygonalGrid();
-
-
-            RenderEntity entity = new RenderEntity(
-                    object.getModel(),
-                    translation,
-                    rotation,
-                    scale,
-                    texture,
-                    m.getColor(),
-                    useTexture,
-                    useLighting,
-                    drawPolygonalGrid
-            );
-
-            renderEntities.add(entity);
-        }
-
-        for (RenderEntity entity: renderEntities){
-            LOG.debug("{}", entity.toString());
-        }
-
+        List<RenderEntity> renderEntities = prepareRenderEntities();
         renderEngine.render(
-                pixelWriter,
-                width,
-                height,
-                renderEntities,
-                cameras,
-                activeCamera,
-                rasterizer,
-                renderSettings
+            pixelWriter,
+            width,
+            height,
+            renderEntities,
+            cameras,
+            activeCamera,
+            rasterizer,
+            renderSettings
         );
     }
 
-    /**
-     * Получает текстуру из кеша
-     * Иначе подгружает текстуру
-     * @param path путь до текстуры
-     * @return текстура объекта
-     */
+    private List<RenderEntity> prepareRenderEntities() {
+        List<RenderEntity> renderEntities = new ArrayList<>();
+        for (SceneObject object : scene.getObjects()) {
+            if (!object.isVisible()) continue;
+            renderEntities.add(createRenderEntity(object));
+        }
+        return renderEntities;
+    }
+
+    private RenderEntity createRenderEntity(SceneObject object) {
+        Transform t = object.getTransform();
+        Vector3f translation = new Vector3f((float) t.getPositionX(), (float) t.getPositionY(), (float) t.getPositionZ());
+        Vector3f rotation = new Vector3f((float) t.getRotationX(), (float) t.getRotationY(), (float) t.getRotationZ());
+        Vector3f scale = new Vector3f((float) t.getScaleX(), (float) t.getScaleY(), (float) t.getScaleZ());
+
+        Material m = object.getMaterial();
+        Texture texture = getOrLoadTexture(m.getTexturePath());
+
+        RasterizerSettings objectRenderSettings = object.getRenderSettings();
+        boolean useTexture = (texture != null) && objectRenderSettings.isUseTexture();
+        boolean useLighting = objectRenderSettings.isUseLighting();
+        boolean drawPolygonalGrid = objectRenderSettings.isDrawPolygonalGrid();
+
+        return new RenderEntity(
+            object.getModel(),
+            translation,
+            rotation,
+            scale,
+            texture,
+            m.getColor(),
+            useTexture,
+            useLighting,
+            drawPolygonalGrid
+        );
+    }
+
     private Texture getOrLoadTexture(String path) {
         if (path == null || path.isEmpty()) {
             return null;
@@ -192,10 +157,6 @@ public class SceneManager {
         }
     }
 
-    /**
-     * Добавляет камеру на сцену
-     * @param camera новая камера
-     */
     public void addCamera(Camera camera) {
         if (camera != null && !cameras.contains(camera)) {
             cameras.add(camera);
@@ -204,7 +165,20 @@ public class SceneManager {
         }
     }
 
-    // --- Геттеры и сеттеры ---
+    public void removeCamera(Camera camera) {
+        if (camera == null) return;
+
+        if (cameras.size() <= 1) {
+            throw new IllegalStateException("Нельзя удалить единственную камеру в сцене.");
+        }
+
+        cameras.remove(camera);
+
+        if (activeCamera == camera) {
+            activeCamera = cameras.isEmpty() ? null : cameras.get(0);
+        }
+        LOG.info("Камера '{}' удалена", camera.getId());
+    }
 
     public void setRenderSettings(RasterizerSettings settings) {
         this.renderSettings = settings;
@@ -246,7 +220,7 @@ public class SceneManager {
 
     public void clearScene() {
         scene.clear();
-        textureCache.clear(); // Очищаем кэш при очистке сцены
+        textureCache.clear();
         LOG.info("Сцена очищена через SceneManager");
     }
 

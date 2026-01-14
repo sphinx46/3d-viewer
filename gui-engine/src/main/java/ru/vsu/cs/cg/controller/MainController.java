@@ -125,6 +125,8 @@ public class MainController {
         loadRecentFiles();
         initializeRender();
         initializeDependencies();
+        cameraPanelController.initialize();
+        cameraPanelController.setSceneManager(renderController.getSceneManager());
 
         this.renderController.start();
         LOG.info("Главный контроллер инициализирован");

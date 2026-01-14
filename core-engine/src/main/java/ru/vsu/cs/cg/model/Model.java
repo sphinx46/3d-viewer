@@ -14,18 +14,25 @@ public final class Model {
     private final List<Polygon> polygons;
     private volatile List<Polygon> triangulatedPolygonsCache = null;
 
+    private String materialName;
+    private String texturePath;
+
     public Model() {
-        this(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        this(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, null);
     }
 
     private Model(List<Vector3f> vertices,
                   List<Vector2f> textureVertices,
                   List<Vector3f> normals,
-                  List<Polygon> polygons) {
+                  List<Polygon> polygons,
+                  String materialName,
+                  String texturePath) {
         this.vertices = new ArrayList<>(Objects.requireNonNull(vertices));
         this.textureVertices = new ArrayList<>(Objects.requireNonNull(textureVertices));
         this.normals = new ArrayList<>(Objects.requireNonNull(normals));
         this.polygons = new ArrayList<>(Objects.requireNonNull(polygons));
+        this.materialName = materialName;
+        this.texturePath = texturePath;
     }
 
     public void addVertex(Vector3f vertex) {
@@ -159,8 +166,24 @@ public final class Model {
         return normals;
     }
 
+    public String getMaterialName() {
+        return materialName;
+    }
+
+    public void setMaterialName(String materialName) {
+        this.materialName = materialName;
+    }
+
+    public String getTexturePath() {
+        return texturePath;
+    }
+
+    public void setTexturePath(String texturePath) {
+        this.texturePath = texturePath;
+    }
+
     public Model copy() {
-        return new Model(vertices, textureVertices, normals, polygons);
+        return new Model(vertices, textureVertices, normals, polygons, materialName, texturePath);
     }
 
     public List<Vector3f> getTransformedVertices(Vector3f translation, Vector3f rotation, Vector3f scale) {
@@ -183,7 +206,9 @@ public final class Model {
             transformedVertices,
             new ArrayList<>(textureVertices),
             new ArrayList<>(normals),
-            new ArrayList<>(polygons)
+            new ArrayList<>(polygons),
+            materialName,
+            texturePath
         );
     }
 }

@@ -6,7 +6,6 @@ import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.rasterization.Texture;
 
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ public class SceneObject {
     private String name;
     private Model model;
     private Transform transform;
-    private Texture texture;
     private Material material;
     private boolean visible;
     private RasterizerSettings renderSettings;
@@ -135,15 +133,13 @@ public class SceneObject {
             (float) transform.getScaleZ()
         );
 
-        return model.createTransformedCopy(translation, rotation, scale);
-    }
+        Model transformedModel = model.createTransformedCopy(translation, rotation, scale);
 
-    public Texture getTexture() {
-        return texture;
-    }
+        if (material.getTexturePath() != null) {
+            transformedModel.setTexturePath(material.getTexturePath());
+        }
 
-    public void setTexture(Texture texture) {
-        this.texture = texture;
+        return transformedModel;
     }
 
     @Override

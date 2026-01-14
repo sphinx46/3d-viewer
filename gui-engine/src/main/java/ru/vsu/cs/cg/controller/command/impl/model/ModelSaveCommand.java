@@ -58,8 +58,8 @@ public class ModelSaveCommand implements Command {
                 recentFilesService.addFile(filePath);
                 CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
 
-                LOG.info("Модель '{}' сохранена с трансформациями: {}", objectName, file.getName());
-                DialogManager.showModelSaveSuccess("Модель '" + objectName + "' сохранена с примененными трансформациями");
+                LOG.info("Модель '{}' сохранена с трансформациями и материалом: {}", objectName, file.getName());
+                DialogManager.showModelSaveSuccess("Модель '" + objectName + "' сохранена с примененными трансформациями и материалом");
             } catch (Exception e) {
                 LOG.error("Ошибка сохранения модели с трансформациями: {}", e.getMessage());
                 DialogManager.showError("Ошибка сохранения модели: " + e.getMessage());
@@ -74,6 +74,6 @@ public class ModelSaveCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Сохранение выбранной модели в файл с примененными трансформациями";
+        return "Сохранение выбранной модели в файл с примененными трансформациями и материалом";
     }
 }

@@ -20,11 +20,14 @@ public final class ObjReader {
     private static final String OBJ_TEXTURE_TOKEN = "vt";
     private static final String OBJ_NORMAL_TOKEN = "vn";
     private static final String OBJ_FACE_TOKEN = "f";
+    private static final String OBJ_MATERIAL_LIB_TOKEN = "mtllib";
+    private static final String OBJ_USE_MATERIAL_TOKEN = "usemtl";
 
     public static Model read(String fileContent) {
         LOG.debug("Начало парсинга OBJ файла");
 
         Model result = new Model();
+        String currentMaterialName = null;
 
         int lineInd = 0;
         Scanner scanner = new Scanner(fileContent);
@@ -53,6 +56,18 @@ public final class ObjReader {
                 case OBJ_FACE_TOKEN:
                     result.addPolygon(parseFace(wordsInLine, lineInd));
                     break;
+                case OBJ_MATERIAL_LIB_TOKEN:
+                    if (!wordsInLine.isEmpty()) {
+                        result.setMaterialName(wordsInLine.get(0));
+                        LOG.trace("Установлено имя файла материалов: {}", wordsInLine.get(0));
+                    }
+                    break;
+                case OBJ_USE_MATERIAL_TOKEN:
+                    if (!wordsInLine.isEmpty()) {
+                        result.setMaterialName(wordsInLine.get(0));
+                        LOG.trace("Установлено имя материала: {}", wordsInLine.get(0));
+                    }
+                    break;
                 default:
                     LOG.trace("Неизвестный токен '{}' в строке {}", token, lineInd);
             }
@@ -60,11 +75,12 @@ public final class ObjReader {
 
         scanner.close();
 
-        LOG.info("OBJ файл успешно прочитан: вершин={}, текстур={}, нормалей={}, полигонов={}",
+        LOG.info("OBJ файл успешно прочитан: вершин={}, текстур={}, нормалей={}, полигонов={}, материал={}",
             result.getVertices().size(),
             result.getTextureVertices().size(),
             result.getNormals().size(),
-            result.getPolygons().size());
+            result.getPolygons().size(),
+            result.getMaterialName());
 
         return result;
     }

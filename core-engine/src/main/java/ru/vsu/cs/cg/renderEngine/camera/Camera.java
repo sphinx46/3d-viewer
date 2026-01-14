@@ -30,8 +30,8 @@ public class Camera {
 
     public Camera() {
         this("DefaultCamera_",
-                new Vector3f(0, 2, 5),
-                new Vector3f(0, 0, 0));
+            new Vector3f(0, 2, 5),
+            new Vector3f(0, 0, 0));
     }
 
     public Matrix4x4 getViewMatrix() {

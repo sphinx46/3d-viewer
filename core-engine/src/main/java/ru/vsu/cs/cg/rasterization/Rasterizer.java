@@ -36,13 +36,13 @@ public class Rasterizer {
      * @param settings настройки для рендера (включение/выключение текстур, освещения)
      */
     public void drawTriangle(
-            PixelWriter pixelWriter,
-            Vector3f vertex1, Vector3f vertex2, Vector3f vertex3,
-            Vector2f uv1, Vector2f uv2, Vector2f uv3,
-            Vector3f normal1, Vector3f normal2, Vector3f normal3,
-            Texture texture,
-            Vector3f lightDirection,
-            RasterizerSettings settings)
+        PixelWriter pixelWriter,
+        Vector3f vertex1, Vector3f vertex2, Vector3f vertex3,
+        Vector2f uv1, Vector2f uv2, Vector2f uv3,
+        Vector3f normal1, Vector3f normal2, Vector3f normal3,
+        Texture texture,
+        Vector3f lightDirection,
+        RasterizerSettings settings)
     {
 
         if (vertex1.getY() > vertex2.getY()) {
@@ -62,26 +62,26 @@ public class Rasterizer {
         }
 
         drawScanlinePart(
-                pixelWriter,
-                vertex1, vertex2,
-                vertex1, vertex3,
-                uv1, uv2,
-                uv1, uv3,
-                normal1, normal2,
-                normal1, normal3,
-                texture, lightDirection, settings
+            pixelWriter,
+            vertex1, vertex2,
+            vertex1, vertex3,
+            uv1, uv2,
+            uv1, uv3,
+            normal1, normal2,
+            normal1, normal3,
+            texture, lightDirection, settings
         );
 
 
         drawScanlinePart(
-                pixelWriter,
-                vertex2, vertex3,
-                vertex1, vertex3,
-                uv2, uv3,
-                uv1, uv3,
-                normal2, normal3,
-                normal1, normal3,
-                texture, lightDirection, settings
+            pixelWriter,
+            vertex2, vertex3,
+            vertex1, vertex3,
+            uv2, uv3,
+            uv1, uv3,
+            normal2, normal3,
+            normal1, normal3,
+            texture, lightDirection, settings
         );
 
         if (settings.isDrawPolygonalGrid()){
@@ -116,14 +116,14 @@ public class Rasterizer {
      * @param settings настройки для рендера (включение/выключение текстур, освещения)
      */
     private void drawScanlinePart(
-            PixelWriter pixelWriter,
-            Vector3f edgeStartA, Vector3f edgeEndA,
-            Vector3f edgeStartB, Vector3f edgeEndB,
-            Vector2f uvStartA, Vector2f uvEndA,
-            Vector2f uvStartB, Vector2f uvEndB,
-            Vector3f normalStartA, Vector3f normalEndA,
-            Vector3f normalStartB, Vector3f normalEndB,
-            Texture texture, Vector3f lightDirection, RasterizerSettings settings
+        PixelWriter pixelWriter,
+        Vector3f edgeStartA, Vector3f edgeEndA,
+        Vector3f edgeStartB, Vector3f edgeEndB,
+        Vector2f uvStartA, Vector2f uvEndA,
+        Vector2f uvStartB, Vector2f uvEndB,
+        Vector3f normalStartA, Vector3f normalEndA,
+        Vector3f normalStartB, Vector3f normalEndB,
+        Texture texture, Vector3f lightDirection, RasterizerSettings settings
     ) {
 
         int scanlineYStart = (int) Math.ceil(Math.max(edgeStartA.getY(), edgeStartB.getY()));
@@ -229,57 +229,55 @@ public class Rasterizer {
      * @param color цвет линии
      */
     private void drawLine(PixelWriter pixelWriter, Vector3f start, Vector3f end, Color color) {
-        int x0 = (int) start.getX();
-        int y0 = (int) start.getY();
-        int x1 = (int) end.getX();
-        int y1 = (int) end.getY();
+        float x1 = start.getX();
+        float y1 = start.getY();
+        float x2 = end.getX();
+        float y2 = end.getY();
+
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+
+        float steps = Math.max(Math.abs(dx), Math.abs(dy));
+
+        if (steps == 0) {
+            int px = Math.round(x1);
+            int py = Math.round(y1);
+            if (zBuffer.checkAndSet(px, py, 1.0f / Math.max(start.getZ(), EPSILON))) {
+                pixelWriter.setPixel(px, py, color);
+            }
+            return;
+        }
+
+        float xIncrement = dx / steps;
+        float yIncrement = dy / steps;
 
         float zStart = Math.max(start.getZ(), EPSILON);
         float zEnd = Math.max(end.getZ(), EPSILON);
         float invZStart = 1.0f / zStart;
         float invZEnd = 1.0f / zEnd;
 
-        int dx = Math.abs(x1 - x0);
-        int dy = Math.abs(y1 - y0);
-        int stepX = x0 < x1 ? 1 : -1;
-        int stepY = y0 < y1 ? 1 : -1;
-        int error = dx - dy;
+        float x = x1;
+        float y = y1;
 
-        float totalDist = Math.max(dx, dy);
-        if (totalDist == 0) return;
+        for (int i = 0; i <= steps; i++) {
+            float t = (float) i / steps;
 
-        int x = x0;
-        int y = y0;
-
-        float stepCount = 0;
-
-        while (true) {
-            float t = stepCount / totalDist;
             float currentInvZ = interpolate(invZStart, invZEnd, t);
             float currentZ = 1.0f / currentInvZ;
 
             float biasFactor = 0.0005f;
-            float offset = currentZ * biasFactor;
+            float biasAbsolute = 0.00002f;
+            float biasedZ = currentZ - (currentZ * biasFactor + biasAbsolute);
 
-            float biasedZ = currentZ - offset;
+            int pixelX = Math.round(x);
+            int pixelY = Math.round(y);
 
-            if (zBuffer.checkAndSet(x, y, biasedZ)) {
-                pixelWriter.setPixel(x, y, color);
+            if (zBuffer.checkAndSet(pixelX, pixelY, biasedZ)) {
+                pixelWriter.setPixel(pixelX, pixelY, color);
             }
 
-            if (x == x1 && y == y1) break;
-
-            int e2 = 2 * error;
-            if (e2 > -dy) {
-                error -= dy;
-                x += stepX;
-            }
-            if (e2 < dx) {
-                error += dx;
-                y += stepY;
-            }
-
-            stepCount++;
+            x += xIncrement;
+            y += yIncrement;
         }
     }
 
@@ -297,9 +295,9 @@ public class Rasterizer {
         double totalFactor = Math.min(1.0, ambientLight + intensity);
 
         return Color.color(
-                Math.min(1.0, baseColor.getRed() * totalFactor),
-                Math.min(1.0, baseColor.getGreen() * totalFactor),
-                Math.min(1.0, baseColor.getBlue() * totalFactor)
+            Math.min(1.0, baseColor.getRed() * totalFactor),
+            Math.min(1.0, baseColor.getGreen() * totalFactor),
+            Math.min(1.0, baseColor.getBlue() * totalFactor)
         );
     }
 
@@ -309,16 +307,16 @@ public class Rasterizer {
 
     private Vector2f interpolate(Vector2f start, Vector2f end, float factor) {
         return new Vector2f(
-                interpolate(start.getX(), end.getX(), factor),
-                interpolate(start.getY(), end.getY(), factor)
+            interpolate(start.getX(), end.getX(), factor),
+            interpolate(start.getY(), end.getY(), factor)
         );
     }
 
     private Vector3f interpolate(Vector3f start, Vector3f end, float factor) {
         return new Vector3f(
-                interpolate(start.getX(), end.getX(), factor),
-                interpolate(start.getY(), end.getY(), factor),
-                interpolate(start.getZ(), end.getZ(), factor)
+            interpolate(start.getX(), end.getX(), factor),
+            interpolate(start.getY(), end.getY(), factor),
+            interpolate(start.getZ(), end.getZ(), factor)
         );
     }
 }

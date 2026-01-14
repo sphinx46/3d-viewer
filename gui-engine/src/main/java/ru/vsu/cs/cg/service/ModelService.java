@@ -8,4 +8,7 @@ public interface ModelService {
     Model createCustomObject();
     void saveModelToFile(Model model, String filePath);
     Model loadModel(String filePath);
+    void saveModelWithMaterial(Model model, String filePath, String materialName,
+                                      String texturePath, float[] color, Float shininess,
+                                      Float transparency, Float reflectivity);
 }

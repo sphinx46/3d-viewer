@@ -85,6 +85,32 @@ public class ModelServiceImpl implements ModelService {
         }
     }
 
+    @Override
+    public void saveModelWithMaterial(Model model, String filePath, String materialName,
+                                      String texturePath, float[] color, Float shininess,
+                                      Float transparency, Float reflectivity) {
+        LOG.info("Сохранение модели с материалом '{}' в файл: {}", materialName, filePath);
+
+        try {
+            validateModel(model);
+            InputValidator.validateNotEmpty(filePath, "Путь к файлу");
+            InputValidator.validateNotEmpty(materialName, "Имя материала");
+
+            String normalizedPath = PathManager.normalizePath(filePath);
+            normalizedPath = PathManager.ensureExtension(normalizedPath, ".obj");
+            PathManager.validatePathForSave(normalizedPath);
+
+            ObjWriter.write(normalizedPath, model, materialName, texturePath,
+                color, shininess, transparency, reflectivity);
+
+            LOG.info("Модель с материалом '{}' успешно сохранена в файл: {}", materialName, normalizedPath);
+
+        } catch (Exception e) {
+            LOG.error("Ошибка сохранения модели с материалом в файл {}: {}", filePath, e.getMessage());
+            throw e;
+        }
+    }
+
     private void validateModel(Model model) {
         InputValidator.validateNotNull(model, "Модель");
 

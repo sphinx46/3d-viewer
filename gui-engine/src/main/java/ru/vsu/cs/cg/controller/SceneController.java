@@ -272,10 +272,32 @@ public class SceneController {
         SceneObject selectedObject = getSelectedObject();
         Model transformedModel = selectedObject.getTransformedModel();
 
-        ModelService modelService = new ModelServiceImpl();
-        modelService.saveModelToFile(transformedModel, filePath);
+        ModelServiceImpl modelServiceImpl = (ModelServiceImpl) modelService;
+        ru.vsu.cs.cg.scene.Material material = selectedObject.getMaterial();
 
-        LOG.info("Модель '{}' сохранена с примененными трансформациями в файл: {}",
+        String materialName = selectedObject.getName() + "_material";
+        String texturePath = material.getTexturePath();
+        float[] color = new float[]{
+            (float) material.getRed(),
+            (float) material.getGreen(),
+            (float) material.getBlue()
+        };
+        Float shininess = (float) material.getShininess();
+        Float transparency = (float) material.getTransparency();
+        Float reflectivity = (float) material.getReflectivity();
+
+        modelServiceImpl.saveModelWithMaterial(
+            transformedModel,
+            filePath,
+            materialName,
+            texturePath,
+            color,
+            shininess,
+            transparency,
+            reflectivity
+        );
+
+        LOG.info("Модель '{}' сохранена с примененными трансформациями и материалом в файл: {}",
             selectedObject.getName(), filePath);
     }
 
@@ -301,6 +323,5 @@ public class SceneController {
         } finally {
             uiUpdateInProgress = false;
         }
-
     }
 }
