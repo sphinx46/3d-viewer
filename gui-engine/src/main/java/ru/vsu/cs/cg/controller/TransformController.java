@@ -91,9 +91,9 @@ public class TransformController extends BaseController {
             InputValidator.parseDoubleSafe(positionX.getText(), 0.0),
             InputValidator.parseDoubleSafe(positionY.getText(), 0.0),
             InputValidator.parseDoubleSafe(positionZ.getText(), 0.0),
-            InputValidator.parseDoubleSafe(rotationX.getText(), 0.0),
-            InputValidator.parseDoubleSafe(rotationY.getText(), 0.0),
-            InputValidator.parseDoubleSafe(rotationZ.getText(), 0.0),
+                Math.toRadians(InputValidator.parseDoubleSafe(rotationX.getText(), 0.0)),
+                Math.toRadians(InputValidator.parseDoubleSafe(rotationY.getText(), 0.0)),
+                Math.toRadians(InputValidator.parseDoubleSafe(rotationZ.getText(), 0.0)),
             InputValidator.parseDoubleSafe(scaleX.getText(), 1.0),
             InputValidator.parseDoubleSafe(scaleY.getText(), 1.0),
             InputValidator.parseDoubleSafe(scaleZ.getText(), 1.0)
