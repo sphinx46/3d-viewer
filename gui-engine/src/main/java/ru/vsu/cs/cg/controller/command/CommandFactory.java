@@ -74,6 +74,8 @@ public class CommandFactory {
         registerCommand(new HotkeysShowCommand());
         registerCommand(new AboutShowCommand());
 
+        registerCommand(new ObjectRenameCommand(sceneController));
+
         registerCommand(new UrlOpenCommand("https://github.com/sphinx46/3d-viewer", "Открыть документацию"));
         registerCommand(new UrlOpenCommand("https://github.com/sphinx46/3d-viewer/issues/new", "Сообщить об ошибке"));
 

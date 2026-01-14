@@ -91,6 +91,7 @@ public class SceneController {
     public SceneObject addModelToScene(String filePath) {
         try {
             SceneObject newObject = sceneService.addModelToScene(currentScene, filePath);
+            newObject.getRenderSettings().setDrawAxisLines(true);
             currentScene.selectObject(newObject);
             markSceneModified();
             markModelModified();
@@ -105,6 +106,7 @@ public class SceneController {
     public SceneObject addDefaultModelToScene(DefaultModelLoader.ModelType modelType) {
         try {
             SceneObject newObject = sceneService.addDefaultModelToScene(currentScene, modelType.name());
+            newObject.getRenderSettings().setDrawAxisLines(true);
             currentScene.selectObject(newObject);
             markSceneModified();
             markModelModified();
@@ -152,6 +154,7 @@ public class SceneController {
 
         SceneObject pastedObject = clipboardObject.copy();
         pastedObject.setName(generateUniqueCopyName(clipboardObject.getName()));
+        pastedObject.getRenderSettings().setDrawAxisLines(true);
         currentScene.addObject(pastedObject);
         currentScene.selectObject(pastedObject);
         markSceneModified();
@@ -299,16 +302,6 @@ public class SceneController {
             settings.setDrawAxisLines(newState);
             LOG.info("Оси XYZ для объекта '{}' переключены: {}", selected.getName(), newState);
             markSceneModified();
-        }
-    }
-
-    public void clearSelectionInSelectedObject() {
-        if (hasSelectedObject()) {
-            SceneObject selected = getSelectedObject();
-            selected.getModel().getSelection().clearAll();
-            markModelModified();
-            markSceneModified();
-            LOG.debug("Выделение очищено в объекте '{}'", selected.getName());
         }
     }
 

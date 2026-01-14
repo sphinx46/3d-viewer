@@ -25,6 +25,7 @@ public class HotkeysShowCommand implements Command {
             hotkeysText.append("  Ctrl+Shift+N    - ").append(descriptions.get("Ctrl+Shift+N")).append("\n");
 
             hotkeysText.append("\nРабота с объектами:\n");
+            hotkeysText.append("  ПКМ          - ").append(descriptions.get("ПКМ")).append("\n");
             hotkeysText.append("  Ctrl+C          - ").append(descriptions.get("Ctrl+C")).append("\n");
             hotkeysText.append("  Ctrl+V          - ").append(descriptions.get("Ctrl+V")).append("\n");
             hotkeysText.append("  Ctrl+D          - ").append(descriptions.get("Ctrl+D")).append("\n");

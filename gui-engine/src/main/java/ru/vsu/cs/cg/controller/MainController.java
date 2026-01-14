@@ -165,6 +165,13 @@ public class MainController {
         sceneTreeView.setRoot(rootItem);
         sceneTreeView.setShowRoot(false);
 
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem renameItem = new MenuItem("Переименовать");
+        renameItem.setOnAction(event -> executeCommand("object_rename"));
+        contextMenu.getItems().add(renameItem);
+
+        sceneTreeView.setContextMenu(contextMenu);
+
         sceneTreeView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null) {

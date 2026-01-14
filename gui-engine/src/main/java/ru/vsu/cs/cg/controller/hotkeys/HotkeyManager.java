@@ -186,6 +186,7 @@ public class HotkeyManager {
     public static Map<String, String> getHotkeyDescriptions() {
         Map<String, String> descriptions = new LinkedHashMap<>();
 
+        descriptions.put("ПКМ", "Переименовать объект на сцене");
         descriptions.put("Ctrl+N", "Создать новую сцену");
         descriptions.put("Ctrl+O", "Открыть сцену");
         descriptions.put("Ctrl+S", "Сохранить сцену");
