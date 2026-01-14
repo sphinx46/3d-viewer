@@ -104,12 +104,6 @@ public class Scene {
         return removed;
     }
 
-    public boolean removeObjectById(String id) {
-        return findObjectById(id)
-            .map(this::removeObject)
-            .orElse(false);
-    }
-
     public void selectObject(SceneObject object) {
         if (object != null && !objects.contains(object)) {
             LOG.warn("Попытка выбрать объект '{}', которого нет в сцене", object.getName());
@@ -122,18 +116,6 @@ public class Scene {
         LOG.debug("Выбор объекта изменен: {} -> {}",
             previous != null ? previous.getName() : "null",
             object != null ? object.getName() : "null");
-    }
-
-    public void selectObjectById(String id) {
-        findObjectById(id).ifPresentOrElse(
-            this::selectObject,
-            () -> LOG.warn("Объект с id='{}' не найден в сцене", id)
-        );
-    }
-
-    public void clearSelection() {
-        selectedObject = null;
-        LOG.debug("Выбор объекта сброшен");
     }
 
     public void clear() {

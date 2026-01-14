@@ -242,15 +242,20 @@ public class SceneController {
             SceneObject objectToSelect = foundObject.get();
             if (currentScene.getSelectedObject() != objectToSelect) {
                 currentScene.selectObject(objectToSelect);
-
-                if (modificationController != null) {
-                    modificationController.updateUIFromSelectedObject();
-                }
-
                 updateUI();
                 LOG.debug("Выбран объект: {}", objectName);
             }
         }
+    }
+
+    public void toggleObjectVisibility(SceneObject object) {
+        if (object == null) return;
+
+        boolean newVisibility = !object.isVisible();
+        object.setVisible(newVisibility);
+        markSceneModified();
+        updateUI();
+        LOG.info("Видимость объекта '{}' переключена: {}", object.getName(), newVisibility);
     }
 
     public void resetTransformOfSelectedObject() {

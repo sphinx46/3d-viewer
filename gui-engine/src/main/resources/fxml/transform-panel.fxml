@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
@@ -24,13 +23,6 @@
     </graphic>
     <content>
         <VBox spacing="12">
-            <HBox alignment="CENTER_LEFT" spacing="10">
-                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
-                    <Image url="@/static/images/icons/right-menu/eye.png" />
-                </ImageView>
-                <Label style="-fx-font-weight: bold;" text="Видимость:" />
-                <CheckBox fx:id="visibilityCheckbox" mnemonicParsing="false" selected="true" />
-            </HBox>
             <Label style="-fx-font-weight: bold;" text="Позиция:" />
             <GridPane hgap="8" vgap="5">
                 <Label text="X:" GridPane.columnIndex="0" GridPane.rowIndex="0" />

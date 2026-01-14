@@ -71,7 +71,9 @@ public class SceneObject {
 
     public boolean isVisible() { return visible; }
     public void setVisible(boolean visible) {
+        boolean oldValue = this.visible;
         this.visible = visible;
+        LOG.debug("Видимость объекта '{}' изменена: {} -> {}", name, oldValue, visible);
     }
 
     public RasterizerSettings getRenderSettings() { return renderSettings; }

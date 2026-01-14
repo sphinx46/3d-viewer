@@ -10,7 +10,6 @@ import ru.vsu.cs.cg.utils.validation.InputValidator;
 
 public class TransformController extends BaseController {
 
-    @FXML private CheckBox visibilityCheckbox;
     @FXML private TextField positionX;
     @FXML private TextField positionY;
     @FXML private TextField positionZ;
@@ -39,13 +38,6 @@ public class TransformController extends BaseController {
     private void initializeListeners() {
         applyTransformButton.setOnAction(event -> handleApplyTransform());
         resetTransformButton.setOnAction(event -> handleResetTransform());
-
-        visibilityCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (hasSelectedObject()) {
-                sceneController.getSelectedObject().setVisible(newValue);
-                LOG.debug("Видимость объекта изменена: {}", newValue);
-            }
-        });
     }
 
     private void handleApplyTransform() {
@@ -83,9 +75,9 @@ public class TransformController extends BaseController {
             InputValidator.parseDoubleSafe(positionX.getText(), 0.0),
             InputValidator.parseDoubleSafe(positionY.getText(), 0.0),
             InputValidator.parseDoubleSafe(positionZ.getText(), 0.0),
-                Math.toRadians(InputValidator.parseDoubleSafe(rotationX.getText(), 0.0)),
-                Math.toRadians(InputValidator.parseDoubleSafe(rotationY.getText(), 0.0)),
-                Math.toRadians(InputValidator.parseDoubleSafe(rotationZ.getText(), 0.0)),
+            Math.toRadians(InputValidator.parseDoubleSafe(rotationX.getText(), 0.0)),
+            Math.toRadians(InputValidator.parseDoubleSafe(rotationY.getText(), 0.0)),
+            Math.toRadians(InputValidator.parseDoubleSafe(rotationZ.getText(), 0.0)),
             InputValidator.parseDoubleSafe(scaleX.getText(), 1.0),
             InputValidator.parseDoubleSafe(scaleY.getText(), 1.0),
             InputValidator.parseDoubleSafe(scaleZ.getText(), 1.0)
@@ -94,7 +86,6 @@ public class TransformController extends BaseController {
 
     @Override
     protected void clearFields() {
-        visibilityCheckbox.setSelected(false);
         UiFieldUtils.clearTextFields(positionX, positionY, positionZ,
             rotationX, rotationY, rotationZ,
             scaleX, scaleY, scaleZ);
@@ -104,13 +95,12 @@ public class TransformController extends BaseController {
     protected void populateFields(SceneObject object) {
         if (object == null) return;
 
-        visibilityCheckbox.setSelected(object.isVisible());
         UiFieldUtils.setTextField(positionX, object.getTransform().getPositionX());
         UiFieldUtils.setTextField(positionY, object.getTransform().getPositionY());
         UiFieldUtils.setTextField(positionZ, object.getTransform().getPositionZ());
-        UiFieldUtils.setTextField(rotationX, object.getTransform().getRotationX());
-        UiFieldUtils.setTextField(rotationY, object.getTransform().getRotationY());
-        UiFieldUtils.setTextField(rotationZ, object.getTransform().getRotationZ());
+        UiFieldUtils.setTextField(rotationX, Math.toDegrees(object.getTransform().getRotationX()));
+        UiFieldUtils.setTextField(rotationY, Math.toDegrees(object.getTransform().getRotationY()));
+        UiFieldUtils.setTextField(rotationZ, Math.toDegrees(object.getTransform().getRotationZ()));
         UiFieldUtils.setTextField(scaleX, object.getTransform().getScaleX());
         UiFieldUtils.setTextField(scaleY, object.getTransform().getScaleY());
         UiFieldUtils.setTextField(scaleZ, object.getTransform().getScaleZ());
@@ -118,7 +108,6 @@ public class TransformController extends BaseController {
 
     @Override
     protected void setFieldsEditable(boolean editable) {
-        visibilityCheckbox.setDisable(!editable);
         UiFieldUtils.setTextFieldsEditable(editable, positionX, positionY, positionZ,
             rotationX, rotationY, rotationZ,
             scaleX, scaleY, scaleZ);

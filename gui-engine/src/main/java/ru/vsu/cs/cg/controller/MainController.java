@@ -3,7 +3,10 @@ package ru.vsu.cs.cg.controller;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,7 @@ import ru.vsu.cs.cg.utils.file.PathManager;
 import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class MainController {
@@ -39,7 +43,7 @@ public class MainController {
     private RenderController renderController;
 
     @FXML private AnchorPane anchorPane;
-    @FXML private TreeView<String> sceneTreeView;
+    @FXML private TreeView<SceneObject> sceneTreeView;
     @FXML private Button addObjectButton;
     @FXML private Button deleteObjectButton;
     @FXML private Button duplicateObjectButton;
@@ -160,26 +164,75 @@ public class MainController {
     }
 
     private void initializeSceneTree() {
-        TreeItem<String> rootItem = new TreeItem<>("Сцена");
+        TreeItem<SceneObject> rootItem = new TreeItem<>();
         rootItem.setExpanded(true);
         sceneTreeView.setRoot(rootItem);
         sceneTreeView.setShowRoot(false);
 
-        ContextMenu contextMenu = new ContextMenu();
-        MenuItem renameItem = new MenuItem("Переименовать");
-        renameItem.setOnAction(event -> executeCommand("object_rename"));
-        contextMenu.getItems().add(renameItem);
+        sceneTreeView.setCellFactory(tv -> new TreeCell<SceneObject>() {
+            private final Button eyeButton = createEyeButton();
+            private final HBox container = createContainer();
+            private final javafx.scene.control.Label nameLabel = (javafx.scene.control.Label) container.getChildren().get(0);
 
-        sceneTreeView.setContextMenu(contextMenu);
+            @Override
+            protected void updateItem(SceneObject item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    nameLabel.setText(item.getName());
+                    updateEyeButtonIcon(item.isVisible());
+                    eyeButton.setOnAction(event -> sceneController.toggleObjectVisibility(item));
+                    setGraphic(container);
+                    setText(null);
+                }
+            }
+
+            private Button createEyeButton() {
+                Button button = new Button();
+                button.getStyleClass().add("eye-button");
+                button.setPrefSize(18, 18);
+                button.setMinSize(18, 18);
+                button.setMaxSize(18, 18);
+                button.setStyle("-fx-padding: 0; -fx-background-radius: 2;");
+                return button;
+            }
+
+            private HBox createContainer() {
+                HBox hbox = new HBox();
+                hbox.setSpacing(8);
+                hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+                javafx.scene.control.Label label = new javafx.scene.control.Label();
+                label.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(label, Priority.ALWAYS);
+
+                hbox.getChildren().addAll(label, eyeButton);
+                return hbox;
+            }
+
+            private void updateEyeButtonIcon(boolean visible) {
+                String imagePath = visible ?
+                    "/static/images/icons/right-menu/eye.png" :
+                    "/static/images/icons/right-menu/eye-closed.png";
+
+                try {
+                    javafx.scene.image.Image image = new javafx.scene.image.Image(
+                        Objects.requireNonNull(getClass().getResourceAsStream(imagePath)),
+                        12, 12, true, true
+                    );
+                    eyeButton.setGraphic(new ImageView(image));
+                } catch (Exception e) {
+                    LOG.error("Ошибка загрузки иконки глаза: {}", e.getMessage());
+                }
+            }
+        });
 
         sceneTreeView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    String objectName = newValue.getValue();
-                    if (objectName.endsWith(" (скрыт)")) {
-                        objectName = objectName.replace(" (скрыт)", "");
-                    }
-                    sceneController.handleSceneObjectSelection(objectName);
+                if (newValue != null && newValue.getValue() != null) {
+                    sceneController.handleSceneObjectSelection(newValue.getValue().getName());
                     updateCoordinateAxisMenuState();
                 }
             }
@@ -288,33 +341,21 @@ public class MainController {
 
     public void updateSceneTree() {
         Platform.runLater(() -> {
-            TreeItem<String> rootItem = new TreeItem<>("Сцена");
+            TreeItem<SceneObject> rootItem = new TreeItem<>();
             rootItem.setExpanded(true);
 
             SceneObject selectedObject = sceneController.getSelectedObject();
-            String selectedObjectName = selectedObject != null ? selectedObject.getName() : null;
 
-            sceneController.getCurrentScene().getObjects().forEach(obj -> {
-                String displayName = obj.isVisible() ? obj.getName() : obj.getName() + " (скрыт)";
-                TreeItem<String> item = new TreeItem<>(displayName);
+            for (SceneObject obj : sceneController.getCurrentScene().getObjects()) {
+                TreeItem<SceneObject> item = new TreeItem<>(obj);
                 rootItem.getChildren().add(item);
-            });
 
-            sceneTreeView.setRoot(rootItem);
-
-            if (selectedObjectName != null) {
-                for (TreeItem<String> item : rootItem.getChildren()) {
-                    String itemValue = item.getValue();
-                    if (itemValue.endsWith(" (скрыт)")) {
-                        itemValue = itemValue.replace(" (скрыт)", "");
-                    }
-
-                    if (itemValue.equals(selectedObjectName)) {
-                        sceneTreeView.getSelectionModel().select(item);
-                        break;
-                    }
+                if (selectedObject != null && obj.getId().equals(selectedObject.getId())) {
+                    sceneTreeView.getSelectionModel().select(item);
                 }
             }
+
+            sceneTreeView.setRoot(rootItem);
         });
     }
 
