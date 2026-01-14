@@ -10,7 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.model.selection.ModelSelection;
 import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
+import ru.vsu.cs.cg.utils.parser.IndexParser;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class ModificationController extends BaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ModificationController.class);
@@ -83,11 +89,65 @@ public class ModificationController extends BaseController {
     }
 
     private void handleSelectVertices() {
-        LOG.debug("Выделение вершин по индексам");
+        if (!hasSelectedObject()) {
+            LOG.warn("Попытка выделить вершины без выбранного объекта");
+            return;
+        }
+
+        SceneObject selectedObject = getSelectedObject();
+        Model model = selectedObject.getModel();
+        String indicesInput = vertexIndicesField.getText();
+
+        try {
+            Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, model.getVertices().size());
+            ModelSelection selection = model.getSelection();
+
+            selection.clearVertexSelection();
+            if (!indices.isEmpty()) {
+                for (Integer index : indices) {
+                    selection.selectVertex(index);
+                }
+                LOG.info("Выделено {} вершин объекта '{}'", indices.size(), selectedObject.getName());
+            } else {
+                LOG.debug("Выделение вершин очищено для объекта '{}'", selectedObject.getName());
+            }
+
+            sceneController.markModelModified();
+            sceneController.markSceneModified();
+        } catch (IllegalArgumentException e) {
+            LOG.error("Ошибка выделения вершин: {}", e.getMessage());
+        }
     }
 
     private void handleSelectPolygons() {
-        LOG.debug("Выделение полигонов по индексам");
+        if (!hasSelectedObject()) {
+            LOG.warn("Попытка выделить полигоны без выбранного объекта");
+            return;
+        }
+
+        SceneObject selectedObject = getSelectedObject();
+        Model model = selectedObject.getModel();
+        String indicesInput = polygonIndicesField.getText();
+
+        try {
+            Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, model.getPolygons().size());
+            ModelSelection selection = model.getSelection();
+
+            selection.clearPolygonSelection();
+            if (!indices.isEmpty()) {
+                for (Integer index : indices) {
+                    selection.selectPolygon(index);
+                }
+                LOG.info("Выделено {} полигонов объекта '{}'", indices.size(), selectedObject.getName());
+            } else {
+                LOG.debug("Выделение полигонов очищено для объекта '{}'", selectedObject.getName());
+            }
+
+            sceneController.markModelModified();
+            sceneController.markSceneModified();
+        } catch (IllegalArgumentException e) {
+            LOG.error("Ошибка выделения полигонов: {}", e.getMessage());
+        }
     }
 
     @Override
@@ -102,6 +162,27 @@ public class ModificationController extends BaseController {
     @Override
     protected void populateFields(SceneObject object) {
         updateStatistics();
+        updateSelectionFields();
+    }
+
+    private void updateSelectionFields() {
+        if (!hasSelectedObject()) return;
+
+        SceneObject selectedObject = getSelectedObject();
+        Model model = selectedObject.getModel();
+        ModelSelection selection = model.getSelection();
+
+        Platform.runLater(() -> {
+            if (selection.hasSelectedVertices()) {
+                List<Integer> vertices = new ArrayList<>(selection.getSelectedVertices());
+                vertexIndicesField.setText(IndexParser.formatIndices(vertices));
+            }
+
+            if (selection.hasSelectedPolygons()) {
+                List<Integer> polygons = new ArrayList<>(selection.getSelectedPolygons());
+                polygonIndicesField.setText(IndexParser.formatIndices(polygons));
+            }
+        });
     }
 
     public void updateStatistics() {

@@ -111,6 +111,11 @@ public class MainController {
             sceneController.setMaterialController(materialPanelController);
         }
 
+        if (modificationPanelController != null) {
+            modificationPanelController.setSceneController(sceneController);
+            sceneController.setModificationController(modificationPanelController);
+        }
+
         this.sceneController.setRenderController(renderController);
         this.renderController.setSceneController(sceneController);
         sceneController.setMainController(this);

@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class IndexParser {
     private static final Logger LOG = LoggerFactory.getLogger(IndexParser.class);
@@ -76,5 +78,58 @@ public final class IndexParser {
         }
 
         return true;
+    }
+
+    public static Set<Integer> parseAndValidateIndices(String input, int maxIndex) {
+        Set<Integer> indices = parseIndices(input);
+        if (!validateIndices(indices, maxIndex)) {
+            throw new IllegalArgumentException("Один или несколько индексов выходят за пределы допустимого диапазона");
+        }
+        return indices;
+    }
+
+    public static String formatIndices(List<Integer> indices) {
+        if (indices == null || indices.isEmpty()) {
+            return "";
+        }
+
+        List<Integer> sorted = indices.stream()
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+
+        StringBuilder result = new StringBuilder();
+        Integer rangeStart = null;
+        Integer rangeEnd = null;
+
+        for (int i = 0; i < sorted.size(); i++) {
+            int current = sorted.get(i);
+
+            if (rangeStart == null) {
+                rangeStart = current;
+                rangeEnd = current;
+            } else if (current == rangeEnd + 1) {
+                rangeEnd = current;
+            } else {
+                if (rangeStart.equals(rangeEnd)) {
+                    result.append(rangeStart);
+                } else {
+                    result.append(rangeStart).append("-").append(rangeEnd);
+                }
+                result.append(", ");
+                rangeStart = current;
+                rangeEnd = current;
+            }
+        }
+
+        if (rangeStart != null) {
+            if (rangeStart.equals(rangeEnd)) {
+                result.append(rangeStart);
+            } else {
+                result.append(rangeStart).append("-").append(rangeEnd);
+            }
+        }
+
+        return result.toString();
     }
 }

@@ -83,7 +83,7 @@ public class SceneObject {
         SceneObject copy = new SceneObject(
             UUID.randomUUID().toString(),
             name + "_copy",
-            model,
+            model.copy(),
             new Transform(
                 transform.getPositionX(), transform.getPositionY(), transform.getPositionZ(),
                 transform.getRotationX(), transform.getRotationY(), transform.getRotationZ(),
@@ -97,6 +97,8 @@ public class SceneObject {
             visible,
             renderSettings.copy()
         );
+
+        LOG.debug("Создана копия объекта '{}'", name);
         return copy;
     }
 

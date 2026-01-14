@@ -142,6 +142,7 @@ public class SceneController {
         }
 
         clipboardObject = currentScene.getSelectedObject().copy();
+        LOG.debug("Объект '{}' скопирован в буфер обмена", clipboardObject.getName());
     }
 
     public void pasteCopiedObject() {
@@ -156,6 +157,7 @@ public class SceneController {
         markSceneModified();
         markModelModified();
         updateUI();
+        LOG.debug("Объект '{}' вставлен из буфера обмена", pastedObject.getName());
     }
 
     public void createNewScene() {
@@ -175,12 +177,14 @@ public class SceneController {
         }
 
         updateUI();
+        LOG.info("Создана новая сцена");
     }
 
     public void saveScene(String filePath) throws IOException {
         sceneService.saveScene(currentScene, filePath);
         sceneModified = false;
         currentSceneFilePath = filePath;
+        LOG.info("Сцена сохранена в файл: {}", filePath);
     }
 
     public void loadScene(String filePath) {
@@ -201,6 +205,7 @@ public class SceneController {
             }
 
             updateUI();
+            LOG.info("Сцена загружена из файла: {}", filePath);
         } catch (Exception e) {
             LOG.error("Ошибка загрузки сцены из файла {}: {}", filePath, e.getMessage());
             throw e;
@@ -234,7 +239,13 @@ public class SceneController {
             SceneObject objectToSelect = foundObject.get();
             if (currentScene.getSelectedObject() != objectToSelect) {
                 currentScene.selectObject(objectToSelect);
+
+                if (modificationController != null) {
+                    modificationController.updateUIFromSelectedObject();
+                }
+
                 updateUI();
+                LOG.debug("Выбран объект: {}", objectName);
             }
         }
     }
@@ -248,6 +259,7 @@ public class SceneController {
         markSceneModified();
         markModelModified();
         updateUI();
+        LOG.debug("Трансформация объекта '{}' сброшена", getSelectedObject().getName());
     }
 
     public void applyTransformToSelectedObject(double posX, double posY, double posZ,
@@ -270,6 +282,7 @@ public class SceneController {
 
         markSceneModified();
         markModelModified();
+        LOG.debug("Применена трансформация к объекту '{}'", getSelectedObject().getName());
     }
 
     public void toggleGridVisibility() {
@@ -286,6 +299,16 @@ public class SceneController {
             settings.setDrawAxisLines(newState);
             LOG.info("Оси XYZ для объекта '{}' переключены: {}", selected.getName(), newState);
             markSceneModified();
+        }
+    }
+
+    public void clearSelectionInSelectedObject() {
+        if (hasSelectedObject()) {
+            SceneObject selected = getSelectedObject();
+            selected.getModel().getSelection().clearAll();
+            markModelModified();
+            markSceneModified();
+            LOG.debug("Выделение очищено в объекте '{}'", selected.getName());
         }
     }
 
@@ -355,15 +378,7 @@ public class SceneController {
             reflectivity
         );
 
-        LOG.info("Модель '{}' сохранена с материалом: цвет=[{},{},{}], текстура={}, блеск={}, прозрачность={}, отражение={}, освещение={}, сетка={}",
-            selectedObject.getName(),
-            color[0], color[1], color[2],
-            texturePath != null ? texturePath : "нет",
-            shininess,
-            transparency,
-            reflectivity,
-            renderSettings.isUseLighting(),
-            renderSettings.isDrawPolygonalGrid());
+        LOG.info("Модель '{}' сохранена с материалом в файл: {}", selectedObject.getName(), filePath);
     }
 
     public void updateUI() {

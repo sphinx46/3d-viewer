@@ -5,6 +5,8 @@ import ru.vsu.cs.cg.math.Vector2f;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.math.Matrix4x4;
 import ru.vsu.cs.cg.renderEngine.GraphicConveyor;
+import ru.vsu.cs.cg.model.selection.ModelSelection;
+
 import java.util.*;
 
 public final class Model {
@@ -16,6 +18,7 @@ public final class Model {
     private boolean useTexture = false;
     private boolean drawPolygonalGrid = false;
     private volatile List<Polygon> triangulatedPolygonsCache = null;
+    private final ModelSelection selection = new ModelSelection();
 
     private String materialName;
     private String texturePath;
@@ -25,26 +28,30 @@ public final class Model {
     private Float materialReflectivity;
 
     public Model() {
-        this(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null, null, null, null, null, null);
+        this.vertices = new ArrayList<>();
+        this.textureVertices = new ArrayList<>();
+        this.normals = new ArrayList<>();
+        this.polygons = new ArrayList<>();
+        this.materialColor = new float[]{1.0f, 1.0f, 1.0f};
     }
 
-    private Model(List<Vector3f> vertices,
-                  List<Vector2f> textureVertices,
-                  List<Vector3f> normals,
-                  List<Polygon> polygons,
-                  String materialName,
-                  String texturePath,
-                  float[] materialColor,
-                  Float materialShininess,
-                  Float materialTransparency,
-                  Float materialReflectivity) {
+    public Model(List<Vector3f> vertices,
+                 List<Vector2f> textureVertices,
+                 List<Vector3f> normals,
+                 List<Polygon> polygons,
+                 String materialName,
+                 String texturePath,
+                 float[] materialColor,
+                 Float materialShininess,
+                 Float materialTransparency,
+                 Float materialReflectivity) {
         this.vertices = new ArrayList<>(Objects.requireNonNull(vertices));
         this.textureVertices = new ArrayList<>(Objects.requireNonNull(textureVertices));
         this.normals = new ArrayList<>(Objects.requireNonNull(normals));
         this.polygons = new ArrayList<>(Objects.requireNonNull(polygons));
         this.materialName = materialName;
         this.texturePath = texturePath;
-        this.materialColor = materialColor;
+        this.materialColor = materialColor != null ? materialColor : new float[]{1.0f, 1.0f, 1.0f};
         this.materialShininess = materialShininess;
         this.materialTransparency = materialTransparency;
         this.materialReflectivity = materialReflectivity;
@@ -202,7 +209,7 @@ public final class Model {
     }
 
     public void setMaterialColor(float[] materialColor) {
-        this.materialColor = materialColor;
+        this.materialColor = materialColor != null ? materialColor : new float[]{1.0f, 1.0f, 1.0f};
     }
 
     public Float getMaterialShininess() {
@@ -230,8 +237,23 @@ public final class Model {
     }
 
     public Model copy() {
-        return new Model(vertices, textureVertices, normals, polygons, materialName, texturePath,
-            materialColor, materialShininess, materialTransparency, materialReflectivity);
+        Model copy = new Model(
+            vertices,
+            textureVertices,
+            normals,
+            polygons,
+            materialName,
+            texturePath,
+            materialColor != null ? materialColor.clone() : null,
+            materialShininess,
+            materialTransparency,
+            materialReflectivity
+        );
+        copy.selection.clearAll();
+        copy.useLighting = this.useLighting;
+        copy.useTexture = this.useTexture;
+        copy.drawPolygonalGrid = this.drawPolygonalGrid;
+        return copy;
     }
 
     public List<Vector3f> getTransformedVertices(Vector3f translation, Vector3f rotation, Vector3f scale) {
@@ -250,26 +272,50 @@ public final class Model {
     public Model createTransformedCopy(Vector3f translation, Vector3f rotation, Vector3f scale) {
         List<Vector3f> transformedVertices = getTransformedVertices(translation, rotation, scale);
 
-        return new Model(
+        Model copy = new Model(
             transformedVertices,
             new ArrayList<>(textureVertices),
             new ArrayList<>(normals),
             new ArrayList<>(polygons),
             materialName,
             texturePath,
-            materialColor,
+            materialColor != null ? materialColor.clone() : null,
             materialShininess,
             materialTransparency,
             materialReflectivity
         );
+        copy.selection.clearAll();
+        copy.useLighting = this.useLighting;
+        copy.useTexture = this.useTexture;
+        copy.drawPolygonalGrid = this.drawPolygonalGrid;
+        return copy;
     }
 
-    public boolean isUseLighting() { return useLighting; }
-    public void setUseLighting(boolean useLighting) { this.useLighting = useLighting; }
+    public boolean isUseLighting() {
+        return useLighting;
+    }
 
-    public boolean isUseTexture() { return useTexture; }
-    public void setUseTexture(boolean useTexture) { this.useTexture = useTexture; }
+    public void setUseLighting(boolean useLighting) {
+        this.useLighting = useLighting;
+    }
 
-    public boolean isDrawPolygonalGrid() { return drawPolygonalGrid; }
-    public void setDrawPolygonalGrid(boolean drawPolygonalGrid) { this.drawPolygonalGrid = drawPolygonalGrid; }
+    public boolean isUseTexture() {
+        return useTexture;
+    }
+
+    public void setUseTexture(boolean useTexture) {
+        this.useTexture = useTexture;
+    }
+
+    public boolean isDrawPolygonalGrid() {
+        return drawPolygonalGrid;
+    }
+
+    public void setDrawPolygonalGrid(boolean drawPolygonalGrid) {
+        this.drawPolygonalGrid = drawPolygonalGrid;
+    }
+
+    public ModelSelection getSelection() {
+        return selection;
+    }
 }

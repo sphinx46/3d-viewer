@@ -6,6 +6,7 @@ import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.math.Vector4f;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.model.Polygon;
+import ru.vsu.cs.cg.model.selection.ModelSelection;
 import ru.vsu.cs.cg.rasterization.Rasterizer;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import ru.vsu.cs.cg.renderEngine.camera.Camera;
@@ -22,26 +23,15 @@ public class RenderEngine {
 
     private static Model cameraGizmoModel;
 
-    /**
-     * Основной метод рендеринга
-     * @param pixelWriter Объект для отрисовки пикселей на экран
-     * @param width ширина экрана
-     * @param height высота экрана
-     * @param entities список моделей
-     * @param cameras список камер
-     * @param activeCamera активная камера
-     * @param rasterizer экземпляр растеризатора
-     * @param baseSettings основные настройки рендера
-     */
     public void render(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            List<RenderEntity> entities,
-            List<Camera> cameras,
-            Camera activeCamera,
-            Rasterizer rasterizer,
-            RasterizerSettings baseSettings) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        List<RenderEntity> entities,
+        List<Camera> cameras,
+        Camera activeCamera,
+        Rasterizer rasterizer,
+        RasterizerSettings baseSettings) {
 
         if (activeCamera == null) return;
 
@@ -57,11 +47,11 @@ public class RenderEngine {
             RasterizerSettings objectSettings = entity.getSettings().copy();
 
             renderModel(
-                    pixelWriter, width, height,
-                    entity.getModel(),
-                    entity.getTranslation(), entity.getRotation(), entity.getScale(),
-                    viewProjectionMatrix, lightDirection,
-                    rasterizer, objectSettings, entity.getTexture()
+                pixelWriter, width, height,
+                entity.getModel(),
+                entity.getTranslation(), entity.getRotation(), entity.getScale(),
+                viewProjectionMatrix, lightDirection,
+                rasterizer, objectSettings, entity.getTexture()
             );
 
             if (objectSettings.isDrawAxisLines()){
@@ -79,43 +69,27 @@ public class RenderEngine {
                 if (camera == activeCamera) continue;
 
                 renderModel(
-                        pixelWriter, width, height,
-                        gizmo,
-                        camera.getPosition(), new Vector3f(0, 0, 0), new Vector3f(1, 1, 1),
-                        viewProjectionMatrix, lightDirection,
-                        rasterizer, gizmoSettings, null
+                    pixelWriter, width, height,
+                    gizmo,
+                    camera.getPosition(), new Vector3f(0, 0, 0), new Vector3f(1, 1, 1),
+                    viewProjectionMatrix, lightDirection,
+                    rasterizer, gizmoSettings, null
                 );
             }
         }
     }
 
-    /**
-     * Метод рендера модели
-     * Здесь происходят все преобразования до растеризации
-     * @param pixelWriter Объект для отрисовки пикселей на экран
-     * @param width ширина экрана
-     * @param height высота экрана
-     * @param model модель для рендеринга
-     * @param translation вектор позиции
-     * @param rotation вектор поворота
-     * @param scale вектор растяжения
-     * @param viewProjectionMatrix матрица перспективы
-     * @param lightDirection вектор света
-     * @param rasterizer растеризатор
-     * @param settings настройки модели
-     * @param texture текстура модели
-     */
     private void renderModel(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            Model model,
-            Vector3f translation, Vector3f rotation, Vector3f scale,
-            Matrix4x4 viewProjectionMatrix,
-            Vector3f lightDirection,
-            Rasterizer rasterizer,
-            RasterizerSettings settings,
-            Texture texture) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        Model model,
+        Vector3f translation, Vector3f rotation, Vector3f scale,
+        Matrix4x4 viewProjectionMatrix,
+        Vector3f lightDirection,
+        Rasterizer rasterizer,
+        RasterizerSettings settings,
+        Texture texture) {
 
         Matrix4x4 modelMatrix = GraphicConveyor.rotateScaleTranslate(translation, rotation, scale);
         Matrix4x4 mvpMatrix = viewProjectionMatrix.multiply(modelMatrix);
@@ -124,6 +98,8 @@ public class RenderEngine {
         List<Vector3f> normals = model.getNormals();
         List<Vector2f> textureVertices = model.getTextureVertices();
         List<Polygon> polygons = model.getTriangulatedPolygonsCache();
+
+        ModelSelection selection = model.getSelection();
 
         for (Polygon polygon : polygons) {
             List<Integer> vertexIndices = polygon.getVertexIndices();
@@ -147,7 +123,6 @@ public class RenderEngine {
             if (v1NDC.getZ() > 1.0f && v2NDC.getZ() > 1.0f && v3NDC.getZ() > 1.0f) continue;
             if (v1NDC.getZ() < -1.0f && v2NDC.getZ() < -1.0f && v3NDC.getZ() < -1.0f) continue;
 
-
             Vector2f p1 = GraphicConveyor.vertexToPoint(v1NDC, width, height);
             Vector2f p2 = GraphicConveyor.vertexToPoint(v2NDC, width, height);
             Vector2f p3 = GraphicConveyor.vertexToPoint(v3NDC, width, height);
@@ -156,7 +131,7 @@ public class RenderEngine {
             Vector3f screenV2 = new Vector3f(p2.getX(), p2.getY(), v2Clip.getW());
             Vector3f screenV3 = new Vector3f(p3.getX(), p3.getY(), v3Clip.getW());
 
-            Vector2f vt1 = (settings.isUseTexture() && textureIndices.size() > 0) ? textureVertices.get(textureIndices.get(0)) : null;
+            Vector2f vt1 = (settings.isUseTexture() && !textureIndices.isEmpty()) ? textureVertices.get(textureIndices.get(0)) : null;
             Vector2f vt2 = (settings.isUseTexture() && textureIndices.size() > 1) ? textureVertices.get(textureIndices.get(1)) : null;
             Vector2f vt3 = (settings.isUseTexture() && textureIndices.size() > 2) ? textureVertices.get(textureIndices.get(2)) : null;
 
@@ -168,27 +143,139 @@ public class RenderEngine {
             }
 
             rasterizer.drawTriangle(
-                    pixelWriter,
-                    width, height,
-                    screenV1, screenV2, screenV3,
-                    vt1, vt2, vt3,
-                    n1, n2, n3,
-                    texture, lightDirection, settings
+                pixelWriter,
+                width, height,
+                screenV1, screenV2, screenV3,
+                vt1, vt2, vt3,
+                n1, n2, n3,
+                texture, lightDirection, settings
             );
+        }
+
+        renderSelection(pixelWriter, width, height, model, mvpMatrix, rasterizer);
+    }
+
+    private void renderSelection(PixelWriter pixelWriter,
+                                 int width, int height,
+                                 Model model,
+                                 Matrix4x4 mvpMatrix,
+                                 Rasterizer rasterizer) {
+
+        ModelSelection selection = model.getSelection();
+        List<Vector3f> vertices = model.getVertices();
+        List<Polygon> polygons = model.getPolygons();
+
+        renderSelectedVertices(pixelWriter, width, height, selection, vertices, mvpMatrix, rasterizer);
+        renderSelectedPolygons(pixelWriter, width, height, selection, vertices, polygons, mvpMatrix, rasterizer);
+    }
+
+    private void renderSelectedVertices(PixelWriter pixelWriter,
+                                        int width, int height,
+                                        ModelSelection selection,
+                                        List<Vector3f> vertices,
+                                        Matrix4x4 mvpMatrix,
+                                        Rasterizer rasterizer) {
+
+        if (!selection.hasSelectedVertices()) return;
+
+        Color vertexColor = Color.YELLOW;
+        float vertexSize = 8.0f;
+
+        for (Integer vertexIndex : selection.getSelectedVertices()) {
+            if (vertexIndex < 0 || vertexIndex >= vertices.size()) continue;
+
+            Vector3f vertex = vertices.get(vertexIndex);
+            Vector4f transformed = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvpMatrix, vertex);
+
+            if (transformed.getW() <= 0) continue;
+
+            Vector3f ndc = transformed.toVector3Safe();
+            Vector2f screenPoint = GraphicConveyor.vertexToPoint(ndc, width, height);
+
+            renderVertexPoint(pixelWriter, width, height, screenPoint, transformed.getW(),
+                vertexSize, vertexColor, rasterizer);
         }
     }
 
+    private void renderSelectedPolygons(PixelWriter pixelWriter,
+                                        int width, int height,
+                                        ModelSelection selection,
+                                        List<Vector3f> vertices,
+                                        List<Polygon> polygons,
+                                        Matrix4x4 mvpMatrix,
+                                        Rasterizer rasterizer) {
 
-    /**
-     * Отрисовка сетки на плоскости Y=0
-     */
+        if (!selection.hasSelectedPolygons()) return;
+
+        Color polygonColor = Color.CYAN;
+
+        for (Integer polygonIndex : selection.getSelectedPolygons()) {
+            if (polygonIndex < 0 || polygonIndex >= polygons.size()) continue;
+
+            Polygon polygon = polygons.get(polygonIndex);
+            List<Integer> vertexIndices = polygon.getVertexIndices();
+
+            for (int i = 0; i < vertexIndices.size(); i++) {
+                int nextIdx = (i + 1) % vertexIndices.size();
+                int v1Idx = vertexIndices.get(i);
+                int v2Idx = vertexIndices.get(nextIdx);
+
+                if (v1Idx < 0 || v1Idx >= vertices.size() ||
+                    v2Idx < 0 || v2Idx >= vertices.size()) continue;
+
+                Vector3f v1 = vertices.get(v1Idx);
+                Vector3f v2 = vertices.get(v2Idx);
+
+                Vector4f t1 = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvpMatrix, v1);
+                Vector4f t2 = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvpMatrix, v2);
+
+                if (t1.getW() <= 0 || t2.getW() <= 0) continue;
+
+                Vector3f ndc1 = t1.toVector3Safe();
+                Vector3f ndc2 = t2.toVector3Safe();
+
+                Vector2f p1 = GraphicConveyor.vertexToPoint(ndc1, width, height);
+                Vector2f p2 = GraphicConveyor.vertexToPoint(ndc2, width, height);
+
+                Vector3f screenV1 = new Vector3f(p1.getX(), p1.getY(), t1.getW());
+                Vector3f screenV2 = new Vector3f(p2.getX(), p2.getY(), t2.getW());
+
+                rasterizer.drawLine(pixelWriter, width, height, screenV1, screenV2, polygonColor, true);
+            }
+        }
+    }
+
+    private void renderVertexPoint(PixelWriter pixelWriter,
+                                   int width, int height,
+                                   Vector2f center,
+                                   float depth,
+                                   float size,
+                                   Color color,
+                                   Rasterizer rasterizer) {
+
+        float halfSize = size / 2.0f;
+        int startX = Math.max(0, (int)(center.getX() - halfSize));
+        int endX = Math.min(width, (int)(center.getX() + halfSize));
+        int startY = Math.max(0, (int)(center.getY() - halfSize));
+        int endY = Math.min(height, (int)(center.getY() + halfSize));
+
+        for (int x = startX; x < endX; x++) {
+            for (int y = startY; y < endY; y++) {
+                rasterizer.drawLine(pixelWriter, width, height,
+                    new Vector3f(x, y, depth),
+                    new Vector3f(x + 0.1f, y + 0.1f, depth),
+                    color, true);
+            }
+        }
+    }
+
     private void renderGrid(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            Camera activeCamera,
-            Rasterizer rasterizer,
-            RasterizerSettings baseSettings) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        Camera activeCamera,
+        Rasterizer rasterizer,
+        RasterizerSettings baseSettings) {
 
         int size = 12;
         Color gridColor = Color.GRAY;
@@ -213,18 +300,15 @@ public class RenderEngine {
         }
     }
 
-    /**
-     * Отрисовка линии
-     */
     private void processAndDrawLine(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            Vector3f p1,
-            Vector3f p2,
-            Matrix4x4 vpMatrix,
-            Rasterizer rasterizer,
-            Color color) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        Vector3f p1,
+        Vector3f p2,
+        Matrix4x4 vpMatrix,
+        Rasterizer rasterizer,
+        Color color) {
 
         Vector4f v1 = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(vpMatrix, p1);
         Vector4f v2 = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(vpMatrix, p2);
@@ -256,23 +340,20 @@ public class RenderEngine {
 
     private Vector4f lerpVector4(Vector4f a, Vector4f b, float t) {
         return new Vector4f(
-                a.getX() + (b.getX() - a.getX()) * t,
-                a.getY() + (b.getY() - a.getY()) * t,
-                a.getZ() + (b.getZ() - a.getZ()) * t,
-                a.getW() + (b.getW() - a.getW()) * t
+            a.getX() + (b.getX() - a.getX()) * t,
+            a.getY() + (b.getY() - a.getY()) * t,
+            a.getZ() + (b.getZ() - a.getZ()) * t,
+            a.getW() + (b.getW() - a.getW()) * t
         );
     }
 
-    /**
-     * Рисует оси XYZ из центра переданной сущности
-     */
     public void renderObjectGizmo(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            RenderEntity entity,
-            Camera activeCamera,
-            Rasterizer rasterizer) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        RenderEntity entity,
+        Camera activeCamera,
+        Rasterizer rasterizer) {
 
         if (entity == null || activeCamera == null) return;
 
@@ -281,9 +362,9 @@ public class RenderEngine {
         Matrix4x4 viewProjectionMatrix = projectionMatrix.multiply(viewMatrix);
 
         Matrix4x4 modelMatrix = GraphicConveyor.rotateScaleTranslate(
-                entity.getTranslation(),
-                entity.getRotation(),
-                entity.getScale()
+            entity.getTranslation(),
+            entity.getRotation(),
+            entity.getScale()
         );
 
         Matrix4x4 mvpMatrix = viewProjectionMatrix.multiply(modelMatrix);
@@ -301,17 +382,14 @@ public class RenderEngine {
         renderLineWithMatrix(pixelWriter, width, height, center, zAxis, Color.BLUE, mvpMatrix, rasterizer);
     }
 
-    /**
-     * Вспомогательный метод для отрисовки линий
-     */
     private void renderLineWithMatrix(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            Vector3f p1, Vector3f p2,
-            Color color,
-            Matrix4x4 mvpMatrix,
-            Rasterizer rasterizer) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        Vector3f p1, Vector3f p2,
+        Color color,
+        Matrix4x4 mvpMatrix,
+        Rasterizer rasterizer) {
 
         Vector4f v1 = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvpMatrix, p1);
         Vector4f v2 = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvpMatrix, p2);
@@ -321,10 +399,10 @@ public class RenderEngine {
         if (v1.getW() < nearPlaneW || v2.getW() < nearPlaneW) {
             float t = (nearPlaneW - v1.getW()) / (v2.getW() - v1.getW());
             Vector4f clippedPoint = new Vector4f(
-                    v1.getX() + (v2.getX() - v1.getX()) * t,
-                    v1.getY() + (v2.getY() - v1.getY()) * t,
-                    v1.getZ() + (v2.getZ() - v1.getZ()) * t,
-                    nearPlaneW
+                v1.getX() + (v2.getX() - v1.getX()) * t,
+                v1.getY() + (v2.getY() - v1.getY()) * t,
+                v1.getZ() + (v2.getZ() - v1.getZ()) * t,
+                nearPlaneW
             );
             if (v1.getW() < nearPlaneW) v1 = clippedPoint;
             else v2 = clippedPoint;
@@ -342,7 +420,6 @@ public class RenderEngine {
         rasterizer.drawLine(pixelWriter, width, height, screenV1, screenV2, color, true);
     }
 
-
     private Model getCameraGizmo() {
         if (cameraGizmoModel == null) {
             cameraGizmoModel = new Model();
@@ -359,8 +436,8 @@ public class RenderEngine {
             cameraGizmoModel.setNormals(ns);
 
             int[][] indices = {
-                    {0,1,2}, {0,2,3}, {4,5,6}, {4,6,7}, {0,4,7}, {0,7,3},
-                    {1,5,6}, {1,6,2}, {3,2,6}, {3,6,7}, {0,1,5}, {0,5,4}
+                {0,1,2}, {0,2,3}, {4,5,6}, {4,6,7}, {0,4,7}, {0,7,3},
+                {1,5,6}, {1,6,2}, {3,2,6}, {3,6,7}, {0,1,5}, {0,5,4}
             };
             for(int[] f : indices) {
                 ArrayList<Integer> v = new ArrayList<>(); for(int i : f) v.add(i);
