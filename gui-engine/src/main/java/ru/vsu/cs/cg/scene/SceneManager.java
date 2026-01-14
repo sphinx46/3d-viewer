@@ -110,6 +110,7 @@ public class SceneManager {
             renderEntities.add(entity);
         }
 
+        renderSettings.setDrawGrid(scene.isGridVisible());
         renderEngine.render(
             pixelWriter,
             width,

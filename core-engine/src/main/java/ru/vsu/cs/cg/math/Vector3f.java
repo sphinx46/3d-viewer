@@ -143,12 +143,12 @@ public class Vector3f {
      * Если длина вектора близка к нулю, возвращает текущий вектор (this) без изменений,
      * вместо выбрасывания исключения.
      *
-     * @return Новый нормализованный вектор или текущий вектор, если длина равна 0.
+     * @return Новый нормализованный вектор или заготовленный, если длина равна 0.
      */
     public Vector3f normalizeSafe() {
         float len = length();
         if (len < EPSILON) {
-            return this;
+            return new Vector3f(0, 1, 0);
         }
 
         float invLen = 1.0f / len;

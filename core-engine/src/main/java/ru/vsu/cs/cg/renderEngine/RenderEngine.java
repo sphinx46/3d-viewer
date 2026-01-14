@@ -269,15 +269,26 @@ public class RenderEngine {
         }
     }
 
+    /**
+     * Отрисовка сетки, следующей за камерой
+     */
     private void renderGrid(
-        PixelWriter pixelWriter,
-        int width,
-        int height,
-        Camera activeCamera,
-        Rasterizer rasterizer,
-        RasterizerSettings baseSettings) {
+            PixelWriter pixelWriter,
+            int width,
+            int height,
+            Camera activeCamera,
+            Rasterizer rasterizer,
+            RasterizerSettings baseSettings) {
 
-        int size = 12;
+        if (!baseSettings.isDrawGrid()){return;}
+
+        int gridRadius = 20;
+
+        Vector3f camPos = activeCamera.getPosition();
+
+        int centerX = (int) Math.floor(camPos.getX());
+        int centerZ = (int) Math.floor(camPos.getZ());
+
         Color gridColor = Color.GRAY;
         Color mainAxisColor = Color.WHITE;
 
@@ -285,18 +296,25 @@ public class RenderEngine {
         Matrix4x4 projectionMatrix = activeCamera.getProjectionMatrix();
         Matrix4x4 viewProjectionMatrix = projectionMatrix.multiply(viewMatrix);
 
-        for (int i = -size; i <= size; i++) {
-            Color color = (i == 0) ? mainAxisColor : gridColor;
+        for (int i = -gridRadius; i <= gridRadius; i++) {
 
-            Vector3f p1 = new Vector3f(i, 0, -size);
-            Vector3f p2 = new Vector3f(i, 0, size);
+            int x = centerX + i;
 
-            processAndDrawLine(pixelWriter, width, height, p1, p2, viewProjectionMatrix, rasterizer, color);
+            Color colorX = (x == 0) ? mainAxisColor : gridColor;
 
-            Vector3f p3 = new Vector3f(-size, 0, i);
-            Vector3f p4 = new Vector3f(size, 0, i);
+            Vector3f p1 = new Vector3f(x, 0, centerZ - gridRadius);
+            Vector3f p2 = new Vector3f(x, 0, centerZ + gridRadius);
 
-            processAndDrawLine(pixelWriter, width, height, p3, p4, viewProjectionMatrix, rasterizer, color);
+            processAndDrawLine(pixelWriter, width, height, p1, p2, viewProjectionMatrix, rasterizer, colorX);
+
+            int z = centerZ + i;
+
+            Color colorZ = (z == 0) ? mainAxisColor : gridColor;
+
+            Vector3f p3 = new Vector3f(centerX - gridRadius, 0, z);
+            Vector3f p4 = new Vector3f(centerX + gridRadius, 0, z);
+
+            processAndDrawLine(pixelWriter, width, height, p3, p4, viewProjectionMatrix, rasterizer, colorZ);
         }
     }
 

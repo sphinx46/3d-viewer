@@ -4,9 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.enums.TransformationMode;
 import ru.vsu.cs.cg.controller.handlers.MouseTransformationHandler;
+import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import ru.vsu.cs.cg.scene.Scene;
+import ru.vsu.cs.cg.scene.SceneManager;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.scene.Transform;
 import ru.vsu.cs.cg.service.ModelService;
@@ -26,6 +28,7 @@ public class SceneController {
     private final ModelService modelService;
     private TransformController transformController;
     private MaterialController materialController;
+    private CameraController cameraController;
     private ModificationController modificationController;
     private MainController mainController;
     private RenderController renderController;
@@ -61,6 +64,8 @@ public class SceneController {
         this.mainController = mainController;
     }
 
+    public void setCameraController(CameraController cameraController) {this.cameraController = cameraController;}
+
     public void setRenderController(RenderController renderController) {
         this.renderController = renderController;
         if (this.currentScene != null) {
@@ -83,6 +88,8 @@ public class SceneController {
     public TransformationMode getTransformationMode() {
         return currentTransformationMode;
     }
+
+    public Scene getScene(){return currentScene;}
 
     public MouseTransformationHandler getMouseTransformationHandler() {
         return mouseTransformationHandler;
@@ -401,5 +408,9 @@ public class SceneController {
         } finally {
             uiUpdateInProgress = false;
         }
+    }
+
+    public void addCamera(Vector3f position){
+        cameraController.createCamera(position);
     }
 }

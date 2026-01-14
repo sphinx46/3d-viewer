@@ -39,7 +39,6 @@ public class CameraController {
     @FXML private Button resetCameraButton;
 
 
-
     @FXML
     public void initialize() {
         LOG.debug("Инициализация CameraController");
@@ -57,11 +56,12 @@ public class CameraController {
     private void initializeActions() {
         cameraSelector.setOnAction(event -> handleCameraSelection());
 
-        createCameraButton.setOnAction(event -> createCamera());
+        createCameraButton.setOnAction(event -> createCamera(new Vector3f(0, 2, 5)));
         deleteCameraButton.setOnAction(event -> deleteCamera());
 
         applyCameraButton.setOnAction(event -> applySettings());
         resetCameraButton.setOnAction(event -> resetSettings());
+
     }
 
     /**
@@ -141,10 +141,10 @@ public class CameraController {
     /**
      * Создание новой камеры
      */
-    private void createCamera() {
+    public void createCamera(Vector3f position) {
         String id = generateUniqueCameraId();
         Camera newCam = new Camera(id,
-                new Vector3f(0, 2, 5),
+                position,
                 new Vector3f(0, 0, 0));
 
         newCam.setAspectRatio(sceneManager.getActiveCamera().getAspectRatio());

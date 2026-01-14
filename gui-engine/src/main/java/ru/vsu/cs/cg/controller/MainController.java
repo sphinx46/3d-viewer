@@ -94,13 +94,10 @@ public class MainController {
         initializeTransformationButtons();
         loadRecentFiles();
         initializeRender();
-        cameraPanelController.initialize();
-        cameraPanelController.setSceneManager(renderController.getSceneManager());
-
+        initializeCameraController();
         initializeDependencies();
-        cameraPanelController.setSceneManager(renderController.getSceneManager());
 
-        this.renderController.start();
+        renderController.start();
         LOG.info("Главный контроллер инициализирован");
     }
 
@@ -108,6 +105,11 @@ public class MainController {
         if (transformPanelController != null) {
             transformPanelController.setSceneController(sceneController);
             sceneController.setTransformController(transformPanelController);
+        }
+
+        if (renderController != null){
+            renderController.setSceneController(sceneController);
+            sceneController.setRenderController(renderController);
         }
 
         if (materialPanelController != null) {
@@ -120,8 +122,11 @@ public class MainController {
             sceneController.setModificationController(modificationPanelController);
         }
 
-        this.sceneController.setRenderController(renderController);
-        this.renderController.setSceneController(sceneController);
+        if (cameraPanelController != null){
+            cameraPanelController.setSceneManager(renderController.getSceneManager());
+            sceneController.setCameraController(cameraPanelController);
+        }
+
         sceneController.setMainController(this);
         sceneController.updateUI();
     }
@@ -149,6 +154,10 @@ public class MainController {
         }
         this.renderController = new RenderController(viewerContainer);
         LOG.info("RenderController создан с viewerContainer");
+    }
+
+    private void initializeCameraController(){
+        cameraPanelController.initialize();
     }
 
     private void initializeTooltips() {

@@ -100,6 +100,7 @@ public class RenderController {
 
     public void setSceneController(SceneController sceneController) {
         this.sceneController = sceneController;
+        this.sceneManager.setScene(sceneController.getScene());
     }
 
     public SceneManager getSceneManager() {
