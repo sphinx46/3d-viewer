@@ -80,13 +80,7 @@ public class SceneObject {
     }
 
     public SceneObject copy() {
-        RasterizerSettings copiedSettings = new RasterizerSettings(
-            renderSettings.isUseTexture(),
-            renderSettings.isUseLighting(),
-            renderSettings.isDrawPolygonalGrid(),
-            renderSettings.getDefaultColor(),
-            renderSettings.getGridColor()
-        );
+        RasterizerSettings copiedSettings = renderSettings.copy();
         SceneObject copy = new SceneObject(
             UUID.randomUUID().toString(),
             name + "_copy",
@@ -108,13 +102,7 @@ public class SceneObject {
     }
 
     public RasterizerSettings getRasterizerSettingsForExport() {
-        RasterizerSettings settings = new RasterizerSettings(
-            renderSettings.isUseTexture(),
-            renderSettings.isUseLighting(),
-            renderSettings.isDrawPolygonalGrid(),
-            renderSettings.getDefaultColor(),
-            renderSettings.getGridColor()
-        );
+        RasterizerSettings settings = renderSettings.copy();
 
         if (material.getTexturePath() != null && !material.getTexturePath().isEmpty()) {
             settings.setUseTexture(true);

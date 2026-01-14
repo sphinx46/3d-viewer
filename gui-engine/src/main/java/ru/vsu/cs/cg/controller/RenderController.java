@@ -57,9 +57,27 @@ public class RenderController {
 
     private void initializeTimeline() {
         this.animationTimer = new AnimationTimer() {
+
+            // Переменная для хранения времени последнего отрисованного кадра
+            private long lastRenderTime = 0;
+
+            // Целевой FPS (например, 60 кадров в секунду)
+            private final long TARGET_FPS = 40;
+
+            // Интервал в наносекундах (1 секунда = 1_000_000_000 нс)
+            private final long TARGET_INTERVAL = 1_000_000_000 / TARGET_FPS;
+
             @Override
             public void handle(long now) {
-                render();
+                // Проверяем, прошло ли достаточно времени с последнего кадра
+                if (now - lastRenderTime >= TARGET_INTERVAL) {
+
+                    // Обновляем время последней отрисовки
+                    lastRenderTime = now;
+
+                    // Вызываем метод рендеринга
+                    render();
+                }
             }
         };
     }

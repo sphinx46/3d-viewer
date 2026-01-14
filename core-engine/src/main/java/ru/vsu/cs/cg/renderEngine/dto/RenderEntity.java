@@ -3,6 +3,7 @@ package ru.vsu.cs.cg.renderEngine.dto;
 import javafx.scene.paint.Color;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import ru.vsu.cs.cg.rasterization.Texture;
 
 /**
@@ -14,22 +15,18 @@ public class RenderEntity {
     private final Vector3f rotation;
     private final Vector3f scale;
     private final Texture texture;
-    private final Color color;
-    private final boolean useTexture;
-    private final boolean useLighting;
-    private final boolean drawPolygonalGrid;
+    private final RasterizerSettings settings;
 
     public RenderEntity(Model model, Vector3f translation, Vector3f rotation, Vector3f scale,
-                        Texture texture, Color color, boolean useTexture, boolean useLighting, boolean drawPolygonalGrid) {
+                        Texture texture, RasterizerSettings settings) {
         this.model = model;
         this.translation = translation;
         this.rotation = rotation;
         this.scale = scale;
         this.texture = texture;
-        this.color = color;
-        this.useTexture = useTexture;
-        this.useLighting = useLighting;
-        this.drawPolygonalGrid = drawPolygonalGrid;
+        this.settings = settings.copy();
+
+
     }
 
     public Model getModel() { return model; }
@@ -37,10 +34,12 @@ public class RenderEntity {
     public Vector3f getRotation() { return rotation; }
     public Vector3f getScale() { return scale; }
     public Texture getTexture() { return texture; }
-    public Color getColor() { return color; }
-    public boolean isUseTexture() { return useTexture; }
-    public boolean isUseLighting() { return useLighting; }
-    public boolean isDrawPolygonalGrid() { return drawPolygonalGrid; }
+    public Color getColor() { return settings.getDefaultColor(); }
+    public RasterizerSettings getSettings(){return this.settings;}
+    public boolean isUseTexture() { return settings.isUseTexture(); }
+    public boolean isUseLighting() { return settings.isUseLighting(); }
+    public boolean isDrawPolygonalGrid() { return settings.isDrawPolygonalGrid(); }
+
 
     @Override
     public String toString(){

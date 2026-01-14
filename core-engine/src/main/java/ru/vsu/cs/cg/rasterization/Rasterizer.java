@@ -169,7 +169,7 @@ public class Rasterizer {
         }
     }
 
-    private void drawLine(PixelWriter pixelWriter, int width, int height, Vector3f start, Vector3f end, Color color) {
+    public void drawLine(PixelWriter pixelWriter, int width, int height, Vector3f start, Vector3f end, Color color, boolean ignoreZBuffer) {
         float x1 = start.getX();
         float y1 = start.getY();
         float x2 = end.getX();
@@ -183,8 +183,6 @@ public class Rasterizer {
         float dx = x2 - x1;
         float dy = y2 - y1;
         float steps = Math.max(Math.abs(dx), Math.abs(dy));
-
-        if (steps > (width + height) * 3) return;
 
         if (steps == 0) {
             int px = Math.round(x1);
@@ -221,7 +219,9 @@ public class Rasterizer {
                 float biasAbsolute = 0.00002f;
                 float biasedZ = currentZ - (currentZ * biasFactor + biasAbsolute);
 
-                if (zBuffer.checkAndSet(pixelX, pixelY, biasedZ)) {
+                boolean isVisible = ignoreZBuffer || zBuffer.checkAndSet(pixelX, pixelY, biasedZ);
+
+                if (isVisible) {
                     pixelWriter.setPixel(pixelX, pixelY, color);
                 }
             }
@@ -230,6 +230,11 @@ public class Rasterizer {
             y += yIncrement;
         }
     }
+
+    public void drawLine(PixelWriter pixelWriter, int width, int height, Vector3f start, Vector3f end, Color color) {
+        drawLine(pixelWriter, width, height, start, end, color, false);
+    }
+
 
     private Color applyLight(Color baseColor, float intensity) {
         float ambientLight = 0.3f;
