@@ -11,6 +11,7 @@ import ru.vsu.cs.cg.controller.command.impl.info.UrlOpenCommand;
 import ru.vsu.cs.cg.controller.command.impl.model.DefaultModelAddCommand;
 import ru.vsu.cs.cg.controller.command.impl.model.ModelSaveCommand;
 import ru.vsu.cs.cg.controller.command.impl.object.*;
+import ru.vsu.cs.cg.controller.command.impl.transform.TransformationModeCommand;
 import ru.vsu.cs.cg.controller.command.impl.visualization.AxisToggleCommand;
 import ru.vsu.cs.cg.controller.command.impl.visualization.GridToggleCommand;
 import ru.vsu.cs.cg.controller.command.impl.scene.SceneNewCommand;
@@ -20,6 +21,7 @@ import ru.vsu.cs.cg.controller.command.impl.screen.FullscreenToggleCommand;
 import ru.vsu.cs.cg.controller.command.impl.screen.ScreenshotCommand;
 import ru.vsu.cs.cg.controller.command.impl.theme.ThemeCommand;
 import ru.vsu.cs.cg.controller.SceneController;
+import ru.vsu.cs.cg.controller.enums.TransformationMode;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.utils.model.DefaultModelLoader;
 
@@ -61,6 +63,10 @@ public class CommandFactory {
 
         registerCommand(new GridToggleCommand(sceneController));
         registerCommand(new AxisToggleCommand(sceneController));
+
+        registerCommand(new TransformationModeCommand(sceneController, TransformationMode.MOVE));
+        registerCommand(new TransformationModeCommand(sceneController, TransformationMode.ROTATE));
+        registerCommand(new TransformationModeCommand(sceneController, TransformationMode.SCALE));
 
         registerCommand(new ScreenshotCommand(stage));
         registerCommand(new FullscreenToggleCommand(stage));

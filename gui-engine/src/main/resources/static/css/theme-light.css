@@ -211,3 +211,49 @@
     -fx-opacity: 1.0;
     -fx-background-color: #ffffff;
 }
+
+
+/* Стили для кнопок инструментов на левой панели */
+.tool-button {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.tool-button:hover {
+    -fx-background-color: #e6e6e6;
+    -fx-border-color: #b3b3b3;
+}
+
+.tool-button:pressed {
+    -fx-background-color: #d9d9d9;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 3, 0, 0, 1);
+}
+
+
+.tool-button-active {
+    -fx-background-color: #4a90e2;
+    -fx-border-color: #2c6fb7;
+    -fx-border-width: 2px;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(74,144,226,0.3), 4, 0, 0, 2);
+}
+
+.tool-button-active:hover {
+    -fx-background-color: #5aa0f2;
+    -fx-border-color: #3a7fc7;
+}
+
+.tool-button-active:pressed {
+    -fx-background-color: #3a80d2;
+    -fx-effect: dropshadow(gaussian, rgba(74,144,226,0.4), 5, 0, 0, 3);
+}
+
+.tool-button-active .image-view {
+    -fx-effect: dropshadow(gaussian, white, 1, 0, 0, 0);
+}

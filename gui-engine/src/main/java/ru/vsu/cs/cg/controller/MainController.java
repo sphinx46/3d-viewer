@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.command.CommandFactory;
 import ru.vsu.cs.cg.controller.command.impl.file.FileOpenCommand;
+import ru.vsu.cs.cg.controller.enums.TransformationMode;
 import ru.vsu.cs.cg.controller.hotkeys.HotkeyManager;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
@@ -26,6 +27,8 @@ public class MainController {
     private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
 
     @FXML
+    private AnchorPane viewerContainer;
+    @FXML
     private TransformController transformPanelController;
     @FXML
     private MaterialController materialPanelController;
@@ -33,8 +36,7 @@ public class MainController {
     private CameraController cameraPanelController;
     @FXML
     private ModificationController modificationPanelController;
-    @FXML
-    private CameraController cameraPanelController;
+
 
     private final SceneController sceneController = new SceneController();
     private HotkeyManager hotkeyManager;
@@ -119,6 +121,12 @@ public class MainController {
     private Menu menuRecent;
     @FXML
     private MenuItem menuRecentClear;
+    @FXML
+    private Button moveToolButton;
+    @FXML
+    private Button rotateToolButton;
+    @FXML
+    private Button scaleToolButton;
 
     @FXML
     private void initialize() {
@@ -126,6 +134,7 @@ public class MainController {
         initializeSceneTree();
         initializeMenuActions();
         initializeButtonActions();
+        initializeTransformationButtons();
         loadRecentFiles();
         initializeRender();
         cameraPanelController.initialize();
@@ -137,6 +146,24 @@ public class MainController {
 
         this.renderController.start();
         LOG.info("Главный контроллер инициализирован");
+    }
+
+
+    private void initializeDependencies() {
+        if (transformPanelController != null) {
+            transformPanelController.setSceneController(sceneController);
+            sceneController.setTransformController(transformPanelController);
+        }
+
+        if (materialPanelController != null) {
+            materialPanelController.setSceneController(sceneController);
+            sceneController.setMaterialController(materialPanelController);
+        }
+
+        this.sceneController.setRenderController(renderController);
+        this.renderController.setSceneController(sceneController);
+        sceneController.setMainController(this);
+        sceneController.updateUI();
     }
 
     public void initializeAfterStageSet() {
@@ -156,28 +183,12 @@ public class MainController {
     }
 
     private void initializeRender() {
-        this.renderController = new RenderController(anchorPane);
-    }
-
-    private void initializeDependencies() {
-        if (transformPanelController != null) {
-            transformPanelController.setSceneController(sceneController);
-            sceneController.setTransformController(transformPanelController);
+        if (viewerContainer == null) {
+            LOG.error("viewerContainer не найден!");
+            return;
         }
-
-        if (materialPanelController != null) {
-            materialPanelController.setSceneController(sceneController);
-            sceneController.setMaterialController(materialPanelController);
-        }
-
-        if (modificationPanelController != null) {
-            modificationPanelController.setSceneController(sceneController);
-            sceneController.setModificationController(modificationPanelController);
-        }
-
-        this.sceneController.setRenderController(renderController);
-        sceneController.setMainController(this);
-        sceneController.updateUI();
+        this.renderController = new RenderController(viewerContainer);
+        LOG.info("RenderController создан с viewerContainer");
     }
 
     private void initializeTooltips() {
@@ -280,7 +291,38 @@ public class MainController {
     private void initializeMenuCheckmarks() {
         Platform.runLater(() -> {
             menuViewGridHelper.setSelected(sceneController.getCurrentScene().isGridVisible());
+            menuViewCoordinateAxisHelper.setSelected(sceneController.getSelectedObject().getRenderSettings().isDrawAxisLines());
             updateCoordinateAxisMenuState();
+        });
+    }
+
+    private void initializeTransformationButtons() {
+        moveToolButton.setOnAction(event -> executeCommand("transform_mode_move"));
+        rotateToolButton.setOnAction(event -> executeCommand("transform_mode_rotate"));
+        scaleToolButton.setOnAction(event -> executeCommand("transform_mode_scale"));
+
+        TooltipManager.addHotkeyTooltip(moveToolButton, "transform_mode_move");
+        TooltipManager.addHotkeyTooltip(rotateToolButton, "transform_mode_rotate");
+        TooltipManager.addHotkeyTooltip(scaleToolButton, "transform_mode_scale");
+    }
+
+    public void updateTransformationButtons(TransformationMode mode) {
+        Platform.runLater(() -> {
+            moveToolButton.getStyleClass().remove("tool-button-active");
+            rotateToolButton.getStyleClass().remove("tool-button-active");
+            scaleToolButton.getStyleClass().remove("tool-button-active");
+
+            switch (mode) {
+                case MOVE:
+                    moveToolButton.getStyleClass().add("tool-button-active");
+                    break;
+                case ROTATE:
+                    rotateToolButton.getStyleClass().add("tool-button-active");
+                    break;
+                case SCALE:
+                    scaleToolButton.getStyleClass().add("tool-button-active");
+                    break;
+            }
         });
     }
 

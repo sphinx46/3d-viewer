@@ -2,6 +2,8 @@ package ru.vsu.cs.cg.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.vsu.cs.cg.controller.enums.TransformationMode;
+import ru.vsu.cs.cg.controller.handlers.MouseTransformationHandler;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import ru.vsu.cs.cg.scene.Scene;
@@ -27,17 +29,20 @@ public class SceneController {
     private ModificationController modificationController;
     private MainController mainController;
     private RenderController renderController;
+    private MouseTransformationHandler mouseTransformationHandler;
     private Scene currentScene;
     private SceneObject clipboardObject;
     private boolean sceneModified = false;
     private boolean modelModified = false;
     private String currentSceneFilePath = null;
     private boolean uiUpdateInProgress = false;
+    private TransformationMode currentTransformationMode = TransformationMode.NONE;
 
     public SceneController() {
         this.modelService = new ModelServiceImpl();
         this.sceneService = new SceneServiceImpl(modelService);
         this.currentScene = sceneService.createNewScene();
+        this.mouseTransformationHandler = new MouseTransformationHandler(this);
     }
 
     public void setTransformController(TransformController transformController) {
@@ -61,6 +66,26 @@ public class SceneController {
         if (this.currentScene != null) {
             this.renderController.setScene(this.currentScene);
         }
+    }
+
+    public void setTransformationMode(TransformationMode mode) {
+        this.currentTransformationMode = mode;
+        if (mouseTransformationHandler != null) {
+            mouseTransformationHandler.setTransformationMode(mode);
+        }
+        LOG.info("Установлен режим трансформации: {}", mode);
+
+        if (mainController != null) {
+            mainController.updateTransformationButtons(mode);
+        }
+    }
+
+    public TransformationMode getTransformationMode() {
+        return currentTransformationMode;
+    }
+
+    public MouseTransformationHandler getMouseTransformationHandler() {
+        return mouseTransformationHandler;
     }
 
     public SceneObject addModelToScene(String filePath) {
@@ -139,6 +164,11 @@ public class SceneController {
         sceneModified = false;
         modelModified = false;
         currentSceneFilePath = null;
+        currentTransformationMode = TransformationMode.NONE;
+
+        if (mouseTransformationHandler != null) {
+            mouseTransformationHandler.setTransformationMode(TransformationMode.NONE);
+        }
 
         if (renderController != null) {
             renderController.setScene(currentScene);
@@ -160,6 +190,11 @@ public class SceneController {
             sceneModified = false;
             modelModified = false;
             currentSceneFilePath = filePath;
+            currentTransformationMode = TransformationMode.NONE;
+
+            if (mouseTransformationHandler != null) {
+                mouseTransformationHandler.setTransformationMode(TransformationMode.NONE);
+            }
 
             if (renderController != null) {
                 renderController.setScene(currentScene);
