@@ -101,10 +101,7 @@ public class SceneManager {
             }
 
             RasterizerSettings objectRenderSettings = object.getRenderSettings();
-            boolean useTexture = (texture != null) && objectRenderSettings.isUseTexture();
-            boolean useLighting = objectRenderSettings.isUseLighting();
-            boolean drawPolygonalGrid = objectRenderSettings.isDrawPolygonalGrid();
-
+            objectRenderSettings.setDefaultColor(m.getColor());
 
             RenderEntity entity = new RenderEntity(
                     object.getModel(),
@@ -112,10 +109,7 @@ public class SceneManager {
                     rotation,
                     scale,
                     texture,
-                    m.getColor(),
-                    useTexture,
-                    useLighting,
-                    drawPolygonalGrid
+                    objectRenderSettings
             );
 
             renderEntities.add(entity);
