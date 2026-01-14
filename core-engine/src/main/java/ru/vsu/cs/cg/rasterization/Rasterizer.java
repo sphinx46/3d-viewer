@@ -258,7 +258,7 @@ public class Rasterizer {
             float currentInvZ = interpolate(invZStart, invZEnd, t);
             float currentZ = 1.0f / currentInvZ;
 
-            float biasFactor = 0.0005f;
+            float biasFactor = 0.00005f;
             float offset = currentZ * biasFactor;
 
             float biasedZ = currentZ - offset;
