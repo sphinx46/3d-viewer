@@ -22,6 +22,7 @@ import ru.vsu.cs.cg.utils.controller.ControllerUtils;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
 import ru.vsu.cs.cg.utils.file.PathManager;
 import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
+import ru.vsu.cs.cg.utils.window.StageManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,6 +54,8 @@ public class MainController {
     @FXML private MenuItem menuFileOpen;
     @FXML private MenuItem menuFileSaveScene;
     @FXML private MenuItem menuFileSaveModel;
+    @FXML private MenuItem menuImport;
+    @FXML private MenuItem menuExport;
     @FXML private MenuItem menuFileExit;
     @FXML private MenuItem menuCreatePlane;
     @FXML private MenuItem menuCreateCube;
@@ -69,8 +72,6 @@ public class MainController {
     @FXML private MenuItem menuViewCascade;
     @FXML private CheckMenuItem menuViewGridHelper;
     @FXML private CheckMenuItem menuViewCoordinateAxisHelper;
-    @FXML private MenuItem menuViewCameraHelper;
-    @FXML private MenuItem menuViewLightHelper;
     @FXML private MenuItem menuCameraFront;
     @FXML private MenuItem menuCameraTop;
     @FXML private MenuItem menuCameraRight;
@@ -100,7 +101,7 @@ public class MainController {
         initializeDependencies();
         cameraPanelController.setSceneManager(renderController.getSceneManager());
 
-        this.renderController.start();
+        renderController.start();
         LOG.info("Главный контроллер инициализирован");
     }
 
@@ -120,6 +121,16 @@ public class MainController {
             sceneController.setModificationController(modificationPanelController);
         }
 
+        if (renderController != null){
+            renderController.setSceneController(sceneController);
+            sceneController.setRenderController(renderController);
+        }
+
+        if (cameraPanelController != null){
+            cameraPanelController.setSceneManager(Objects.requireNonNull(renderController).getSceneManager());
+            sceneController.setCameraController(cameraPanelController);
+        }
+
         this.sceneController.setRenderController(renderController);
         this.renderController.setSceneController(sceneController);
         sceneController.setMainController(this);
@@ -128,7 +139,7 @@ public class MainController {
 
     public void initializeAfterStageSet() {
         try {
-            Stage stage = ControllerUtils.getStage(anchorPane).orElseThrow(
+            Stage stage = StageManager.getStage(anchorPane).orElseThrow(
                 () -> new IllegalStateException("Stage не найден для anchorPane"));
 
             commandFactory = new CommandFactory(stage, anchorPane, sceneController, recentFilesCacheService);
@@ -155,6 +166,10 @@ public class MainController {
         TooltipManager.addHotkeyTooltip(addObjectButton, "addObjectButton");
         TooltipManager.addHotkeyTooltip(deleteObjectButton, "deleteObjectButton");
         TooltipManager.addHotkeyTooltip(duplicateObjectButton, "duplicateObjectButton");
+
+        TooltipManager.addHotkeyTooltip(moveToolButton, "transform_mode_move");
+        TooltipManager.addHotkeyTooltip(rotateToolButton, "transform_mode_rotate");
+        TooltipManager.addHotkeyTooltip(scaleToolButton, "transform_mode_scale");
     }
 
     private void initializeButtonActions() {
@@ -229,6 +244,34 @@ public class MainController {
             }
         });
 
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem renameItem = new MenuItem("Переименовать");
+        renameItem.setOnAction(event -> handleRenameObject());
+        contextMenu.getItems().add(renameItem);
+
+        MenuItem duplicateItem = new MenuItem("Дублировать");
+        duplicateItem.setOnAction(event -> executeCommand("object_duplicate"));
+        contextMenu.getItems().add(duplicateItem);
+
+        MenuItem deleteItem = new MenuItem("Удалить");
+        deleteItem.setOnAction(event -> executeCommand("object_delete"));
+        contextMenu.getItems().add(deleteItem);
+
+        contextMenu.getItems().add(new SeparatorMenuItem());
+
+        MenuItem toggleVisibilityItem = new MenuItem("Переключить видимость");
+        toggleVisibilityItem.setOnAction(event -> handleToggleVisibility());
+        contextMenu.getItems().add(toggleVisibilityItem);
+
+        sceneTreeView.setContextMenu(contextMenu);
+
+        sceneTreeView.setOnContextMenuRequested(event -> {
+            TreeItem<SceneObject> selectedItem = sceneTreeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null && selectedItem.getValue() != null) {
+                contextMenu.show(sceneTreeView, event.getScreenX(), event.getScreenY());
+            }
+        });
+
         sceneTreeView.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null && newValue.getValue() != null) {
@@ -239,12 +282,55 @@ public class MainController {
         );
     }
 
+    private void handleRenameObject() {
+        TreeItem<SceneObject> selectedItem = sceneTreeView.getSelectionModel().getSelectedItem();
+        if (selectedItem == null || selectedItem.getValue() == null) {
+            DialogManager.showError("Пожалуйста, выберите объект для переименования.");
+            return;
+        }
+
+        SceneObject selectedObject = selectedItem.getValue();
+        String currentName = selectedObject.getName();
+
+        TextInputDialog dialog = new TextInputDialog(currentName);
+        dialog.setTitle("Переименование объекта");
+        dialog.setHeaderText("Введите новое имя для объекта");
+        dialog.setContentText("Имя:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        if (result.isPresent() && !result.get().trim().isEmpty()) {
+            String newName = result.get().trim();
+
+            if (newName.equals(currentName)) {
+                return;
+            }
+
+            if (sceneController.getCurrentScene().findObjectByName(newName).isPresent()) {
+                DialogManager.showError("Объект с именем '" + newName + "' уже существует в сцене.");
+                return;
+            }
+
+            sceneController.renameSelectedObject(newName);
+        }
+    }
+
+    private void handleToggleVisibility() {
+        TreeItem<SceneObject> selectedItem = sceneTreeView.getSelectionModel().getSelectedItem();
+        if (selectedItem != null && selectedItem.getValue() != null) {
+            SceneObject object = selectedItem.getValue();
+            sceneController.toggleObjectVisibility(object);
+        }
+    }
+
     private void initializeMenuActions() {
         menuThemeDark.setOnAction(event -> executeCommand("theme_тёмная"));
         menuThemeLight.setOnAction(event -> executeCommand("theme_светлая"));
         menuFileOpen.setOnAction(event -> executeCommand("file_open"));
         menuFileSaveScene.setOnAction(event -> executeCommand("scene_save"));
         menuFileSaveModel.setOnAction(event -> executeCommand("model_save"));
+        menuImport.setOnAction(event -> executeCommand("scene_json_import"));
+        menuExport.setOnAction(event -> executeCommand("scene_json_export"));
         menuFileExit.setOnAction(event -> handleExit());
 
         menuCreatePlane.setOnAction(event -> executeCommand("model_add_plane"));
@@ -264,8 +350,6 @@ public class MainController {
 
         menuViewGridHelper.setOnAction(event -> executeCommand("grid_toggle"));
         menuViewCoordinateAxisHelper.setOnAction(event -> executeCommand("axis_toggle"));
-        menuViewCameraHelper.setOnAction(event -> executeCommand("camera_indicators_toggle"));
-        menuViewLightHelper.setOnAction(event -> executeCommand("light_indicators_toggle"));
 
         menuCameraFront.setOnAction(event -> executeCommand("camera_front"));
         menuCameraTop.setOnAction(event -> executeCommand("camera_top"));
@@ -300,10 +384,6 @@ public class MainController {
         moveToolButton.setOnAction(event -> executeCommand("transform_mode_move"));
         rotateToolButton.setOnAction(event -> executeCommand("transform_mode_rotate"));
         scaleToolButton.setOnAction(event -> executeCommand("transform_mode_scale"));
-
-        TooltipManager.addHotkeyTooltip(moveToolButton, "transform_mode_move");
-        TooltipManager.addHotkeyTooltip(rotateToolButton, "transform_mode_rotate");
-        TooltipManager.addHotkeyTooltip(scaleToolButton, "transform_mode_scale");
     }
 
     public void updateTransformationButtons(TransformationMode mode) {
@@ -377,7 +457,7 @@ public class MainController {
             menuRecent.getItems().add(new SeparatorMenuItem());
         } else {
             for (String filePath : recentFiles) {
-                String fileName = ControllerUtils.getFileName(filePath);
+                String fileName = PathManager.getFileNameWithoutExtension(filePath);
                 MenuItem fileItem = new MenuItem(fileName);
                 fileItem.setOnAction(event -> openRecentFile(filePath));
                 menuRecent.getItems().add(fileItem);
@@ -415,7 +495,7 @@ public class MainController {
             recentFilesCacheService.addFile(filePath);
             updateRecentFilesMenu();
         } catch (Exception e) {
-            LOG.error("Не удалось загрузить файл: {}", ControllerUtils.getFileName(filePath));
+            LOG.error("Не удалось загрузить файл: {}", PathManager.getFileNameWithoutExtension(filePath));
         }
     }
 

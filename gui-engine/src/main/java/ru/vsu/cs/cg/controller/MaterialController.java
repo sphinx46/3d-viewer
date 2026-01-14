@@ -2,7 +2,6 @@ package ru.vsu.cs.cg.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
@@ -25,10 +24,6 @@ public class MaterialController extends BaseController {
     @FXML private CheckBox showTextureCheckbox;
     @FXML private CheckBox showLightingCheckbox;
     @FXML private CheckBox showPolygonalGridCheckbox;
-    @FXML private Slider brightnessSlider;
-    @FXML private TextField brightnessField;
-    @FXML private Slider reflectionSlider;
-    @FXML private TextField reflectionField;
 
     @FXML
     private void initialize() {
@@ -45,9 +40,6 @@ public class MaterialController extends BaseController {
     }
 
     private void initializeBindings() {
-        UiFieldUtils.bindSliderToField(brightnessSlider, brightnessField, 0.5, 0.0, 1.0);
-        UiFieldUtils.bindSliderToField(reflectionSlider, reflectionField, 0.3, 0.0, 1.0);
-
         colorPicker.valueProperty().addListener((observable, oldValue, newValue) ->
             updateMaterial(m -> m.setColor(newValue)));
 
@@ -171,8 +163,6 @@ public class MaterialController extends BaseController {
         materialShininessField.setText("0.5");
         materialReflectivityField.setText("0.0");
         materialTransparencyField.setText("0.0");
-        brightnessSlider.setValue(0.5);
-        reflectionSlider.setValue(0.3);
         showTextureCheckbox.setSelected(false);
         showLightingCheckbox.setSelected(false);
         showPolygonalGridCheckbox.setSelected(false);
@@ -204,7 +194,5 @@ public class MaterialController extends BaseController {
         showTextureCheckbox.setDisable(!editable);
         showLightingCheckbox.setDisable(!editable);
         showPolygonalGridCheckbox.setDisable(!editable);
-        brightnessSlider.setDisable(!editable);
-        reflectionSlider.setDisable(!editable);
     }
 }

@@ -29,22 +29,44 @@ public class SceneSaveCommand implements Command {
     @Override
     public void execute() {
         try {
+            if (sceneController.getCurrentScene().isEmpty()) {
+                DialogManager.showError("Невозможно сохранить пустую сцену");
+                return;
+            }
+
             String currentFilePath = sceneController.getCurrentSceneFilePath();
 
             if (currentFilePath != null) {
-                if (!PathManager.isSupportedSceneFormat(currentFilePath)) {
-                    DialogManager.showError("Неподдерживаемый формат сцены");
-                    saveWithDialog();
-                    return;
-                }
-                sceneController.saveScene(currentFilePath);
-                DialogManager.showSceneSaveSuccess("Сцена сохранена");
+                saveSceneToPath(currentFilePath);
             } else {
                 saveWithDialog();
             }
         } catch (Exception e) {
             LOG.error("Ошибка сохранения сцены: {}", e.getMessage());
             DialogManager.showError("Ошибка сохранения сцены: " + e.getMessage());
+        }
+    }
+
+    private void saveSceneToPath(String filePath) {
+        try {
+            if (!PathManager.isSupportedSceneFormat(filePath)) {
+                DialogManager.showError("Неподдерживаемый формат сцены");
+                saveWithDialog();
+                return;
+            }
+
+            LOG.info("Сохранение сцены в файл: {}", filePath);
+            sceneController.saveScene(filePath);
+            recentFilesService.addFile(filePath);
+            CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
+
+            LOG.info("Сцена сохранена в файл: {}", PathManager.getFileNameWithoutExtension(filePath));
+            DialogManager.showSceneSaveSuccess("Сцена сохранена");
+
+        } catch (Exception e) {
+            LOG.error("Ошибка сохранения сцены в файл {}: {}", filePath, e.getMessage());
+            DialogManager.showError("Ошибка сохранения сцены: " + e.getMessage());
+            saveWithDialog();
         }
     }
 
@@ -58,12 +80,8 @@ public class SceneSaveCommand implements Command {
                     file = new File(filePath);
                 }
 
-                sceneController.saveScene(filePath);
-                recentFilesService.addFile(filePath);
-                CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
+                saveSceneToPath(filePath);
 
-                LOG.info("Сцена сохранена: {}", file.getName());
-                DialogManager.showSceneSaveSuccess("Сцена сохранена: " + file.getName());
             } catch (Exception e) {
                 LOG.error("Ошибка сохранения сцены: {}", e.getMessage());
                 DialogManager.showError("Ошибка сохранения сцены: " + e.getMessage());

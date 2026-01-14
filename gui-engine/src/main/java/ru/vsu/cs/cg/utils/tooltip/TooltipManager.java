@@ -22,13 +22,17 @@ public final class TooltipManager {
     }
 
     private static void initializeHotkeyTooltips() {
-        HOTKEY_TOOLTIPS.put("selectToolButton", "Выбрать объект (ПКМ)");
-        HOTKEY_TOOLTIPS.put("moveToolButton", "Режим перемещения (G)");
-        HOTKEY_TOOLTIPS.put("rotateToolButton", "Режим вращения (R)");
-        HOTKEY_TOOLTIPS.put("scaleToolButton", "Режим масштабирования (S)");
+        HOTKEY_TOOLTIPS.put("moveToolButton", "Инструмент перемещения (W)");
+        HOTKEY_TOOLTIPS.put("rotateToolButton", "Инструмент вращения (E)");
+        HOTKEY_TOOLTIPS.put("scaleToolButton", "Инструмент масштабирования (R)");
+
         HOTKEY_TOOLTIPS.put("addObjectButton", "Добавить объект в сцену");
         HOTKEY_TOOLTIPS.put("deleteObjectButton", "Удалить выбранный объект (Delete)");
         HOTKEY_TOOLTIPS.put("duplicateObjectButton", "Дублировать выбранный объект (Ctrl+D)");
+
+        HOTKEY_TOOLTIPS.put("transform_mode_move", "Инструмент перемещения (W)");
+        HOTKEY_TOOLTIPS.put("transform_mode_rotate", "Инструмент вращения (E)");
+        HOTKEY_TOOLTIPS.put("transform_mode_scale", "Инструмент масштабирования (R)");
     }
 
     public static void addHotkeyTooltip(Control control, String buttonId) {
@@ -39,6 +43,8 @@ public final class TooltipManager {
                 tooltip.setShowDelay(javafx.util.Duration.millis(TOOLTIP_DELAY_MS));
                 Tooltip.install(control, tooltip);
                 LOG.trace("Добавлена подсказка с горячей клавишей для: {}", buttonId);
+            } else {
+                LOG.warn("Текст подсказки не найден для ID: {}", buttonId);
             }
         } catch (Exception e) {
             LOG.error("Ошибка добавления подсказки с горячей клавишей для {}: {}", buttonId, e.getMessage());

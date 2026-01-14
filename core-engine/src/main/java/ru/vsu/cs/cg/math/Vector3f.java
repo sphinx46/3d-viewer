@@ -48,9 +48,9 @@ public class Vector3f {
      */
     public Vector3f add(Vector3f other) {
         return new Vector3f(
-                this.x + other.x,
-                this.y + other.y,
-                this.z + other.z
+            this.x + other.x,
+            this.y + other.y,
+            this.z + other.z
         );
     }
 
@@ -62,9 +62,9 @@ public class Vector3f {
      */
     public Vector3f subtract(Vector3f other) {
         return new Vector3f(
-                this.x - other.x,
-                this.y - other.y,
-                this.z - other.z
+            this.x - other.x,
+            this.y - other.y,
+            this.z - other.z
         );
     }
 
@@ -76,9 +76,9 @@ public class Vector3f {
      */
     public Vector3f multiply(float scalar) {
         return new Vector3f(
-                this.x * scalar,
-                this.y * scalar,
-                this.z * scalar
+            this.x * scalar,
+            this.y * scalar,
+            this.z * scalar
         );
     }
 
@@ -91,9 +91,9 @@ public class Vector3f {
      */
     public Vector3f multiply(Vector3f other) {
         return new Vector3f(
-                x * other.x,
-                y * other.y,
-                z * other.z
+            x * other.x,
+            y * other.y,
+            z * other.z
         );
     }
 
@@ -143,12 +143,12 @@ public class Vector3f {
      * Если длина вектора близка к нулю, возвращает текущий вектор (this) без изменений,
      * вместо выбрасывания исключения.
      *
-     * @return Новый нормализованный вектор или текущий вектор, если длина равна 0.
+     * @return Новый нормализованный вектор или заготовленный, если длина равна 0.
      */
     public Vector3f normalizeSafe() {
         float len = length();
         if (len < EPSILON) {
-            return this;
+            return new Vector3f(0, 1, 0);
         }
 
         float invLen = 1.0f / len;
@@ -174,9 +174,9 @@ public class Vector3f {
      */
     public Vector3f cross(Vector3f other) {
         return new Vector3f(
-                this.y * other.z - this.z * other.y,
-                this.z * other.x - this.x * other.z,
-                this.x * other.y - this.y * other.x
+            this.y * other.z - this.z * other.y,
+            this.z * other.x - this.x * other.z,
+            this.x * other.y - this.y * other.x
         );
     }
 
@@ -199,7 +199,7 @@ public class Vector3f {
 
         Vector3f other = (Vector3f) obj;
         return Math.abs(x - other.x) < EPSILON &&
-                Math.abs(y - other.y) < EPSILON &&
-                Math.abs(z - other.z) < EPSILON;
+            Math.abs(y - other.y) < EPSILON &&
+            Math.abs(z - other.z) < EPSILON;
     }
 }

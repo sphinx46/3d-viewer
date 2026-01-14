@@ -32,7 +32,6 @@ public class SceneServiceImpl implements SceneService {
     private static final Logger LOG = LoggerFactory.getLogger(SceneServiceImpl.class);
 
     private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
-    private static final String SCENE_EXTENSION = ".3dscene";
 
     private final ModelService modelService;
 
@@ -98,7 +97,12 @@ public class SceneServiceImpl implements SceneService {
             InputValidator.validateNotEmpty(filePath, "Путь к файлу");
 
             String normalizedPath = PathManager.normalizePath(filePath);
-            normalizedPath = PathManager.ensureExtension(normalizedPath, SCENE_EXTENSION);
+
+            if (!normalizedPath.toLowerCase().endsWith(".json") &&
+                !normalizedPath.toLowerCase().endsWith(".3dscene")) {
+                normalizedPath = PathManager.ensureExtension(normalizedPath, ".json");
+            }
+
             PathManager.validatePathForSave(normalizedPath);
 
             String json = OBJECT_MAPPER.writeValueAsString(scene);
@@ -199,7 +203,6 @@ public class SceneServiceImpl implements SceneService {
 
         return settings;
     }
-
 
     @Override
     public SceneObject addDefaultModelToScene(Scene scene, String modelType) {

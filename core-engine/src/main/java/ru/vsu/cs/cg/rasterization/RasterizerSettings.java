@@ -11,16 +11,23 @@ public class RasterizerSettings {
     private boolean useLighting;
     private boolean drawPolygonalGrid;
     private boolean drawAxisLines;
+    private boolean drawGrid;
+
+    private float ambientStrength = 0.3f;      // Фоновое освещение (0.0 - 1.0)
+    private float diffuseStrength = 1.0f;      // Сила направленного света (1.0 - 3.0)
+    private float lightIntensity = 1.5f;       // Общая яркость
+
     private Color gridColor;
     private Color defaultColor;
 
     public RasterizerSettings(boolean useTexture, boolean useLighting,
-                              boolean drawPolygonalGrid, boolean drawAxisLines,
+                              boolean drawPolygonalGrid, boolean drawAxisLines, boolean drawGrid,
                               Color defaultColor, Color gridColor) {
         this.useTexture = useTexture;
         this.useLighting = useLighting;
         this.drawPolygonalGrid = drawPolygonalGrid;
         this.drawAxisLines = drawAxisLines;
+        this.drawGrid = drawGrid;
         this.defaultColor = defaultColor;
         this.gridColor = gridColor;
     }
@@ -30,6 +37,7 @@ public class RasterizerSettings {
         this.useLighting = false;
         this.drawPolygonalGrid = false;
         this.drawAxisLines = false;
+        this.drawGrid = false;
         this.defaultColor = Color.GRAY;
         this.gridColor = Color.BLACK;
     }
@@ -56,13 +64,27 @@ public class RasterizerSettings {
         this.drawAxisLines = drawAxisLines;
     }
 
+    public boolean isDrawGrid() {return drawGrid;}
+    public void setDrawGrid(boolean drawGrid) {this.drawGrid = drawGrid;}
+
+    public float getAmbientStrength() { return ambientStrength; }
+    public void setAmbientStrength(float value) { this.ambientStrength = value; }
+
+    public float getDiffuseStrength() { return diffuseStrength; }
+    public void setDiffuseStrength(float value) { this.diffuseStrength = value; }
+
+    public float getLightIntensity() { return lightIntensity; }
+    public void setLightIntensity(float value) { this.lightIntensity = value; }
+
     public RasterizerSettings copy() {
         return new RasterizerSettings(
-                this.isUseTexture(),
-                this.isUseLighting(),
-                this.isDrawPolygonalGrid(),
-                this.isDrawAxisLines(),
-                this.getDefaultColor(),
-                this.getGridColor());
+            this.isUseTexture(),
+            this.isUseLighting(),
+            this.isDrawPolygonalGrid(),
+            this.isDrawAxisLines(),
+            this.isDrawGrid(),
+            this.getDefaultColor(),
+            this.getGridColor()
+        );
     }
 }

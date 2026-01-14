@@ -10,14 +10,14 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 public final class PathManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(PathManager.class);
     private static final List<String> SUPPORTED_3D_FORMATS = List.of(".obj");
-    private static final List<String> SUPPORTED_SCENE_FORMATS = Arrays.asList(".3dscene", ".json");
+    private static final List<String> SUPPORTED_SCENE_FORMATS = List.of(".3dscene");
+    private static final List<String> SUPPORTED_EXPORT_FORMATS = List.of(".json");
 
     private PathManager() {
     }
@@ -71,6 +71,11 @@ public final class PathManager {
     public static boolean isSupportedSceneFormat(String filePath) {
         String extension = getFileExtension(filePath);
         return SUPPORTED_SCENE_FORMATS.contains(extension);
+    }
+
+    public static boolean isImportOrExportSceneFormat(String filePath) {
+        String extension = getFileExtension(filePath);
+        return SUPPORTED_EXPORT_FORMATS.contains(extension);
     }
 
     public static boolean isSupportedFileFormat(String filePath) {

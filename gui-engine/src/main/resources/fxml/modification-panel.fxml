@@ -60,7 +60,9 @@
                 <Button fx:id="removeVerticesButton" mnemonicParsing="false"
                         prefWidth="120.0" style="-fx-font-weight: bold;" text="Удалить вершины" />
                 <Button fx:id="selectVerticesButton" mnemonicParsing="false"
-                        prefWidth="120.0" style="-fx-font-weight: bold;" text="Выделить" />
+                        prefWidth="80.0" style="-fx-font-weight: bold;" text="Выделить" />
+                <Button fx:id="deselectVerticesButton" mnemonicParsing="false"
+                        prefWidth="80.0" style="-fx-font-weight: bold;" text="Снять" />
             </HBox>
 
             <Separator prefWidth="200.0" />
@@ -90,7 +92,9 @@
                 <Button fx:id="removePolygonsButton" mnemonicParsing="false"
                         prefWidth="120.0" style="-fx-font-weight: bold;" text="Удалить полигоны" />
                 <Button fx:id="selectPolygonsButton" mnemonicParsing="false"
-                        prefWidth="120.0" style="-fx-font-weight: bold;" text="Выделить" />
+                        prefWidth="80.0" style="-fx-font-weight: bold;" text="Выделить" />
+                <Button fx:id="deselectPolygonsButton" mnemonicParsing="false"
+                        prefWidth="80.0" style="-fx-font-weight: bold;" text="Снять" />
             </HBox>
 
             <Separator prefWidth="200.0" />

@@ -25,10 +25,12 @@ public class ModificationController extends BaseController {
     @FXML private CheckBox cleanUnusedCheckbox;
     @FXML private Button removeVerticesButton;
     @FXML private Button selectVerticesButton;
+    @FXML private Button deselectVerticesButton;
 
     @FXML private TextField polygonIndicesField;
     @FXML private Button removePolygonsButton;
     @FXML private Button selectPolygonsButton;
+    @FXML private Button deselectPolygonsButton;
 
     @FXML private Label vertexCountLabel;
     @FXML private Label polygonCountLabel;
@@ -51,6 +53,8 @@ public class ModificationController extends BaseController {
         removePolygonsButton.setOnAction(event -> handleRemovePolygons());
         selectVerticesButton.setOnAction(event -> handleSelectVertices());
         selectPolygonsButton.setOnAction(event -> handleSelectPolygons());
+        deselectVerticesButton.setOnAction(event -> handleDeselectVertices());
+        deselectPolygonsButton.setOnAction(event -> handleDeselectPolygons());
     }
 
     private void handleRemoveVertices() {
@@ -147,6 +151,72 @@ public class ModificationController extends BaseController {
             sceneController.markSceneModified();
         } catch (IllegalArgumentException e) {
             LOG.error("Ошибка выделения полигонов: {}", e.getMessage());
+        }
+    }
+
+    private void handleDeselectVertices() {
+        if (!hasSelectedObject()) {
+            LOG.warn("Попытка снять выделение вершин без выбранного объекта");
+            return;
+        }
+
+        SceneObject selectedObject = getSelectedObject();
+        Model model = selectedObject.getModel();
+        String indicesInput = vertexIndicesField.getText();
+
+        try {
+            Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, model.getVertices().size());
+            ModelSelection selection = model.getSelection();
+
+            if (!indices.isEmpty()) {
+                for (Integer index : indices) {
+                    if (selection.isVertexSelected(index)) {
+                        selection.deselectVertex(index);
+                    }
+                }
+                LOG.info("Снято выделение с {} вершин объекта '{}'", indices.size(), selectedObject.getName());
+            } else {
+                selection.clearVertexSelection();
+                LOG.debug("Выделение всех вершин снято для объекта '{}'", selectedObject.getName());
+            }
+
+            sceneController.markModelModified();
+            sceneController.markSceneModified();
+        } catch (IllegalArgumentException e) {
+            LOG.error("Ошибка снятия выделения вершин: {}", e.getMessage());
+        }
+    }
+
+    private void handleDeselectPolygons() {
+        if (!hasSelectedObject()) {
+            LOG.warn("Попытка снять выделение полигонов без выбранного объекта");
+            return;
+        }
+
+        SceneObject selectedObject = getSelectedObject();
+        Model model = selectedObject.getModel();
+        String indicesInput = polygonIndicesField.getText();
+
+        try {
+            Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, model.getPolygons().size());
+            ModelSelection selection = model.getSelection();
+
+            if (!indices.isEmpty()) {
+                for (Integer index : indices) {
+                    if (selection.isPolygonSelected(index)) {
+                        selection.deselectPolygon(index);
+                    }
+                }
+                LOG.info("Снято выделение с {} полигонов объекта '{}'", indices.size(), selectedObject.getName());
+            } else {
+                selection.clearPolygonSelection();
+                LOG.debug("Выделение всех полигонов снято для объекта '{}'", selectedObject.getName());
+            }
+
+            sceneController.markModelModified();
+            sceneController.markSceneModified();
+        } catch (IllegalArgumentException e) {
+            LOG.error("Ошибка снятия выделения полигонов: {}", e.getMessage());
         }
     }
 
@@ -248,6 +318,8 @@ public class ModificationController extends BaseController {
             removePolygonsButton.setDisable(!editable);
             selectVerticesButton.setDisable(!editable);
             selectPolygonsButton.setDisable(!editable);
+            deselectVerticesButton.setDisable(!editable);
+            deselectPolygonsButton.setDisable(!editable);
         });
     }
 }

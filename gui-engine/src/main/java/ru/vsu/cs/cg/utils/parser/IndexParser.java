@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class IndexParser {
     private static final Logger LOG = LoggerFactory.getLogger(IndexParser.class);
@@ -96,7 +95,7 @@ public final class IndexParser {
         List<Integer> sorted = indices.stream()
             .distinct()
             .sorted()
-            .collect(Collectors.toList());
+            .toList();
 
         StringBuilder result = new StringBuilder();
         Integer rangeStart = null;

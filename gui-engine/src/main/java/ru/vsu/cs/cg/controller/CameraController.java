@@ -39,7 +39,6 @@ public class CameraController {
     @FXML private Button resetCameraButton;
 
 
-
     @FXML
     public void initialize() {
         LOG.debug("Инициализация CameraController");
@@ -57,11 +56,12 @@ public class CameraController {
     private void initializeActions() {
         cameraSelector.setOnAction(event -> handleCameraSelection());
 
-        createCameraButton.setOnAction(event -> createCamera());
+        createCameraButton.setOnAction(event -> createCamera(new Vector3f(0, 2, 5)));
         deleteCameraButton.setOnAction(event -> deleteCamera());
 
         applyCameraButton.setOnAction(event -> applySettings());
         resetCameraButton.setOnAction(event -> resetSettings());
+
     }
 
     /**
@@ -101,9 +101,9 @@ public class CameraController {
         if (selectedId == null) return;
 
         Camera selectedCam = sceneManager.getCameras().stream()
-                .filter(c -> c.getId().equals(selectedId))
-                .findFirst()
-                .orElse(null);
+            .filter(c -> c.getId().equals(selectedId))
+            .findFirst()
+            .orElse(null);
 
         if (selectedCam != null) {
             sceneManager.setActiveCamera(selectedCam);
@@ -141,11 +141,11 @@ public class CameraController {
     /**
      * Создание новой камеры
      */
-    private void createCamera() {
+    public void createCamera(Vector3f position) {
         String id = generateUniqueCameraId();
         Camera newCam = new Camera(id,
-                new Vector3f(0, 2, 5),
-                new Vector3f(0, 0, 0));
+            position,
+            new Vector3f(0, 0, 0));
 
         newCam.setAspectRatio(sceneManager.getActiveCamera().getAspectRatio());
 
@@ -200,16 +200,16 @@ public class CameraController {
             cam.setFarPlane(far);
 
             Vector3f pos = new Vector3f(
-                    (float) parseDouble(cameraPosXField.getText()),
-                    (float) parseDouble(cameraPosYField.getText()),
-                    (float) parseDouble(cameraPosZField.getText())
+                (float) parseDouble(cameraPosXField.getText()),
+                (float) parseDouble(cameraPosYField.getText()),
+                (float) parseDouble(cameraPosZField.getText())
             );
             cam.setPosition(pos);
 
             Vector3f target = new Vector3f(
-                    (float) parseDouble(cameraTargetXField.getText()),
-                    (float) parseDouble(cameraTargetYField.getText()),
-                    (float) parseDouble(cameraTargetZField.getText())
+                (float) parseDouble(cameraTargetXField.getText()),
+                (float) parseDouble(cameraTargetYField.getText()),
+                (float) parseDouble(cameraTargetZField.getText())
             );
             cam.setTarget(target);
 
@@ -247,9 +247,9 @@ public class CameraController {
         String id = cameraSelector.getValue();
         if (id == null) return null;
         return sceneManager.getCameras().stream()
-                .filter(c -> c.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+            .filter(c -> c.getId().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 
     private double parseDouble(String str) throws NumberFormatException {
@@ -266,8 +266,8 @@ public class CameraController {
      */
     private String generateUniqueCameraId() {
         Set<String> existingIds = sceneManager.getCameras().stream()
-                .map(Camera::getId)
-                .collect(java.util.stream.Collectors.toSet());
+            .map(Camera::getId)
+            .collect(java.util.stream.Collectors.toSet());
 
         int i = 1;
         while (true) {

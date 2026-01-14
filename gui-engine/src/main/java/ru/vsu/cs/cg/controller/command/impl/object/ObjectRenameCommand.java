@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.controller.command.Command;
-import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
 
 import java.util.Optional;
@@ -26,8 +25,7 @@ public class ObjectRenameCommand implements Command {
             return;
         }
 
-        SceneObject selectedObject = sceneController.getSelectedObject();
-        String currentName = selectedObject.getName();
+        String currentName = sceneController.getSelectedObject().getName();
 
         TextInputDialog dialog = new TextInputDialog(currentName);
         dialog.setTitle("Переименование объекта");
@@ -38,21 +36,7 @@ public class ObjectRenameCommand implements Command {
 
         if (result.isPresent() && !result.get().trim().isEmpty()) {
             String newName = result.get().trim();
-
-            if (newName.equals(currentName)) {
-                return;
-            }
-
-            if (sceneController.getCurrentScene().findObjectByName(newName).isPresent()) {
-                DialogManager.showError("Объект с именем '" + newName + "' уже существует в сцене.");
-                return;
-            }
-
-            selectedObject.setName(newName);
-            sceneController.markSceneModified();
-            sceneController.updateUI();
-
-            LOG.info("Объект переименован: '{}' -> '{}'", currentName, newName);
+            sceneController.renameSelectedObject(newName);
         }
     }
 

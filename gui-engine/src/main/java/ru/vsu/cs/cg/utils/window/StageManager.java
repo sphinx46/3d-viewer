@@ -1,6 +1,7 @@
 package ru.vsu.cs.cg.utils.window;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -10,6 +11,7 @@ import ru.vsu.cs.cg.App;
 import ru.vsu.cs.cg.controller.MainController;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public final class StageManager {
 
@@ -63,5 +65,25 @@ public final class StageManager {
 
         LOG.debug("Окно создано с размером: {}x{}", DEFAULT_WIDTH, DEFAULT_HEIGHT);
         return stage;
+    }
+
+    public static Optional<Stage> getStage(Node node) {
+        if (node == null) {
+            LOG.warn("Попытка получить Stage из null узла");
+            return Optional.empty();
+        }
+
+        if (node.getScene() == null) {
+            LOG.warn("Узел не имеет сцены");
+            return Optional.empty();
+        }
+
+        try {
+            Stage stage = (Stage) node.getScene().getWindow();
+            return Optional.ofNullable(stage);
+        } catch (Exception e) {
+            LOG.warn("Не удалось получить Stage из сцены узла: {}", e.getMessage());
+            return Optional.empty();
+        }
     }
 }

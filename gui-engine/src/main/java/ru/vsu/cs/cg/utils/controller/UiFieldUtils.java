@@ -19,35 +19,6 @@ public final class UiFieldUtils {
         }
     }
 
-    public static void bindSliderToField(Slider slider, TextField field, double defaultValue, double min, double max) {
-        try {
-            slider.setMin(min);
-            slider.setMax(max);
-
-            field.textProperty().bindBidirectional(slider.valueProperty(),
-                new NumberStringConverter() {
-                    @Override
-                    public String toString(Number value) {
-                        return String.format("%.2f", value.doubleValue());
-                    }
-
-                    @Override
-                    public Number fromString(String string) {
-                        try {
-                            double val = Double.parseDouble(string);
-                            return Math.max(min, Math.min(max, val));
-                        } catch (NumberFormatException e) {
-                            LOG.warn("Некорректное значение слайдера: {}, установлено значение по умолчанию: {}", string, defaultValue);
-                            return defaultValue;
-                        }
-                    }
-                });
-            LOG.trace("Слайдер привязан к полю ввода, диапазон: [{}, {}]", min, max);
-        } catch (Exception e) {
-            LOG.error("Ошибка привязки слайдера к полю ввода: {}", e.getMessage());
-        }
-    }
-
     public static String formatDouble(double value) {
         try {
             return String.format("%.3f", value);

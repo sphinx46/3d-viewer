@@ -21,26 +21,6 @@ public final class ControllerUtils {
     private ControllerUtils() {
     }
 
-    public static Optional<Stage> getStage(Node node) {
-        if (node == null) {
-            LOG.warn("Попытка получить Stage из null узла");
-            return Optional.empty();
-        }
-
-        if (node.getScene() == null) {
-            LOG.warn("Узел не имеет сцены");
-            return Optional.empty();
-        }
-
-        try {
-            Stage stage = (Stage) node.getScene().getWindow();
-            return Optional.ofNullable(stage);
-        } catch (Exception e) {
-            LOG.warn("Не удалось получить Stage из сцены узла: {}", e.getMessage());
-            return Optional.empty();
-        }
-    }
-
     public static boolean applyTheme(AnchorPane anchorPane, String themePath) {
         try {
             URL themeUrl = ControllerUtils.class.getResource(themePath);
@@ -72,19 +52,6 @@ public final class ControllerUtils {
         } catch (Exception e) {
             LOG.error("Ошибка открытия URL '{}': {}", url, e.getMessage());
             return false;
-        }
-    }
-
-    public static String getFileName(String filePath) {
-        try {
-            if (filePath == null || filePath.isEmpty()) {
-                LOG.warn("Путь к файлу пуст или null");
-                return "Неизвестный файл";
-            }
-            return new File(filePath).getName();
-        } catch (Exception e) {
-            LOG.error("Ошибка получения имени файла из пути '{}': {}", filePath, e.getMessage());
-            return "Ошибка имени файла";
         }
     }
 }

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.enums.TransformationMode;
 import ru.vsu.cs.cg.controller.handlers.MouseTransformationHandler;
+import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import ru.vsu.cs.cg.scene.Scene;
@@ -29,6 +30,7 @@ public class SceneController {
     private ModificationController modificationController;
     private MainController mainController;
     private RenderController renderController;
+    private CameraController cameraController;
     private MouseTransformationHandler mouseTransformationHandler;
     private Scene currentScene;
     private SceneObject clipboardObject;
@@ -161,6 +163,37 @@ public class SceneController {
         markModelModified();
         updateUI();
         LOG.debug("Объект '{}' вставлен из буфера обмена", pastedObject.getName());
+    }
+
+    public void renameSelectedObject(String newName) {
+        if (!hasSelectedObject()) {
+            LOG.warn("Попытка переименования без выбранного объекта");
+            return;
+        }
+
+        if (newName == null || newName.trim().isEmpty()) {
+            LOG.warn("Попытка переименовать объект с пустым именем");
+            return;
+        }
+
+        String trimmedName = newName.trim();
+        SceneObject selectedObject = getSelectedObject();
+        String currentName = selectedObject.getName();
+
+        if (trimmedName.equals(currentName)) {
+            LOG.debug("Имя объекта не изменилось: {}", currentName);
+            return;
+        }
+
+        if (currentScene.findObjectByName(trimmedName).isPresent()) {
+            LOG.warn("Объект с именем '{}' уже существует в сцене", trimmedName);
+            return;
+        }
+
+        selectedObject.setName(trimmedName);
+        markSceneModified();
+        updateUI();
+        LOG.info("Объект переименован: '{}' -> '{}'", currentName, trimmedName);
     }
 
     public void createNewScene() {
@@ -402,4 +435,12 @@ public class SceneController {
             uiUpdateInProgress = false;
         }
     }
+
+    public void addCamera(Vector3f position){
+        cameraController.createCamera(position);
+    }
+
+    public void setCameraController(CameraController cameraController) {this.cameraController = cameraController;}
+    public Scene getScene(){return currentScene;}
+
 }

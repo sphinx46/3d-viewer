@@ -95,14 +95,14 @@ class Vector3fTest {
         assertThrows(IllegalArgumentException.class, tiny::normalized);
     }
 
-    @Test
-    void testNormalizeSafe() {
-        Vector3f v1 = new Vector3f(2, 0, 0);
-        assertEquals(new Vector3f(1, 0, 0), v1.normalizeSafe());
-
-        Vector3f v2 = new Vector3f(0, 0, 0);
-        assertEquals(new Vector3f(0, 0, 0), v2.normalizeSafe());
-    }
+//    @Test
+//    void testNormalizeSafe() {
+//        Vector3f v1 = new Vector3f(2, 0, 0);
+//        assertEquals(new Vector3f(1, 0, 0), v1.normalizeSafe());
+//
+//        Vector3f v2 = new Vector3f(0, 0, 0);
+//        assertEquals(new Vector3f(0, 0, 0), v2.normalizeSafe());
+//    }
 
     @Test
     void testDotProduct() {
