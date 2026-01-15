@@ -23,7 +23,6 @@ import java.util.Optional;
 
 public class SceneController {
     private static final Logger LOG = LoggerFactory.getLogger(SceneController.class);
-    private static final String COPY_SUFFIX = "_copy";
 
     private final SceneService sceneService;
     private final ModelService modelService;
@@ -71,8 +70,12 @@ public class SceneController {
             this.renderController.setScene(this.currentScene);
         }
     }
-
+    
     public void setTransformationMode(TransformationMode mode) {
+        if (this.currentTransformationMode == mode && mode != TransformationMode.NONE) {
+            mode = TransformationMode.NONE;
+        }
+
         this.currentTransformationMode = mode;
         if (mouseTransformationHandler != null) {
             mouseTransformationHandler.setTransformationMode(mode);
@@ -83,6 +86,7 @@ public class SceneController {
             mainController.updateTransformationButtons(mode);
         }
     }
+
 
     public TransformationMode getTransformationMode() {
         return currentTransformationMode;
@@ -358,26 +362,26 @@ public class SceneController {
         String texturePath = material.getTexturePath();
 
         float[] color = new float[]{
-            (float) material.getRed(),
-            (float) material.getGreen(),
-            (float) material.getBlue()
+                (float) material.getRed(),
+                (float) material.getGreen(),
+                (float) material.getBlue()
         };
 
         Float shininess = renderSettings.isUseLighting() ?
-            (float) material.getShininess() : null;
+                (float) material.getShininess() : null;
 
         Float transparency = (float) material.getTransparency();
         Float reflectivity = (float) material.getReflectivity();
 
         modelServiceImpl.saveModelWithMaterial(
-            transformedModel,
-            filePath,
-            materialName,
-            texturePath,
-            color,
-            shininess,
-            transparency,
-            reflectivity
+                transformedModel,
+                filePath,
+                materialName,
+                texturePath,
+                color,
+                shininess,
+                transparency,
+                reflectivity
         );
 
         LOG.info("Модель '{}' сохранена с материалом в файл: {}", selectedObject.getName(), filePath);
@@ -419,7 +423,7 @@ public class SceneController {
         return currentScene;
     }
 
-    public Camera getActiveCamera() {
+    public ru.vsu.cs.cg.renderEngine.camera.Camera getActiveCamera() {
         if (renderController != null && renderController.getSceneManager() != null) {
             return renderController.getSceneManager().getActiveCamera();
         }
