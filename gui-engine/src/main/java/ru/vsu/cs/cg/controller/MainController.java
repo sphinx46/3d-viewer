@@ -7,7 +7,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,21 +31,23 @@ import java.util.Optional;
 
 public class MainController {
     private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
-    private static final double RIGHT_PANEL_MIN_WIDTH = 250.0;
-    private static final double RIGHT_PANEL_MAX_WIDTH = 500.0;
-    private static final double RESIZER_WIDTH = 3.0;
 
     @FXML private AnchorPane anchorPane;
-
     @FXML private AnchorPane viewerContainer;
+
+    // Под-контроллеры
     @FXML private TransformController transformPanelController;
     @FXML private MaterialController materialPanelController;
     @FXML private CameraController cameraPanelController;
     @FXML private ModificationController modificationPanelController;
+
+    // Элементы UI
     @FXML private TreeView<SceneObject> sceneTreeView;
     @FXML private Button addObjectButton;
     @FXML private Button deleteObjectButton;
     @FXML private Button duplicateObjectButton;
+
+    // Меню
     @FXML private MenuItem menuThemeDark;
     @FXML private MenuItem menuThemeLight;
     @FXML private MenuItem menuFileOpen;
@@ -80,15 +81,21 @@ public class MainController {
     @FXML private MenuItem menuHelpAbout;
     @FXML private Menu menuRecent;
     @FXML private MenuItem menuRecentClear;
+
+    // Инструменты
     @FXML private Button moveToolButton;
     @FXML private Button rotateToolButton;
     @FXML private Button scaleToolButton;
 
+    // Логика
     private final SceneController sceneController = new SceneController();
     private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
     private HotkeyManager hotkeyManager;
     private CommandFactory commandFactory;
     private RenderController renderController;
+
+    // --- ИЗМЕНЕНИЕ 1: Добавлено поле ---
+    private InputHandler inputHandler;
 
     @FXML
     private void initialize() {
@@ -98,10 +105,12 @@ public class MainController {
         initializeButtonActions();
         initializeTransformationButtons();
         loadRecentFiles();
-        initializeRender();
+
+        initializeRender(); // Инициализация рендера и инпута
+
         cameraPanelController.initialize();
         initializeDependencies();
-        renderController.start();
+
         RecentFilesUpdateManager.getInstance().addListener(this::updateRecentFilesMenu);
         LOG.info("Главный контроллер инициализирован");
     }
@@ -125,6 +134,9 @@ public class MainController {
         if (renderController != null){
             renderController.setSceneController(sceneController);
             sceneController.setRenderController(renderController);
+
+            // --- ИЗМЕНЕНИЕ 2: Связь для обновления цифр UI при полете ---
+            renderController.setCameraController(cameraPanelController);
         }
 
         if (cameraPanelController != null){
@@ -141,13 +153,14 @@ public class MainController {
     public void initializeAfterStageSet() {
         try {
             Stage stage = StageManager.getStage(anchorPane).orElseThrow(
-                () -> new IllegalStateException("Stage не найден для anchorPane"));
+                    () -> new IllegalStateException("Stage не найден для anchorPane"));
 
             commandFactory = new CommandFactory(stage, anchorPane, sceneController, recentFilesCacheService);
             hotkeyManager = new HotkeyManager();
             hotkeyManager.setCommandFactory(commandFactory);
-            hotkeyManager.registerGlobalHotkeys(anchorPane);
 
+            // Блокировщик не нужен, так как клавиши переназначены
+            hotkeyManager.registerGlobalHotkeys(anchorPane);
             initializeMenuCheckmarks();
         } catch (Exception e) {
             LOG.error("Ошибка инициализации командной системы: {}", e.getMessage());
@@ -160,7 +173,13 @@ public class MainController {
             return;
         }
         this.renderController = new RenderController(viewerContainer);
-        LOG.info("RenderController создан с viewerContainer");
+
+        // --- ИЗМЕНЕНИЕ 3: Инициализация InputHandler ---
+        this.inputHandler = new InputHandler(sceneController);
+        this.renderController.setInputHandler(inputHandler);
+
+        this.renderController.start();
+        LOG.info("RenderController создан с viewerContainer и системой ввода");
     }
 
     private void initializeTooltips() {
@@ -230,13 +249,13 @@ public class MainController {
 
             private void updateEyeButtonIcon(boolean visible) {
                 String imagePath = visible ?
-                    "/static/images/icons/right-menu/eye.png" :
-                    "/static/images/icons/right-menu/eye-closed.png";
+                        "/static/images/icons/right-menu/eye.png" :
+                        "/static/images/icons/right-menu/eye-closed.png";
 
                 try {
                     javafx.scene.image.Image image = new javafx.scene.image.Image(
-                        Objects.requireNonNull(getClass().getResourceAsStream(imagePath)),
-                        12, 12, true, true
+                            Objects.requireNonNull(getClass().getResourceAsStream(imagePath)),
+                            12, 12, true, true
                     );
                     eyeButton.setGraphic(new ImageView(image));
                 } catch (Exception e) {
@@ -274,11 +293,11 @@ public class MainController {
         });
 
         sceneTreeView.getSelectionModel().selectedItemProperty().addListener(
-            (observable, oldValue, newValue) -> {
-                if (newValue != null && newValue.getValue() != null) {
-                    sceneController.handleSceneObjectSelection(newValue.getValue().getName());
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null && newValue.getValue() != null) {
+                        sceneController.handleSceneObjectSelection(newValue.getValue().getName());
+                    }
                 }
-            }
         );
     }
 
@@ -491,8 +510,8 @@ public class MainController {
 
     private void clearRecentFiles() {
         Optional<ButtonType> result = DialogManager.showConfirmation(
-            "Очистка списка",
-            "Вы уверены, что хотите очистить список недавних файлов?"
+                "Очистка списка",
+                "Вы уверены, что хотите очистить список недавних файлов?"
         );
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -505,8 +524,8 @@ public class MainController {
     public void handleExit() {
         if (sceneController.hasUnsavedChanges()) {
             Optional<ButtonType> result = DialogManager.showConfirmation(
-                "Несохраненные изменения",
-                "В сцене есть несохраненные изменения. Вы уверены, что хотите выйти?"
+                    "Несохраненные изменения",
+                    "В сцене есть несохраненные изменения. Вы уверены, что хотите выйти?"
             );
 
             if (result.isEmpty() || result.get() != ButtonType.OK) {

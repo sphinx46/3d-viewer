@@ -2,9 +2,9 @@ package ru.vsu.cs.cg.math;
 
 public class Vector3f {
     private static final float EPSILON = 1e-7f;
-    private final float x;
-    private final float y;
-    private final float z;
+    private float x;
+    private float y;
+    private float z;
 
     /**
      * Создает новый вектор с заданными координатами.
@@ -38,6 +38,18 @@ public class Vector3f {
 
     public float getZ() {
         return z;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setZ(float z) {
+        this.z = z;
     }
 
     /**

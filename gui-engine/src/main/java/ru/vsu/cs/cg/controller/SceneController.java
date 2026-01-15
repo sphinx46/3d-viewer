@@ -7,6 +7,7 @@ import ru.vsu.cs.cg.controller.handlers.MouseTransformationHandler;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
+import ru.vsu.cs.cg.renderEngine.camera.Camera;
 import ru.vsu.cs.cg.scene.Scene;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.scene.Transform;
@@ -416,5 +417,12 @@ public class SceneController {
 
     public Scene getScene(){
         return currentScene;
+    }
+
+    public Camera getActiveCamera() {
+        if (renderController != null && renderController.getSceneManager() != null) {
+            return renderController.getSceneManager().getActiveCamera();
+        }
+        return null;
     }
 }

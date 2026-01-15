@@ -30,213 +30,66 @@ public class HotkeyManager {
     }
 
     private void initializeHotkeys() {
-        KeyCombination ctrlN = createCombination("Ctrl+N");
-        if (ctrlN != null) {
-            hotkeyActions.put(ctrlN, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("scene_new");
-                }
-            }));
-        }
+        // --- Файловые операции ---
+        registerCommand("Ctrl+N", "scene_new");
+        registerCommand("Ctrl+O", "file_open");
+        registerCommand("Ctrl+S", "scene_save");
 
-        KeyCombination ctrlO = createCombination("Ctrl+O");
-        if (ctrlO != null) {
-            hotkeyActions.put(ctrlO, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("file_open");
-                }
-            }));
-        }
-
-        KeyCombination ctrlS = createCombination("Ctrl+S");
-        if (ctrlS != null) {
-            hotkeyActions.put(ctrlS, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("scene_save");
-                }
-            }));
-        }
-
-        KeyCombination ctrlC = createCombination("Ctrl+C");
-        if (ctrlC != null) {
-            hotkeyActions.put(ctrlC, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("object_copy");
-                }
-            }));
-        }
-
-        KeyCombination ctrlV = createCombination("Ctrl+V");
-        if (ctrlV != null) {
-            hotkeyActions.put(ctrlV, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("object_paste");
-                }
-            }));
-        }
-
-        KeyCombination ctrlD = createCombination("Ctrl+D");
-        if (ctrlD != null) {
-            hotkeyActions.put(ctrlD, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("object_duplicate");
-                }
-            }));
-        }
+        // --- Операции с объектами ---
+        registerCommand("Ctrl+C", "object_copy");
+        registerCommand("Ctrl+V", "object_paste");
+        registerCommand("Ctrl+D", "object_duplicate");
 
         KeyCombination deleteKey = new KeyCodeCombination(KeyCode.DELETE);
-        hotkeyActions.put(deleteKey, () -> Platform.runLater(() -> {
-            if (commandFactory != null) {
-                commandFactory.executeCommand("object_delete");
-            }
-        }));
+        hotkeyActions.put(deleteKey, () -> execute("object_delete"));
 
-        KeyCombination deleteWithShift = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.SHIFT_DOWN);
-        hotkeyActions.put(deleteWithShift, () -> Platform.runLater(() -> {
-            if (commandFactory != null) {
-                commandFactory.executeCommand("object_delete");
-            }
-        }));
+        KeyCombination deleteShift = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.SHIFT_DOWN);
+        hotkeyActions.put(deleteShift, () -> execute("object_delete"));
 
-        KeyCombination backspaceKey = new KeyCodeCombination(KeyCode.BACK_SPACE);
-        hotkeyActions.put(backspaceKey, () -> Platform.runLater(() -> {
-            if (commandFactory != null) {
-                commandFactory.executeCommand("object_delete");
-            }
-        }));
-
-        KeyCombination backspaceWithShift = new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.SHIFT_DOWN);
-        hotkeyActions.put(backspaceWithShift, () -> Platform.runLater(() -> {
-            if (commandFactory != null) {
-                commandFactory.executeCommand("object_delete");
-            }
-        }));
+        KeyCombination backspace = new KeyCodeCombination(KeyCode.BACK_SPACE);
+        hotkeyActions.put(backspace, () -> execute("object_delete"));
 
         if (isMac) {
-            KeyCombination cmdDelete = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.META_DOWN);
-            hotkeyActions.put(cmdDelete, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("object_delete");
-                }
-            }));
-
-            KeyCombination cmdBackspace = new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.META_DOWN);
-            hotkeyActions.put(cmdBackspace, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("object_delete");
-                }
-            }));
+            KeyCombination cmdBack = new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.META_DOWN);
+            hotkeyActions.put(cmdBack, () -> execute("object_delete"));
         }
 
-        KeyCombination w = createCombination("W");
-        if (w != null) {
-            hotkeyActions.put(w, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("transform_mode_move");
-                }
-            }));
-        }
+        // --- ИНСТРУМЕНТЫ (1, 2, 3) ---
+        registerCommand("1", "transform_mode_move");
+        registerCommand("2", "transform_mode_rotate");
+        registerCommand("3", "transform_mode_scale");
 
-        KeyCombination e = createCombination("E");
-        if (e != null) {
-            hotkeyActions.put(e, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("transform_mode_rotate");
-                }
-            }));
-        }
+        // --- ВИД ---
+        registerCommand("G", "grid_toggle");
+        registerCommand("X", "axis_toggle");
 
-        KeyCombination r = createCombination("R");
-        if (r != null) {
-            hotkeyActions.put(r, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("transform_mode_scale");
-                }
-            }));
-        }
+        // --- Остальное ---
+        registerCommand("Ctrl+P", "screenshot_take");
+        registerCommand("F11", "fullscreen_toggle");
+        registerCommand("F1", "hotkeys_show");
 
-        KeyCombination ctrlP = createCombination("Ctrl+P");
-        if (ctrlP != null) {
-            hotkeyActions.put(ctrlP, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("screenshot_take");
-                }
-            }));
-        }
+        // Камеры
+        registerCommand("Ctrl+1", "camera_front");
+        registerCommand("Ctrl+2", "camera_top");
+        registerCommand("Ctrl+3", "camera_right");
+        registerCommand("Ctrl+4", "camera_left");
 
-        KeyCombination f11 = createCombination("F11");
-        if (f11 != null) {
-            hotkeyActions.put(f11, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("fullscreen_toggle");
-                }
-            }));
-        }
+        LOG.info("Инициализировано {} горячих клавиш", hotkeyActions.size());
+    }
 
-        KeyCombination f1 = createCombination("F1");
-        if (f1 != null) {
-            hotkeyActions.put(f1, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("hotkeys_show");
-                }
-            }));
+    private void registerCommand(String combo, String commandName) {
+        KeyCombination kc = createCombination(combo);
+        if (kc != null) {
+            hotkeyActions.put(kc, () -> execute(commandName));
         }
+    }
 
-        KeyCombination ctrl1 = createCombination("Ctrl+1");
-        if (ctrl1 != null) {
-            hotkeyActions.put(ctrl1, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("camera_front");
-                }
-            }));
-        }
-
-        KeyCombination ctrl2 = createCombination("Ctrl+2");
-        if (ctrl2 != null) {
-            hotkeyActions.put(ctrl2, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("camera_top");
-                }
-            }));
-        }
-
-        KeyCombination ctrl3 = createCombination("Ctrl+3");
-        if (ctrl3 != null) {
-            hotkeyActions.put(ctrl3, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("camera_right");
-                }
-            }));
-        }
-
-        KeyCombination ctrl4 = createCombination("Ctrl+4");
-        if (ctrl4 != null) {
-            hotkeyActions.put(ctrl4, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("camera_left");
-                }
-            }));
-        }
-
-        KeyCombination g = createCombination("G");
-        if (g != null) {
-            hotkeyActions.put(g, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("grid_toggle");
-                }
-            }));
-        }
-
-        KeyCombination a = createCombination("A");
-        if (a != null) {
-            hotkeyActions.put(a, () -> Platform.runLater(() -> {
-                if (commandFactory != null) {
-                    commandFactory.executeCommand("axis_toggle");
-                }
-            }));
-        }
-
-        LOG.info("Инициализировано {} горячих клавиш для {} ОС", hotkeyActions.size(), isMac ? "macOS" : "Windows/Linux");
+    private void execute(String commandName) {
+        Platform.runLater(() -> {
+            if (commandFactory != null) {
+                commandFactory.executeCommand(commandName);
+            }
+        });
     }
 
     private KeyCombination createCombination(String combination) {
@@ -248,37 +101,21 @@ public class HotkeyManager {
             for (String part : parts) {
                 String normalized = part.trim().toUpperCase();
 
-                if (normalized.equals("CTRL") || normalized.equals("CONTROL")) {
-                    modifiers.add(isMac ? KeyCombination.META_DOWN : KeyCombination.CONTROL_DOWN);
-                } else if (normalized.equals("SHIFT")) {
-                    modifiers.add(KeyCombination.SHIFT_DOWN);
-                } else if (normalized.equals("ALT")) {
-                    modifiers.add(KeyCombination.ALT_DOWN);
-                } else if (normalized.equals("META") || normalized.equals("CMD")) {
-                    modifiers.add(KeyCombination.META_DOWN);
-                } else if (normalized.matches("[A-Z]")) {
-                    keyCode = KeyCode.valueOf(normalized);
-                } else if (normalized.matches("[0-9]")) {
-                    keyCode = KeyCode.valueOf("DIGIT" + normalized);
-                } else if (normalized.startsWith("F") && normalized.length() > 1) {
-                    try {
-                        keyCode = KeyCode.valueOf(normalized);
-                    } catch (IllegalArgumentException e) {
-                        LOG.warn("Неподдерживаемая клавиша F: {}", normalized);
-                    }
-                }
+                if (normalized.equals("CTRL") || normalized.equals("CONTROL")) modifiers.add(isMac ? KeyCombination.META_DOWN : KeyCombination.CONTROL_DOWN);
+                else if (normalized.equals("SHIFT")) modifiers.add(KeyCombination.SHIFT_DOWN);
+                else if (normalized.equals("ALT")) modifiers.add(KeyCombination.ALT_DOWN);
+                else if (normalized.equals("META") || normalized.equals("CMD")) modifiers.add(KeyCombination.META_DOWN);
+                else if (normalized.matches("[0-9]")) keyCode = KeyCode.valueOf("DIGIT" + normalized);
+                else if (normalized.matches("[A-Z]")) keyCode = KeyCode.valueOf(normalized);
+                else if (normalized.startsWith("F")) keyCode = KeyCode.valueOf(normalized);
             }
 
-            if (keyCode != null && !modifiers.isEmpty()) {
+            if (keyCode != null) {
                 return new KeyCodeCombination(keyCode, modifiers.toArray(new KeyCombination.Modifier[0]));
-            } else if (keyCode != null) {
-                return new KeyCodeCombination(keyCode);
             }
         } catch (Exception e) {
-            LOG.error("Ошибка создания комбинации клавиш '{}': {}", combination, e.getMessage());
+            LOG.error("Ошибка создания комбинации '{}': {}", combination, e.getMessage());
         }
-
-        LOG.warn("Не удалось создать комбинацию клавиш для: {}", combination);
         return null;
     }
 
@@ -286,41 +123,46 @@ public class HotkeyManager {
         Map<String, String> descriptions = new LinkedHashMap<>();
 
         descriptions.put("Ctrl+N", "Создать новую сцену");
-        descriptions.put("Ctrl+O", "Открыть файл (сцену или модель)");
+        descriptions.put("Ctrl+O", "Открыть файл");
         descriptions.put("Ctrl+S", "Сохранить сцену");
 
-        descriptions.put("ПКМ", "Контекстное меню для работы с объектом");
-        descriptions.put("Ctrl+C", "Копировать выбранный объект");
-        descriptions.put("Ctrl+V", "Вставить скопированный объект");
-        descriptions.put("Ctrl+D", "Дублировать выбранный объект");
-        descriptions.put("Delete", "Удалить выбранный объект");
+        descriptions.put("ПКМ", "Вращение камерой (обзор)");
+        descriptions.put("Ctrl+C", "Копировать объект");
+        descriptions.put("Ctrl+V", "Вставить объект");
+        descriptions.put("Ctrl+D", "Дублировать объект");
+        descriptions.put("Delete", "Удалить объект");
 
-        descriptions.put("W", "Инструмент перемещения");
-        descriptions.put("E", "Инструмент вращения");
-        descriptions.put("R", "Инструмент масштабирования");
+        // Заглушки для старых клавиш
+        descriptions.put("W", "См. клавишу 1 (Move)");
+        descriptions.put("E", "См. клавишу 2 (Rotate)");
+        descriptions.put("R", "См. клавишу 3 (Scale)");
+        descriptions.put("A", "См. клавишу X (Axis)");
 
-        descriptions.put("Ctrl+P", "Сделать скриншот");
-        descriptions.put("F11", "Переключить полноэкранный режим");
+        descriptions.put("1", "Инструмент: Перемещение");
+        descriptions.put("2", "Инструмент: Вращение");
+        descriptions.put("3", "Инструмент: Масштабирование");
 
         descriptions.put("Ctrl+1", "Вид спереди");
         descriptions.put("Ctrl+2", "Вид сверху");
         descriptions.put("Ctrl+3", "Вид справа");
         descriptions.put("Ctrl+4", "Вид слева");
 
-        descriptions.put("G", "Переключить фоновую сетку");
-        descriptions.put("A", "Переключить координатные оси");
+        descriptions.put("G", "Вкл/Выкл Сетка");
+        descriptions.put("X", "Вкл/Выкл Оси координат");
 
-        descriptions.put("F1", "Показать горячие клавиши");
+        descriptions.put("F11", "Полноэкранный режим");
+        descriptions.put("Ctrl+P", "Скриншот");
+        descriptions.put("F1", "Показать справку");
+
+        descriptions.put("WASD", "Свободный полет камерой");
 
         return descriptions;
     }
 
     public void handleKeyEvent(KeyEvent event) {
         LOG.debug("Нажата клавиша: {} (код: {})", event.getText(), event.getCode());
-
         for (Map.Entry<KeyCombination, Runnable> entry : hotkeyActions.entrySet()) {
-            if (entry.getKey() != null && entry.getKey().match(event)) {
-                LOG.debug("Сработала горячая клавиша: {}", event.getCode());
+            if (entry.getKey().match(event)) {
                 event.consume();
                 entry.getValue().run();
                 return;
@@ -329,16 +171,10 @@ public class HotkeyManager {
     }
 
     public void registerGlobalHotkeys(javafx.scene.Node node) {
-        if (node != null) {
-            node.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyEvent);
-            LOG.info("Глобальные горячие клавиши зарегистрированы для Mac: {}", isMac);
-        }
+        if (node != null) node.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyEvent);
     }
 
     public void unregisterGlobalHotkeys(javafx.scene.Node node) {
-        if (node != null) {
-            node.removeEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyEvent);
-            LOG.info("Регистрация глобальных горячих клавиш удалена");
-        }
+        if (node != null) node.removeEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyEvent);
     }
 }

@@ -3,6 +3,7 @@ package ru.vsu.cs.cg.controller;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
@@ -25,6 +26,8 @@ public class RenderController {
 
     private final SceneManager sceneManager;
     private SceneController sceneController;
+    private CameraController cameraController;
+    private InputHandler inputHandler;
 
     private double lastMouseX;
     private double lastMouseY;
@@ -38,17 +41,25 @@ public class RenderController {
         setupInputHandlers();
     }
 
+    public void setInputHandler(InputHandler inputHandler) {
+        this.inputHandler = inputHandler;
+    }
+
+    public void setCameraController(CameraController cameraController) {
+        this.cameraController = cameraController;
+    }
+
     private void initializeCanvas() {
         this.canvas = new Canvas(800, 600);
-        canvasContainer.getChildren().add(0, canvas); // Добавляем первым (на задний план)
+        canvasContainer.getChildren().add(0, canvas);
 
         canvas.widthProperty().bind(canvasContainer.widthProperty());
         canvas.heightProperty().bind(canvasContainer.heightProperty());
 
         canvas.widthProperty().addListener((obs, oldVal, newVal) ->
-            sceneManager.resize(newVal.intValue(), (int) canvas.getHeight()));
+                sceneManager.resize(newVal.intValue(), (int) canvas.getHeight()));
         canvas.heightProperty().addListener((obs, oldVal, newVal) ->
-            sceneManager.resize((int) canvas.getWidth(), newVal.intValue()));
+                sceneManager.resize((int) canvas.getWidth(), newVal.intValue()));
 
         sceneManager.resize((int) canvas.getWidth(), (int) canvas.getHeight());
 
@@ -59,13 +70,26 @@ public class RenderController {
     private void initializeTimeline() {
         this.animationTimer = new AnimationTimer() {
             private long lastRenderTime = 0;
-            private final long TARGET_FPS = 40;
+            private final long TARGET_FPS = 60;
             private final long TARGET_INTERVAL = 1_000_000_000 / TARGET_FPS;
 
             @Override
             public void handle(long now) {
                 if (now - lastRenderTime >= TARGET_INTERVAL) {
                     lastRenderTime = now;
+
+                    // 1. Физика
+                    if (inputHandler != null) {
+                        inputHandler.update();
+                    }
+
+                    // 2. UI
+                    if (cameraController != null) {
+                        Camera cam = sceneManager.getActiveCamera();
+                        if (cam != null) cameraController.loadCameraToFields(cam);
+                    }
+
+                    // 3. Рендер
                     render();
                 }
             }
@@ -74,73 +98,65 @@ public class RenderController {
 
     private void render() {
         if (canvas == null) return;
-
         GraphicsContext gc = canvas.getGraphicsContext2D();
-
         gc.setFill(Color.rgb(30, 30, 30));
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
         JavaFXPixelWriterAdapter pixelWriter = new JavaFXPixelWriterAdapter(gc.getPixelWriter());
         sceneManager.render(pixelWriter);
     }
 
-    public void start() {
-        animationTimer.start();
-        LOG.info("Рендеринг запущен");
-    }
-
-    public void stop() {
-        animationTimer.stop();
-        LOG.info("Рендеринг остановлен");
-    }
-
-    public void setScene(Scene scene) {
-        sceneManager.setScene(scene);
-    }
-
+    public void start() { animationTimer.start(); LOG.info("Рендеринг запущен"); }
+    public void stop() { animationTimer.stop(); LOG.info("Рендеринг остановлен"); }
+    public void setScene(Scene scene) { sceneManager.setScene(scene); }
     public void setSceneController(SceneController sceneController) {
         this.sceneController = sceneController;
         this.sceneManager.setScene(sceneController.getScene());
     }
-
-    public SceneManager getSceneManager() {
-        return sceneManager;
-    }
+    public SceneManager getSceneManager() { return sceneManager; }
 
     private void setupInputHandlers() {
         canvas.setFocusTraversable(true);
 
-        // Клик мышкой для фокуса и обработка трансформаций
+        canvas.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if (inputHandler != null) inputHandler.onKeyPressed(event);
+        });
+
+        canvas.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (inputHandler != null) inputHandler.onKeyReleased(event);
+        });
+
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
             canvas.requestFocus();
             lastMouseX = event.getX();
             lastMouseY = event.getY();
 
-            // Обработка трансформаций объектов
+            if (inputHandler != null) inputHandler.onMousePressed(event);
+
+            // Обработка трансформации объектов только на ЛКМ
             if (sceneController != null && sceneController.hasSelectedObject()) {
                 MouseTransformationHandler handler = sceneController.getMouseTransformationHandler();
-                if (handler != null && handler.getCurrentMode() != TransformationMode.NONE) {
+                if (handler != null && handler.getCurrentMode() != TransformationMode.NONE && event.isPrimaryButtonDown()) {
                     handler.handleMousePressed(event);
                     event.consume();
                 }
             }
         });
 
-        // Обработка движения мыши для трансформаций
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            // Обработка трансформаций объектов
+            if (inputHandler != null) inputHandler.onMouseDragged(event);
+
             if (sceneController != null && sceneController.hasSelectedObject()) {
                 MouseTransformationHandler handler = sceneController.getMouseTransformationHandler();
-                if (handler != null && handler.isDragging()) {
+                if (handler != null && handler.isDragging() && event.isPrimaryButtonDown()) {
                     handler.handleMouseDragged(event);
                     event.consume();
                 }
             }
         });
 
-        // Отпускание кнопки мыши
         canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
-            // Обработка трансформаций объектов
+            if (inputHandler != null) inputHandler.onMouseReleased(event);
+
             if (sceneController != null && sceneController.hasSelectedObject()) {
                 MouseTransformationHandler handler = sceneController.getMouseTransformationHandler();
                 if (handler != null && handler.isDragging()) {
@@ -150,14 +166,8 @@ public class RenderController {
             }
         });
 
-        // Зум колесиком (управление камерой - оставляю TODO)
         canvas.addEventHandler(ScrollEvent.SCROLL, event -> {
-            Camera camera = sceneManager.getActiveCamera();
-            if (camera == null) return;
-
-            double delta = event.getDeltaY();
-            // camera.zoom((float) delta);
-            // TODO: Реализовать метод zoom в классе Camera
+            if (inputHandler != null) inputHandler.onScroll(event);
         });
     }
 }
