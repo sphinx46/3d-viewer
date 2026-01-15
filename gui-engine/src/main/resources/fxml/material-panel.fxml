@@ -32,16 +32,16 @@
             </HBox>
             <ColorPicker fx:id="colorPicker" prefWidth="150.0" />
             <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="Блеск:" />
-                <TextField fx:id="materialShininessField" text="0.5" prefWidth="50.0" />
+                <Label text="Сила освещения:" />
+                <TextField fx:id="materialLightIntensityField" text="0.5" prefWidth="50.0" />
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="Прозрачность:" />
-                <TextField fx:id="materialTransparencyField" text="0.0" prefWidth="50.0" />
+                <Label text="Сила диффузного освещения:" />
+                <TextField fx:id="materialDiffusionField" text="0.0" prefWidth="50.0" />
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="Отражение:" />
-                <TextField fx:id="materialReflectivityField" text="0.0" prefWidth="50.0" />
+                <Label text="Коэффициент диффузного освещения:" />
+                <TextField fx:id="materialAmbientField" text="0.0" prefWidth="50.0" />
             </HBox>
             <Separator prefWidth="200.0" />
             <HBox alignment="CENTER_LEFT" spacing="5">

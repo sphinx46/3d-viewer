@@ -94,7 +94,7 @@ public class SceneObject {
             new Material(
                 material.getRed(), material.getGreen(), material.getBlue(), material.getAlpha(),
                 material.getTexturePath(),
-                material.getShininess(), material.getReflectivity(), material.getTransparency()
+                material.getLightIntensity(), material.getDiffusion(), material.getAmbient()
             ),
             visible,
             renderSettings.copy()
@@ -130,7 +130,7 @@ public class SceneObject {
         }
 
         if (renderSettings.isUseLighting()) {
-            transformedModel.setMaterialShininess((float) material.getShininess());
+            transformedModel.setMaterialShininess((float) material.getLightIntensity());
         }
 
         transformedModel.setMaterialColor(new float[]{
@@ -139,8 +139,8 @@ public class SceneObject {
             (float) material.getBlue()
         });
 
-        transformedModel.setMaterialTransparency((float) material.getTransparency());
-        transformedModel.setMaterialReflectivity((float) material.getReflectivity());
+        transformedModel.setMaterialTransparency((float) material.getAmbient());
+        transformedModel.setMaterialReflectivity((float) material.getDiffusion());
 
         transformedModel.setUseLighting(renderSettings.isUseLighting());
         transformedModel.setUseTexture(renderSettings.isUseTexture() || material.getTexturePath() != null);

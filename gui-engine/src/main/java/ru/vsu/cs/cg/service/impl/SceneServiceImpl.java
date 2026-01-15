@@ -170,23 +170,23 @@ public class SceneServiceImpl implements SceneService {
         material.setTexturePath(model.getTexturePath());
 
         if (model.getMaterialShininess() != null) {
-            material.setShininess(model.getMaterialShininess());
+            material.setLightIntensity(model.getMaterialShininess());
         }
 
         if (model.getMaterialTransparency() != null) {
-            material.setTransparency(model.getMaterialTransparency());
+            material.setAmbient(model.getMaterialTransparency());
         }
 
         if (model.getMaterialReflectivity() != null) {
-            material.setReflectivity(model.getMaterialReflectivity());
+            material.setDiffusion(model.getMaterialReflectivity());
         }
 
         LOG.debug("Создан материал из модели: цвет=[{},{},{}], текстура={}, блеск={}, прозрачность={}, отражение={}",
             material.getRed(), material.getGreen(), material.getBlue(),
             material.getTexturePath(),
-            material.getShininess(),
-            material.getTransparency(),
-            material.getReflectivity());
+            material.getLightIntensity(),
+            material.getAmbient(),
+            material.getDiffusion());
 
         return material;
     }

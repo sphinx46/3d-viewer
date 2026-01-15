@@ -202,8 +202,8 @@ public class Rasterizer {
                         Vector3f interpolatedNormalOverDepth = interpolate(normalOverDepthStart, normalOverDepthEnd, horizontalFactor);
                         Vector3f pixelNormal = interpolatedNormalOverDepth.multiply(currentPixelDepth);
                         pixelNormal = pixelNormal.normalizeSafe();
-                        float lightIntensity = Math.max(0, pixelNormal.dot(lightDirection));
-                        finalPixelColor = applyLight(finalPixelColor, lightIntensity);
+                        float dotProduct = Math.max(0, pixelNormal.dot(lightDirection));
+                        finalPixelColor = applyLight(finalPixelColor, dotProduct, settings);
                     }
 
                     pixelWriter.setPixel(x, y, finalPixelColor);
@@ -287,21 +287,23 @@ public class Rasterizer {
     }
 
     /**
-     * Применяет модель освещения к цвету пикселя.
-     * Использует комбинацию ambient и диффузного освещения.
-     *
-     * @param baseColor  Базовый цвет пикселя
-     * @param intensity  Интенсивность освещения (скалярное произведение нормали и направления света)
-     * @return Цвет с примененным освещением
+     * Применяет модель освещения
+     * @param baseColor базовый цвет пикселя (от текстуры или материала)
+     * @param dotProduct скалярное произведение (N * L)
+     * @param settings настройки, откуда берем коэффициенты
      */
-    private Color applyLight(Color baseColor, float intensity) {
-        float ambientLight = 0.3f;
-        double totalFactor = Math.min(1.0, ambientLight + intensity);
-        return Color.color(
-                Math.min(1.0, baseColor.getRed() * totalFactor),
-                Math.min(1.0, baseColor.getGreen() * totalFactor),
-                Math.min(1.0, baseColor.getBlue() * totalFactor)
-        );
+    private Color applyLight(Color baseColor, float dotProduct, RasterizerSettings settings) {
+        float ambient = settings.getAmbientStrength();
+        float diffuse = settings.getDiffuseStrength();
+        float intensity = settings.getLightIntensity();
+
+        float brightness = (ambient + (diffuse * dotProduct)) * intensity;
+
+        double r = Math.min(1.0, Math.max(0, baseColor.getRed() * brightness));
+        double g = Math.min(1.0, Math.max(0, baseColor.getGreen() * brightness));
+        double b = Math.min(1.0, Math.max(0, baseColor.getBlue() * brightness));
+
+        return Color.color(r, g, b);
     }
 
     /**

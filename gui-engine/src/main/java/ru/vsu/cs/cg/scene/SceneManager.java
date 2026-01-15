@@ -20,6 +20,11 @@ import ru.vsu.cs.cg.renderEngine.dto.RenderEntity;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Менеджер сцены, отвечающий за управление 3D сценой, камерами и процессом рендеринга.
+ * Обрабатывает загрузку текстур, преобразование объектов сцены в сущности для рендеринга,
+ * управление буферами и координацию работы рендеринга.
+ */
 public class SceneManager {
     private static final Logger LOG = LoggerFactory.getLogger(SceneManager.class);
 
@@ -46,11 +51,23 @@ public class SceneManager {
         LOG.info("SceneManager создан");
     }
 
+    /**
+     * Инициализирует буферы глубины и растеризатор для заданного размера.
+     *
+     * @param width  Ширина буфера
+     * @param height Высота буфера
+     */
     private void initBuffers(int width, int height) {
         this.zBuffer = new ZBuffer(width, height);
         this.rasterizer = new Rasterizer(zBuffer);
     }
 
+    /**
+     * Изменяет размер области рендеринга и обновляет соответствующие буферы и камеры.
+     *
+     * @param width  Новая ширина области рендеринга
+     * @param height Новая высота области рендеринга
+     */
     public void resize(int width, int height) {
         if (width <= 0 || height <= 0) return;
         this.width = width;
@@ -66,6 +83,13 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Выполняет рендеринг всей сцены в буфер пикселей.
+     * Преобразует объекты сцены в RenderEntity, применяет материалы и текстуры,
+     * и делегирует рендеринг движку.
+     *
+     * @param pixelWriter Писатель пикселей, в который записывается результат рендеринга
+     */
     public void render(PixelWriter pixelWriter) {
         if (activeCamera == null && !cameras.isEmpty()) {
             setActiveCamera(cameras.get(0));
@@ -97,6 +121,9 @@ public class SceneManager {
 
             RasterizerSettings objectRenderSettings = object.getRenderSettings();
             objectRenderSettings.setDefaultColor(m.getColor());
+            objectRenderSettings.setLightIntensity((float) m.getLightIntensity());
+            objectRenderSettings.setAmbientStrength((float) m.getDiffusion());
+            objectRenderSettings.setDiffuseStrength((float) m.getAmbient());
 
             RenderEntity entity = new RenderEntity(
                 object.getModel(),
@@ -123,6 +150,13 @@ public class SceneManager {
         );
     }
 
+    /**
+     * Получает текстуру из кэша или загружает ее из файла.
+     * Использует кэширование для избежания повторной загрузки одних и тех же текстур.
+     *
+     * @param path Путь к файлу текстуры
+     * @return Загруженная текстура или null, если загрузка не удалась
+     */
     private Texture getOrLoadTexture(String path) {
         if (path == null || path.isEmpty()) {
             return null;
@@ -160,6 +194,9 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Добавляет камеру в сцену.
+     */
     public void addCamera(Camera camera) {
         if (camera != null && !cameras.contains(camera)) {
             cameras.add(camera);
@@ -168,6 +205,13 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Удаляет камеру из сцены.
+     * Нельзя удалить последнюю камеру в сцене.
+     *
+     * @param camera Камера для удаления
+     * @throws IllegalStateException если попытка удалить последнюю камеру
+     */
     public void removeCamera(Camera camera) {
         if (camera == null) return;
 
@@ -191,6 +235,12 @@ public class SceneManager {
         return renderSettings;
     }
 
+    /**
+     * Устанавливает активную камеру для рендеринга.
+     * Если камера не была добавлена в сцену, она добавляется автоматически.
+     *
+     * @param camera Камера для установки активной
+     */
     public void setActiveCamera(Camera camera) {
         if (cameras.contains(camera)) {
             activeCamera = camera;

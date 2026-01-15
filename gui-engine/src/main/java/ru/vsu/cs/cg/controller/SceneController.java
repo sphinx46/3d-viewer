@@ -7,7 +7,6 @@ import ru.vsu.cs.cg.controller.handlers.MouseTransformationHandler;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
-import ru.vsu.cs.cg.renderEngine.camera.Camera;
 import ru.vsu.cs.cg.scene.Scene;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.scene.Transform;
@@ -368,10 +367,10 @@ public class SceneController {
         };
 
         Float shininess = renderSettings.isUseLighting() ?
-                (float) material.getShininess() : null;
+                (float) material.getLightIntensity() : null;
 
-        Float transparency = (float) material.getTransparency();
-        Float reflectivity = (float) material.getReflectivity();
+        Float transparency = (float) material.getAmbient();
+        Float reflectivity = (float) material.getDiffusion();
 
         modelServiceImpl.saveModelWithMaterial(
                 transformedModel,
