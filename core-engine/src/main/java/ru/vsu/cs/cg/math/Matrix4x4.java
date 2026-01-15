@@ -244,7 +244,7 @@ public class Matrix4x4 {
         float det = determinant();
 
         if (Math.abs(det) < EPSILON) {
-            throw new ArithmeticException("Matrix is singular (determinant = " + det + "). Cannot compute inverse.");
+            throw new ArithmeticException("Матрица является вырожденной (определитель = " + det + "). Не удается.");
         }
 
         float invDet = 1.0f / det;
@@ -318,7 +318,4 @@ public class Matrix4x4 {
         }
         return sb.toString();
     }
-
-
-
 }

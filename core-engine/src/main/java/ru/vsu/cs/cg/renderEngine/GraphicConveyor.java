@@ -178,6 +178,7 @@ public class GraphicConveyor {
         return matrix;
     }
 
+
     /**
      * Создает матрицу перспективной проекции.
      * Переводит координаты из пространства камеры в пространство отсечения.
@@ -206,7 +207,6 @@ public class GraphicConveyor {
 
         return matrix;
     }
-
     /**
      * Преобразует нормализованные координаты устройства (NDC) в экранные координаты (пиксели).
      * NDC координаты находятся в диапазоне [-1, 1].
@@ -224,33 +224,8 @@ public class GraphicConveyor {
         );
     }
 
-    /**
-     * Умножает матрицу 4x4 на 3D-вектор, интерпретируя его как точку в пространстве.
-     * Исходный вектор дополняется четвертой компонентой w = 1.0 (переход в однородные координаты).
-     * Это позволяет матрице применять к точке операции переноса (translation).
-     * Результат возвращается в "сыром" виде вектора размерности 4, сохраняя компоненту w,
-     * что необходимо для дальнейших операций (например, клиппинга или отложенного перспективного деления).
-     *
-     * @param matrix Матрица преобразования.
-     * @param vertex Исходный 3D-вектор (точка).
-     * @return Преобразованный вектор в виде вектора размерности 4 (в однородных координатах).
-     */
     public static Vector4f multiplyMatrix4ByVector3ToVector4(Matrix4x4 matrix, Vector3f vertex) {
         return matrix.multiply(new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F));
-    }
-
-    /**
-     * Преобразует вектор нормали (3D) с помощью матрицы 4x4.
-     * Используется для преобразования нормалей из локальных координат модели в мировые координаты.
-     *
-     * @param matrix Матрица преобразования (должна быть обратной транспонированной для правильного преобразования нормалей)
-     * @param normal Исходный вектор нормали в локальных координатах модели
-     * @return Преобразованный вектор нормали в мировых координатах
-     */
-    public static Vector3f multiplyMatrix4ByVector3Normal(Matrix4x4 matrix, Vector3f normal) {
-        Vector4f normal4 = new Vector4f(normal.getX(), normal.getY(), normal.getZ(), 0.0F);
-        Vector4f result4 = matrix.multiply(normal4);
-        return new Vector3f(result4.getX(), result4.getY(), result4.getZ());
     }
 
     /**
@@ -267,4 +242,17 @@ public class GraphicConveyor {
         return result4.toVector3Safe();
     }
 
+    /**
+     * Преобразует вектор нормали (3D) с помощью матрицы 4x4.
+     * Используется для преобразования нормалей из локальных координат модели в мировые координаты.
+     *
+     * @param matrix Матрица преобразования (должна быть обратной транспонированной для правильного преобразования нормалей)
+     * @param normal Исходный вектор нормали в локальных координатах модели
+     * @return Преобразованный вектор нормали в мировых координатах
+     */
+    public static Vector3f multiplyMatrix4ByVector3Normal(Matrix4x4 matrix, Vector3f normal) {
+        Vector4f normal4 = new Vector4f(normal.getX(), normal.getY(), normal.getZ(), 0.0F);
+        Vector4f result4 = matrix.multiply(normal4);
+        return new Vector3f(result4.getX(), result4.getY(), result4.getZ());
+    }
 }
