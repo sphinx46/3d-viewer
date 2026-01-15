@@ -150,9 +150,9 @@ public class RenderEngine {
 
             Vector3f n1 = null, n2 = null, n3 = null;
             if (settings.isUseLighting() && !nIdx.isEmpty()) {
-                n1 = GraphicConveyor.multiplyMatrix4ByVector3Normal(normalMatrix, normals.get(nIdx.get(0))).normalized();
-                n2 = GraphicConveyor.multiplyMatrix4ByVector3Normal(normalMatrix, normals.get(nIdx.get(1))).normalized();
-                n3 = GraphicConveyor.multiplyMatrix4ByVector3Normal(normalMatrix, normals.get(nIdx.get(2))).normalized();
+                n1 = GraphicConveyor.multiplyMatrix4ByVector3Normal(normalMatrix, normals.get(nIdx.get(0))).normalizeSafe();
+                n2 = GraphicConveyor.multiplyMatrix4ByVector3Normal(normalMatrix, normals.get(nIdx.get(1))).normalizeSafe();
+                n3 = GraphicConveyor.multiplyMatrix4ByVector3Normal(normalMatrix, normals.get(nIdx.get(2))).normalizeSafe();
             }
 
             rasterizer.drawTriangle(pixelWriter, width, height,

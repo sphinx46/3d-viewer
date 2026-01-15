@@ -46,11 +46,7 @@ public class NormalCalculator {
         for (int i = 0; i < vertices.size(); i++) {
             Vector3f normal = sumNormalsArray[i];
 
-            if (normal.length() == 0) {
-                normals.add(new Vector3f(0, 1, 0));
-            } else {
-                normals.add(normal.normalized());
-            }
+            normals.add(normal.normalizeSafe());
         }
         return normals;
     }
