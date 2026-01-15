@@ -261,18 +261,14 @@
                 <Pane VBox.vgrow="ALWAYS" />
             </VBox>
         </VBox>
-        <HBox fx:id="mainContentHBox" HBox.hgrow="ALWAYS">
+        <HBox HBox.hgrow="ALWAYS">
             <BorderPane HBox.hgrow="ALWAYS">
                 <center>
                     <AnchorPane fx:id="viewerContainer" />
                 </center>
             </BorderPane>
-            <Region fx:id="rightPanelResizer" minWidth="3" prefWidth="3" maxWidth="3" style="-fx-background-color: #cccccc;" HBox.hgrow="NEVER">
-                <cursor>
-                    <Cursor fx:constant="H_RESIZE"/>
-                </cursor>
-            </Region>
-            <ScrollPane fx:id="rightPanelScroll" fitToWidth="true" hbarPolicy="NEVER" prefWidth="350.0" minWidth="250.0" maxWidth="500.0" vbarPolicy="AS_NEEDED" HBox.hgrow="NEVER">
+            <Region minWidth="3" prefWidth="3" maxWidth="3" style="-fx-background-color: #cccccc;" HBox.hgrow="NEVER" />
+            <ScrollPane fx:id="rightPanelScroll" fitToWidth="true" hbarPolicy="NEVER" prefWidth="425.0" minWidth="250.0" maxWidth="500.0" vbarPolicy="AS_NEEDED">
                 <VBox spacing="15" style="-fx-padding: 15;">
                     <TitledPane animated="false" collapsible="true" text="Сцена">
                         <graphic>

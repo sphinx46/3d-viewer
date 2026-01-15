@@ -4,16 +4,24 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import ru.vsu.cs.cg.scene.Material;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
+import ru.vsu.cs.cg.utils.dialog.DialogManager;
 import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 import ru.vsu.cs.cg.utils.validation.InputValidator;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 public class MaterialController extends BaseController {
+    private static final Logger LOG = LoggerFactory.getLogger(MaterialController.class);
+    private static final double DEFAULT_SHININESS = 0.5;
+    private static final double DEFAULT_REFLECTIVITY = 0.0;
+    private static final double DEFAULT_TRANSPARENCY = 0.0;
 
     @FXML private ColorPicker colorPicker;
     @FXML private TextField materialShininessField;
@@ -44,13 +52,13 @@ public class MaterialController extends BaseController {
             updateMaterial(m -> m.setColor(newValue)));
 
         materialShininessField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateMaterial(m -> m.setShininess(InputValidator.clamp(InputValidator.parseDoubleSafe(newValue, 0.5), 0.0, 1.0))));
+            updateMaterial(m -> m.setShininess(parseAndClamp(newValue, DEFAULT_SHININESS))));
 
         materialTransparencyField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateMaterial(m -> m.setTransparency(InputValidator.clamp(InputValidator.parseDoubleSafe(newValue, 0.0), 0.0, 1.0))));
+            updateMaterial(m -> m.setTransparency(parseAndClamp(newValue, DEFAULT_TRANSPARENCY))));
 
         materialReflectivityField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateMaterial(m -> m.setReflectivity(InputValidator.clamp(InputValidator.parseDoubleSafe(newValue, 0.0), 0.0, 1.0))));
+            updateMaterial(m -> m.setReflectivity(parseAndClamp(newValue, DEFAULT_REFLECTIVITY))));
 
         showTextureCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
             updateRenderSettings(s -> s.setUseTexture(newValue)));
@@ -68,6 +76,10 @@ public class MaterialController extends BaseController {
                 sceneController.markModelModified();
             }
         });
+    }
+
+    private double parseAndClamp(String value, double defaultValue) {
+        return InputValidator.clamp(InputValidator.parseDoubleSafe(value, defaultValue), 0.0, 1.0);
     }
 
     private void initializeButtonActions() {
@@ -113,6 +125,7 @@ public class MaterialController extends BaseController {
 
             } catch (Exception e) {
                 LOG.error("Ошибка при загрузке текстуры", e);
+                DialogManager.showError("Ошибка загрузки текстуры: " + e.getMessage());
             }
         }
     }
@@ -143,14 +156,14 @@ public class MaterialController extends BaseController {
         LOG.info("Текстура удалена для объекта '{}'", selectedObject.getName());
     }
 
-    private void updateMaterial(java.util.function.Consumer<Material> updater) {
+    private void updateMaterial(Consumer<Material> updater) {
         if (hasSelectedObject()) {
             updater.accept(getSelectedObject().getMaterial());
             sceneController.markModelModified();
         }
     }
 
-    private void updateRenderSettings(java.util.function.Consumer<RasterizerSettings> updater) {
+    private void updateRenderSettings(Consumer<RasterizerSettings> updater) {
         if (hasSelectedObject()) {
             updater.accept(getSelectedObject().getRenderSettings());
             sceneController.markModelModified();
@@ -160,9 +173,9 @@ public class MaterialController extends BaseController {
     @Override
     protected void clearFields() {
         colorPicker.setValue(Color.WHITE);
-        materialShininessField.setText("0.5");
-        materialReflectivityField.setText("0.0");
-        materialTransparencyField.setText("0.0");
+        materialShininessField.setText(UiFieldUtils.formatDouble(DEFAULT_SHININESS));
+        materialReflectivityField.setText(UiFieldUtils.formatDouble(DEFAULT_REFLECTIVITY));
+        materialTransparencyField.setText(UiFieldUtils.formatDouble(DEFAULT_TRANSPARENCY));
         showTextureCheckbox.setSelected(false);
         showLightingCheckbox.setSelected(false);
         showPolygonalGridCheckbox.setSelected(false);
@@ -186,9 +199,8 @@ public class MaterialController extends BaseController {
     @Override
     protected void setFieldsEditable(boolean editable) {
         colorPicker.setDisable(!editable);
-        materialShininessField.setEditable(editable);
-        materialReflectivityField.setEditable(editable);
-        materialTransparencyField.setEditable(editable);
+        UiFieldUtils.setTextFieldsEditable(editable,
+            materialShininessField, materialReflectivityField, materialTransparencyField);
         loadTextureButton.setDisable(!editable);
         clearTextureButton.setDisable(!editable);
         showTextureCheckbox.setDisable(!editable);

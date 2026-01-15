@@ -8,9 +8,8 @@ import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.utils.cache.CachePersistenceManager;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
+import ru.vsu.cs.cg.utils.events.RecentFilesUpdateManager;
 import ru.vsu.cs.cg.utils.file.PathManager;
-
-import java.io.File;
 
 public class SceneSaveCommand implements Command {
     private static final Logger LOG = LoggerFactory.getLogger(SceneSaveCommand.class);
@@ -34,13 +33,8 @@ public class SceneSaveCommand implements Command {
                 return;
             }
 
-            String currentFilePath = sceneController.getCurrentSceneFilePath();
+            saveWithDialog();
 
-            if (currentFilePath != null) {
-                saveSceneToPath(currentFilePath);
-            } else {
-                saveWithDialog();
-            }
         } catch (Exception e) {
             LOG.error("Ошибка сохранения сцены: {}", e.getMessage());
             DialogManager.showError("Ошибка сохранения сцены: " + e.getMessage());
@@ -63,6 +57,8 @@ public class SceneSaveCommand implements Command {
             LOG.info("Сцена сохранена в файл: {}", PathManager.getFileNameWithoutExtension(filePath));
             DialogManager.showSceneSaveSuccess("Сцена сохранена");
 
+            RecentFilesUpdateManager.getInstance().notifyRecentFilesUpdated();
+
         } catch (Exception e) {
             LOG.error("Ошибка сохранения сцены в файл {}: {}", filePath, e.getMessage());
             DialogManager.showError("Ошибка сохранения сцены: " + e.getMessage());
@@ -77,7 +73,6 @@ public class SceneSaveCommand implements Command {
 
                 if (!PathManager.isSupportedSceneFormat(filePath)) {
                     filePath = PathManager.ensureExtension(filePath, ".3dscene");
-                    file = new File(filePath);
                 }
 
                 saveSceneToPath(filePath);

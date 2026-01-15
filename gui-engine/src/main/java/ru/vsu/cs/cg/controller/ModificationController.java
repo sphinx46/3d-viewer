@@ -2,17 +2,15 @@ package ru.vsu.cs.cg.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.model.selection.ModelSelection;
+import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
 import ru.vsu.cs.cg.utils.parser.IndexParser;
+import ru.vsu.cs.cg.utils.modification.ModificationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,25 +100,10 @@ public class ModificationController extends BaseController {
         Model model = selectedObject.getModel();
         String indicesInput = vertexIndicesField.getText();
 
-        try {
-            Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, model.getVertices().size());
-            ModelSelection selection = model.getSelection();
-
-            selection.clearVertexSelection();
-            if (!indices.isEmpty()) {
-                for (Integer index : indices) {
-                    selection.selectVertex(index);
-                }
-                LOG.info("Выделено {} вершин объекта '{}'", indices.size(), selectedObject.getName());
-            } else {
-                LOG.debug("Выделение вершин очищено для объекта '{}'", selectedObject.getName());
-            }
-
-            sceneController.markModelModified();
-            sceneController.markSceneModified();
-        } catch (IllegalArgumentException e) {
-            LOG.error("Ошибка выделения вершин: {}", e.getMessage());
-        }
+        ModificationUtils.updateSelection(indicesInput, model, true, true);
+        updateSelectionFields();
+        sceneController.markModelModified();
+        sceneController.markSceneModified();
     }
 
     private void handleSelectPolygons() {
@@ -133,25 +116,10 @@ public class ModificationController extends BaseController {
         Model model = selectedObject.getModel();
         String indicesInput = polygonIndicesField.getText();
 
-        try {
-            Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, model.getPolygons().size());
-            ModelSelection selection = model.getSelection();
-
-            selection.clearPolygonSelection();
-            if (!indices.isEmpty()) {
-                for (Integer index : indices) {
-                    selection.selectPolygon(index);
-                }
-                LOG.info("Выделено {} полигонов объекта '{}'", indices.size(), selectedObject.getName());
-            } else {
-                LOG.debug("Выделение полигонов очищено для объекта '{}'", selectedObject.getName());
-            }
-
-            sceneController.markModelModified();
-            sceneController.markSceneModified();
-        } catch (IllegalArgumentException e) {
-            LOG.error("Ошибка выделения полигонов: {}", e.getMessage());
-        }
+        ModificationUtils.updateSelection(indicesInput, model, false, true);
+        updateSelectionFields();
+        sceneController.markModelModified();
+        sceneController.markSceneModified();
     }
 
     private void handleDeselectVertices() {
@@ -164,27 +132,10 @@ public class ModificationController extends BaseController {
         Model model = selectedObject.getModel();
         String indicesInput = vertexIndicesField.getText();
 
-        try {
-            Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, model.getVertices().size());
-            ModelSelection selection = model.getSelection();
-
-            if (!indices.isEmpty()) {
-                for (Integer index : indices) {
-                    if (selection.isVertexSelected(index)) {
-                        selection.deselectVertex(index);
-                    }
-                }
-                LOG.info("Снято выделение с {} вершин объекта '{}'", indices.size(), selectedObject.getName());
-            } else {
-                selection.clearVertexSelection();
-                LOG.debug("Выделение всех вершин снято для объекта '{}'", selectedObject.getName());
-            }
-
-            sceneController.markModelModified();
-            sceneController.markSceneModified();
-        } catch (IllegalArgumentException e) {
-            LOG.error("Ошибка снятия выделения вершин: {}", e.getMessage());
-        }
+        ModificationUtils.updateSelection(indicesInput, model, true, false);
+        updateSelectionFields();
+        sceneController.markModelModified();
+        sceneController.markSceneModified();
     }
 
     private void handleDeselectPolygons() {
@@ -197,27 +148,10 @@ public class ModificationController extends BaseController {
         Model model = selectedObject.getModel();
         String indicesInput = polygonIndicesField.getText();
 
-        try {
-            Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, model.getPolygons().size());
-            ModelSelection selection = model.getSelection();
-
-            if (!indices.isEmpty()) {
-                for (Integer index : indices) {
-                    if (selection.isPolygonSelected(index)) {
-                        selection.deselectPolygon(index);
-                    }
-                }
-                LOG.info("Снято выделение с {} полигонов объекта '{}'", indices.size(), selectedObject.getName());
-            } else {
-                selection.clearPolygonSelection();
-                LOG.debug("Выделение всех полигонов снято для объекта '{}'", selectedObject.getName());
-            }
-
-            sceneController.markModelModified();
-            sceneController.markSceneModified();
-        } catch (IllegalArgumentException e) {
-            LOG.error("Ошибка снятия выделения полигонов: {}", e.getMessage());
-        }
+        ModificationUtils.updateSelection(indicesInput, model, false, false);
+        updateSelectionFields();
+        sceneController.markModelModified();
+        sceneController.markSceneModified();
     }
 
     @Override

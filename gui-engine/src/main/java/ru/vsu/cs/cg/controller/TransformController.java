@@ -1,7 +1,10 @@
 package ru.vsu.cs.cg.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
@@ -9,6 +12,7 @@ import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 import ru.vsu.cs.cg.utils.validation.InputValidator;
 
 public class TransformController extends BaseController {
+    private static final Logger LOG = LoggerFactory.getLogger(TransformController.class);
 
     @FXML private TextField positionX;
     @FXML private TextField positionY;

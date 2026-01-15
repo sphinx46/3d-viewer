@@ -8,6 +8,7 @@ import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.utils.cache.CachePersistenceManager;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
+import ru.vsu.cs.cg.utils.events.RecentFilesUpdateManager;
 import ru.vsu.cs.cg.utils.file.PathManager;
 
 public class FileOpenCommand implements Command {
@@ -66,6 +67,7 @@ public class FileOpenCommand implements Command {
 
             LOG.info("Сцена загружена из файла: {}", PathManager.getFileNameWithoutExtension(filePath));
             DialogManager.showSceneLoadSuccess("Сцена загружена: " + PathManager.getFileNameWithoutExtension(filePath));
+            RecentFilesUpdateManager.getInstance().notifyRecentFilesUpdated();
         } catch (Exception e) {
             LOG.error("Ошибка загрузки сцены: {}", e.getMessage());
             DialogManager.showError("Ошибка загрузки сцены: " + e.getMessage());
@@ -81,6 +83,7 @@ public class FileOpenCommand implements Command {
 
             LOG.info("Модель загружена: {}", PathManager.getFileNameWithoutExtension(filePath));
             DialogManager.showModelLoadSuccess("Модель добавлена: " + PathManager.getFileNameWithoutExtension(filePath));
+            RecentFilesUpdateManager.getInstance().notifyRecentFilesUpdated();
         } catch (Exception e) {
             LOG.error("Ошибка загрузки модели: {}", e.getMessage());
             DialogManager.showError("Ошибка добавления модели: " + e.getMessage());

@@ -7,19 +7,21 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.command.CommandFactory;
 import ru.vsu.cs.cg.controller.command.impl.file.FileOpenCommand;
+import ru.vsu.cs.cg.controller.command.impl.scene.JsonSceneCommand;
 import ru.vsu.cs.cg.controller.enums.TransformationMode;
 import ru.vsu.cs.cg.controller.hotkeys.HotkeyManager;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.service.impl.RecentFilesCacheServiceImpl;
 import ru.vsu.cs.cg.utils.cache.CachePersistenceManager;
-import ru.vsu.cs.cg.utils.controller.ControllerUtils;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
+import ru.vsu.cs.cg.utils.events.RecentFilesUpdateManager;
 import ru.vsu.cs.cg.utils.file.PathManager;
 import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 import ru.vsu.cs.cg.utils.window.StageManager;
@@ -30,25 +32,21 @@ import java.util.Optional;
 
 public class MainController {
     private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
+    private static final double RIGHT_PANEL_MIN_WIDTH = 250.0;
+    private static final double RIGHT_PANEL_MAX_WIDTH = 500.0;
+    private static final double RESIZER_WIDTH = 3.0;
+
+    @FXML private AnchorPane anchorPane;
 
     @FXML private AnchorPane viewerContainer;
     @FXML private TransformController transformPanelController;
     @FXML private MaterialController materialPanelController;
     @FXML private CameraController cameraPanelController;
     @FXML private ModificationController modificationPanelController;
-
-    private final SceneController sceneController = new SceneController();
-    private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
-    private HotkeyManager hotkeyManager;
-    private CommandFactory commandFactory;
-    private RenderController renderController;
-
-    @FXML private AnchorPane anchorPane;
     @FXML private TreeView<SceneObject> sceneTreeView;
     @FXML private Button addObjectButton;
     @FXML private Button deleteObjectButton;
     @FXML private Button duplicateObjectButton;
-
     @FXML private MenuItem menuThemeDark;
     @FXML private MenuItem menuThemeLight;
     @FXML private MenuItem menuFileOpen;
@@ -86,6 +84,12 @@ public class MainController {
     @FXML private Button rotateToolButton;
     @FXML private Button scaleToolButton;
 
+    private final SceneController sceneController = new SceneController();
+    private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
+    private HotkeyManager hotkeyManager;
+    private CommandFactory commandFactory;
+    private RenderController renderController;
+
     @FXML
     private void initialize() {
         initializeTooltips();
@@ -96,12 +100,9 @@ public class MainController {
         loadRecentFiles();
         initializeRender();
         cameraPanelController.initialize();
-        cameraPanelController.setSceneManager(renderController.getSceneManager());
-
         initializeDependencies();
-        cameraPanelController.setSceneManager(renderController.getSceneManager());
-
         renderController.start();
+        RecentFilesUpdateManager.getInstance().addListener(this::updateRecentFilesMenu);
         LOG.info("Главный контроллер инициализирован");
     }
 
@@ -276,7 +277,6 @@ public class MainController {
             (observable, oldValue, newValue) -> {
                 if (newValue != null && newValue.getValue() != null) {
                     sceneController.handleSceneObjectSelection(newValue.getValue().getName());
-                    updateCoordinateAxisMenuState();
                 }
             }
         );
@@ -375,8 +375,6 @@ public class MainController {
     private void initializeMenuCheckmarks() {
         Platform.runLater(() -> {
             menuViewGridHelper.setSelected(true);
-            menuViewCoordinateAxisHelper.setSelected(false);
-            updateCoordinateAxisMenuState();
         });
     }
 
@@ -402,19 +400,6 @@ public class MainController {
                 case SCALE:
                     scaleToolButton.getStyleClass().add("tool-button-active");
                     break;
-            }
-        });
-    }
-
-    private void updateCoordinateAxisMenuState() {
-        Platform.runLater(() -> {
-            if (sceneController.hasSelectedObject()) {
-                boolean axisVisible = sceneController.getSelectedObject().getRenderSettings().isDrawAxisLines();
-                menuViewCoordinateAxisHelper.setSelected(axisVisible);
-                menuViewCoordinateAxisHelper.setDisable(false);
-            } else {
-                menuViewCoordinateAxisHelper.setSelected(false);
-                menuViewCoordinateAxisHelper.setDisable(true);
             }
         });
     }
@@ -446,26 +431,28 @@ public class MainController {
     }
 
     private void updateRecentFilesMenu() {
-        menuRecent.getItems().clear();
+        Platform.runLater(() -> {
+            menuRecent.getItems().clear();
 
-        List<String> recentFiles = recentFilesCacheService.getRecentFiles();
+            List<String> recentFiles = recentFilesCacheService.getRecentFiles();
 
-        if (recentFiles.isEmpty()) {
-            MenuItem emptyItem = new MenuItem("Нет недавних файлов");
-            emptyItem.setDisable(true);
-            menuRecent.getItems().add(emptyItem);
-            menuRecent.getItems().add(new SeparatorMenuItem());
-        } else {
-            for (String filePath : recentFiles) {
-                String fileName = PathManager.getFileNameWithoutExtension(filePath);
-                MenuItem fileItem = new MenuItem(fileName);
-                fileItem.setOnAction(event -> openRecentFile(filePath));
-                menuRecent.getItems().add(fileItem);
+            if (recentFiles.isEmpty()) {
+                MenuItem emptyItem = new MenuItem("Нет недавних файлов");
+                emptyItem.setDisable(true);
+                menuRecent.getItems().add(emptyItem);
+                menuRecent.getItems().add(new SeparatorMenuItem());
+            } else {
+                for (String filePath : recentFiles) {
+                    String fileName = PathManager.getFileNameWithoutExtension(filePath);
+                    MenuItem fileItem = new MenuItem(fileName);
+                    fileItem.setOnAction(event -> openRecentFile(filePath));
+                    menuRecent.getItems().add(fileItem);
+                }
             }
-        }
 
-        menuRecent.getItems().add(new SeparatorMenuItem());
-        menuRecent.getItems().add(menuRecentClear);
+            menuRecent.getItems().add(new SeparatorMenuItem());
+            menuRecent.getItems().add(menuRecentClear);
+        });
     }
 
     private void openRecentFile(String filePath) {
@@ -477,25 +464,28 @@ public class MainController {
 
             PathManager.validatePathForRead(filePath);
 
-            boolean isSceneFormat = filePath.toLowerCase().endsWith(".scene") ||
-                filePath.toLowerCase().endsWith(".3dscene");
-
-            if (isSceneFormat) {
+            if (PathManager.isSupportedSceneFormat(filePath)) {
                 FileOpenCommand openCommand = (FileOpenCommand) commandFactory.getCommand("file_open");
                 if (openCommand != null) {
                     openCommand.openSceneFile(filePath);
                 }
-            } else {
+            } else if (PathManager.isSupported3DFormat(filePath)) {
                 FileOpenCommand openCommand = (FileOpenCommand) commandFactory.getCommand("file_open");
                 if (openCommand != null) {
                     openCommand.openModelFile(filePath);
                 }
+            } else if (PathManager.isImportOrExportSceneFormat(filePath)) {
+                JsonSceneCommand openCommand = (JsonSceneCommand) commandFactory.getCommand("scene_json_import");
+                if (openCommand != null) {
+                    openCommand.importSceneFile(filePath);
+                }
+            } else {
+                LOG.error("Неподдерживаемый формат файла: {}", PathManager.getFileNameWithoutExtension(filePath));
+                DialogManager.showError("Неподдерживаемый формат файла");
             }
-
-            recentFilesCacheService.addFile(filePath);
-            updateRecentFilesMenu();
         } catch (Exception e) {
-            LOG.error("Не удалось загрузить файл: {}", PathManager.getFileNameWithoutExtension(filePath));
+            LOG.error("Не удалось загрузить файл: {}", PathManager.getFileNameWithoutExtension(filePath), e);
+            DialogManager.showError("Не удалось загрузить файл: " + PathManager.getFileNameWithoutExtension(filePath));
         }
     }
 
@@ -508,7 +498,7 @@ public class MainController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             recentFilesCacheService.clearCache();
             CachePersistenceManager.saveRecentFiles(recentFilesCacheService.getRecentFiles());
-            updateRecentFilesMenu();
+            RecentFilesUpdateManager.getInstance().notifyRecentFilesUpdated();
         }
     }
 
@@ -525,6 +515,7 @@ public class MainController {
         }
 
         CachePersistenceManager.saveRecentFiles(recentFilesCacheService.getRecentFiles());
+        RecentFilesUpdateManager.getInstance().removeListener(this::updateRecentFilesMenu);
         if (hotkeyManager != null) {
             hotkeyManager.unregisterGlobalHotkeys(anchorPane);
         }

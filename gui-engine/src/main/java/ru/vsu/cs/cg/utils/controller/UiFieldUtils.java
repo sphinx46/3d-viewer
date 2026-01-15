@@ -1,8 +1,6 @@
 package ru.vsu.cs.cg.utils.controller;
 
-import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

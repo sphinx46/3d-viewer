@@ -8,6 +8,7 @@ import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import ru.vsu.cs.cg.utils.cache.CachePersistenceManager;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
+import ru.vsu.cs.cg.utils.events.RecentFilesUpdateManager;
 import ru.vsu.cs.cg.utils.file.PathManager;
 
 import java.io.File;
@@ -57,6 +58,8 @@ public class ModelSaveCommand implements Command {
                 sceneController.saveSelectedModelWithMaterial(filePath);
                 recentFilesService.addFile(filePath);
                 CachePersistenceManager.saveRecentFiles(recentFilesService.getRecentFiles());
+
+                RecentFilesUpdateManager.getInstance().notifyRecentFilesUpdated();
 
                 LOG.info("Модель '{}' сохранена с трансформациями и материалом: {}", objectName, file.getName());
                 DialogManager.showModelSaveSuccess("Модель '" + objectName + "' сохранена с примененными трансформациями и материалом");

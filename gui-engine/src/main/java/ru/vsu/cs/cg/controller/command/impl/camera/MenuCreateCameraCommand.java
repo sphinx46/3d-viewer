@@ -3,10 +3,6 @@ package ru.vsu.cs.cg.controller.command.impl.camera;
 import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.math.Vector3f;
-import ru.vsu.cs.cg.renderEngine.camera.Camera;
-import ru.vsu.cs.cg.scene.SceneManager;
-
-import java.util.Set;
 
 public class MenuCreateCameraCommand implements Command {
 

@@ -1,21 +1,25 @@
 package ru.vsu.cs.cg.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.math.Vector3f;
 import ru.vsu.cs.cg.renderEngine.camera.Camera;
 import ru.vsu.cs.cg.scene.SceneManager;
+import ru.vsu.cs.cg.utils.camera.CameraUtils;
+import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
+import ru.vsu.cs.cg.utils.validation.InputValidator;
 
 import java.util.Set;
 
 public class CameraController {
     private static final Logger LOG = LoggerFactory.getLogger(CameraController.class);
+    private static final double MIN_FOV = 1.0;
+    private static final double MAX_FOV = 179.0;
+    private static final float MIN_NEAR_PLANE = 0.001f;
+
     private SceneManager sceneManager;
 
     @FXML private ComboBox<String> cameraSelector;
@@ -38,7 +42,6 @@ public class CameraController {
     @FXML private Button applyCameraButton;
     @FXML private Button resetCameraButton;
 
-
     @FXML
     public void initialize() {
         LOG.debug("Инициализация CameraController");
@@ -48,7 +51,7 @@ public class CameraController {
 
     private void initializeBindings() {
         fovSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            fovField.setText(String.format("%.1f", newVal.doubleValue()));
+            fovField.setText(UiFieldUtils.formatDouble(newVal.doubleValue()));
             applyFovImmediate(newVal.doubleValue());
         });
     }
@@ -61,20 +64,13 @@ public class CameraController {
 
         applyCameraButton.setOnAction(event -> applySettings());
         resetCameraButton.setOnAction(event -> resetSettings());
-
     }
 
-    /**
-     * Установка зависимости от SceneManager (вызывается из MainController)
-     */
     public void setSceneManager(SceneManager sceneManager) {
         this.sceneManager = sceneManager;
         refreshCameraList();
     }
 
-    /**
-     * Обновление выпадающего списка камер
-     */
     public void refreshCameraList() {
         if (sceneManager == null) return;
 
@@ -93,9 +89,6 @@ public class CameraController {
         }
     }
 
-    /**
-     * Обработка выбора камеры в ComboBox
-     */
     private void handleCameraSelection() {
         String selectedId = cameraSelector.getValue();
         if (selectedId == null) return;
@@ -111,43 +104,39 @@ public class CameraController {
         }
     }
 
-    /**
-     * Загрузка параметров камеры в UI поля
-     */
     private void loadCameraToFields(Camera cam) {
         if (cam == null) return;
 
-        // FOV: переводим радианы в градусы
         double fovDeg = Math.toDegrees(cam.getFov());
         fovSlider.setValue(fovDeg);
-        fovField.setText(String.format("%.1f", fovDeg));
+        fovField.setText(UiFieldUtils.formatDouble(fovDeg));
 
-        // Параметры плоскостей
-        aspectRatioField.setText(String.format("%.2f", cam.getAspectRatio()));
-        nearPlaneField.setText(String.format("%.2f", cam.getNearPlane()));
-        farPlaneField.setText(String.format("%.2f", cam.getFarPlane()));
+        aspectRatioField.setText(UiFieldUtils.formatDouble(cam.getAspectRatio()));
+        nearPlaneField.setText(UiFieldUtils.formatDouble(cam.getNearPlane()));
+        farPlaneField.setText(UiFieldUtils.formatDouble(cam.getFarPlane()));
 
-        // Позиция
-        cameraPosXField.setText(format(cam.getPosition().getX()));
-        cameraPosYField.setText(format(cam.getPosition().getY()));
-        cameraPosZField.setText(format(cam.getPosition().getZ()));
+        cameraPosXField.setText(formatFloat(cam.getPosition().getX()));
+        cameraPosYField.setText(formatFloat(cam.getPosition().getY()));
+        cameraPosZField.setText(formatFloat(cam.getPosition().getZ()));
 
-        // Цель
-        cameraTargetXField.setText(format(cam.getTarget().getX()));
-        cameraTargetYField.setText(format(cam.getTarget().getY()));
-        cameraTargetZField.setText(format(cam.getTarget().getZ()));
+        cameraTargetXField.setText(formatFloat(cam.getTarget().getX()));
+        cameraTargetYField.setText(formatFloat(cam.getTarget().getY()));
+        cameraTargetZField.setText(formatFloat(cam.getTarget().getZ()));
     }
 
-    /**
-     * Создание новой камеры
-     */
     public void createCamera(Vector3f position) {
-        String id = generateUniqueCameraId();
-        Camera newCam = new Camera(id,
-            position,
-            new Vector3f(0, 0, 0));
+        if (sceneManager == null) return;
 
-        newCam.setAspectRatio(sceneManager.getActiveCamera().getAspectRatio());
+        Set<String> existingIds = sceneManager.getCameras().stream()
+            .map(Camera::getId)
+            .collect(java.util.stream.Collectors.toSet());
+
+        String id = CameraUtils.generateUniqueCameraId(existingIds);
+        Camera newCam = new Camera(id, position, new Vector3f(0, 0, 0));
+
+        if (!sceneManager.getCameras().isEmpty()) {
+            newCam.setAspectRatio(sceneManager.getActiveCamera().getAspectRatio());
+        }
 
         sceneManager.addCamera(newCam);
         sceneManager.setActiveCamera(newCam);
@@ -156,9 +145,6 @@ public class CameraController {
         LOG.info("Создана новая камера: {}", newCam.getId());
     }
 
-    /**
-     * Удаление выбранной камеры
-     */
     private void deleteCamera() {
         Camera selectedCam = getSelectedCamera();
         if (selectedCam == null) return;
@@ -176,23 +162,22 @@ public class CameraController {
         }
     }
 
-    /**
-     * Применение значений из полей к объекту камеры
-     */
     private void applySettings() {
         Camera cam = getSelectedCamera();
         if (cam == null) return;
 
         try {
             double fovDeg = parseDouble(fovField.getText());
-            if (fovDeg < 1 || fovDeg > 179) throw new IllegalArgumentException("FOV должен быть от 1 до 179");
+            if (fovDeg < MIN_FOV || fovDeg > MAX_FOV) {
+                throw new IllegalArgumentException("FOV должен быть от " + MIN_FOV + " до " + MAX_FOV);
+            }
             cam.setFov((float) Math.toRadians(fovDeg));
 
             float aspect = (float) parseDouble(aspectRatioField.getText());
             float near = (float) parseDouble(nearPlaneField.getText());
             float far = (float) parseDouble(farPlaneField.getText());
 
-            if (near <= 0) throw new IllegalArgumentException("Ближняя плоскость должна быть > 0");
+            if (near < MIN_NEAR_PLANE) throw new IllegalArgumentException("Ближняя плоскость должна быть >= " + MIN_NEAR_PLANE);
             if (far <= near) throw new IllegalArgumentException("Дальняя плоскость должна быть больше ближней");
 
             cam.setAspectRatio(aspect);
@@ -221,9 +206,6 @@ public class CameraController {
         }
     }
 
-    /**
-     * Сброс полей к текущим значениям камеры
-     */
     private void resetSettings() {
         Camera cam = getSelectedCamera();
         if (cam != null) {
@@ -231,11 +213,6 @@ public class CameraController {
         }
     }
 
-    // --- Вспомогательные методы ---
-
-    /**
-     * Мгновенное применение FOV (для слайдера)
-     */
     private void applyFovImmediate(double fovDeg) {
         Camera cam = sceneManager.getActiveCamera();
         if (cam != null) {
@@ -253,33 +230,10 @@ public class CameraController {
     }
 
     private double parseDouble(String str) throws NumberFormatException {
-        try {
-            return Double.parseDouble(str.replace(",", "."));
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("Не удалось прочитать число: " + str);
-        }
+        return InputValidator.parseDoubleSafe(str.replace(",", "."), 0.0);
     }
 
-    /**
-     * Вспомогательный метод для генерации уникального ID.
-     * Перебирает имена Camera_1, Camera_2 и т.д., пока не найдет свободный слот.
-     */
-    private String generateUniqueCameraId() {
-        Set<String> existingIds = sceneManager.getCameras().stream()
-            .map(Camera::getId)
-            .collect(java.util.stream.Collectors.toSet());
-
-        int i = 1;
-        while (true) {
-            String potentialId = "Camera_" + i;
-            if (!existingIds.contains(potentialId)) {
-                return potentialId;
-            }
-            i++;
-        }
-    }
-
-    private String format(float val) {
-        return String.format("%.2f", val).replace(",", ".");
+    private String formatFloat(float val) {
+        return UiFieldUtils.formatDouble(val);
     }
 }

@@ -15,13 +15,14 @@ import ru.vsu.cs.cg.service.SceneService;
 import ru.vsu.cs.cg.service.impl.ModelServiceImpl;
 import ru.vsu.cs.cg.service.impl.SceneServiceImpl;
 import ru.vsu.cs.cg.utils.model.DefaultModelLoader;
+import ru.vsu.cs.cg.utils.scene.SceneUtils;
 
 import java.io.IOException;
 import java.util.Optional;
 
 public class SceneController {
-
     private static final Logger LOG = LoggerFactory.getLogger(SceneController.class);
+    private static final String COPY_SUFFIX = "_copy";
 
     private final SceneService sceneService;
     private final ModelService modelService;
@@ -155,7 +156,7 @@ public class SceneController {
         }
 
         SceneObject pastedObject = clipboardObject.copy();
-        pastedObject.setName(generateUniqueCopyName(clipboardObject.getName()));
+        pastedObject.setName(SceneUtils.generateUniqueCopyName(clipboardObject.getName(), currentScene));
         pastedObject.getRenderSettings().setDrawAxisLines(true);
         currentScene.addObject(pastedObject);
         currentScene.selectObject(pastedObject);
@@ -171,29 +172,9 @@ public class SceneController {
             return;
         }
 
-        if (newName == null || newName.trim().isEmpty()) {
-            LOG.warn("Попытка переименовать объект с пустым именем");
-            return;
-        }
-
-        String trimmedName = newName.trim();
-        SceneObject selectedObject = getSelectedObject();
-        String currentName = selectedObject.getName();
-
-        if (trimmedName.equals(currentName)) {
-            LOG.debug("Имя объекта не изменилось: {}", currentName);
-            return;
-        }
-
-        if (currentScene.findObjectByName(trimmedName).isPresent()) {
-            LOG.warn("Объект с именем '{}' уже существует в сцене", trimmedName);
-            return;
-        }
-
-        selectedObject.setName(trimmedName);
+        SceneUtils.validateAndRenameObject(getSelectedObject(), newName, currentScene);
         markSceneModified();
         updateUI();
-        LOG.info("Объект переименован: '{}' -> '{}'", currentName, trimmedName);
     }
 
     public void createNewScene() {
@@ -359,17 +340,6 @@ public class SceneController {
         return currentSceneFilePath;
     }
 
-    private String generateUniqueCopyName(String baseName) {
-        String copyName = baseName + "_copy";
-        int counter = 1;
-
-        while (currentScene.findObjectByName(copyName).isPresent()) {
-            copyName = baseName + "_copy" + counter++;
-        }
-
-        return copyName;
-    }
-
     public void saveSelectedModelWithMaterial(String filePath) {
         if (!hasSelectedObject()) {
             LOG.warn("Попытка сохранения модели без выбранного объекта");
@@ -440,7 +410,11 @@ public class SceneController {
         cameraController.createCamera(position);
     }
 
-    public void setCameraController(CameraController cameraController) {this.cameraController = cameraController;}
-    public Scene getScene(){return currentScene;}
+    public void setCameraController(CameraController cameraController) {
+        this.cameraController = cameraController;
+    }
 
+    public Scene getScene(){
+        return currentScene;
+    }
 }
