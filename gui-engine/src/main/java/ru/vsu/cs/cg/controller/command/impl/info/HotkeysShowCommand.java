@@ -60,7 +60,7 @@ public class HotkeysShowCommand implements Command {
             hotkeysText.append("  M wheel          - ").append(descriptions.get("M wheel")).append("\n");
             hotkeysText.append("  RMB              - ").append(descriptions.get("RMB")).append("\n");
 
-            DialogManager.showInfo("Горячие клавиши", hotkeysText.toString());
+            DialogManager.showHotkeysInfo("Горячие клавиши", hotkeysText.toString());
             LOG.info("Показан диалог горячих клавиш");
         } catch (Exception e) {
             LOG.error("Ошибка показа диалога горячих клавиш: {}", e.getMessage());

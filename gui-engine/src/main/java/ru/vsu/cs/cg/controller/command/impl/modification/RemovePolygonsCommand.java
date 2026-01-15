@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.model.selection.ModelSelection;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.constants.MessageConstants;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
@@ -50,8 +51,11 @@ public class RemovePolygonsCommand implements Command {
 
             removePolygonsFromModel(model, polygonIndices);
 
+            ModelSelection.adjustTriangleIndicesAfterDeletion(polygonIndices);
+
             sceneController.markModelModified();
-            updateModelStatistics(selectedObject);
+            sceneController.markSceneModified();
+            sceneController.updateUI();
 
             LOG.info("Удаление полигонов завершено: удалено полигонов={}", polygonIndices.size());
 
@@ -65,10 +69,6 @@ public class RemovePolygonsCommand implements Command {
 
     private void removePolygonsFromModel(Model model, Set<Integer> polygonIndices) {
         ru.vsu.cs.cg.utils.RemovalUtils.removePolygonsFromModel(model, polygonIndices);
-    }
-
-    private void updateModelStatistics(SceneObject object) {
-        LOG.debug("Статистика модели обновлена для объекта: {}", object.getName());
     }
 
     private void showSuccessMessage(int removedCount) {

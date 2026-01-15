@@ -14,7 +14,8 @@ public final class ModificationUtils {
     private ModificationUtils() {
     }
 
-    public static void updateSelection(String indicesInput, Model model, boolean isVertices, boolean select) {
+    public static void updateSelection(String indicesInput, Model model, boolean isVertices, boolean select)
+        throws IndexOutOfBoundsException {
         try {
             int maxIndex = isVertices ? model.getVertices().size() : model.getPolygons().size();
             Set<Integer> indices = IndexParser.parseAndValidateIndices(indicesInput, maxIndex);
@@ -23,16 +24,16 @@ public final class ModificationUtils {
             if (isVertices) {
                 handleVertexSelection(selection, indices, select);
             } else {
-                handlePolygonSelection(selection, indices, select);
+                handleTriangleSelection(selection, indices, select);
             }
 
             String action = select ? "выделено" : "снято выделение";
-            String type = isVertices ? "вершин" : "полигонов";
+            String type = isVertices ? "вершин" : "треугольников";
             LOG.info("{} с {} {}", action, indices.size(), type);
 
         } catch (IllegalArgumentException e) {
             LOG.error("Ошибка {} {}: {}", select ? "выделения" : "снятия выделения",
-                isVertices ? "вершин" : "полигонов", e.getMessage());
+                isVertices ? "вершин" : "треугольников", e.getMessage());
         }
     }
 
@@ -53,17 +54,17 @@ public final class ModificationUtils {
         }
     }
 
-    private static void handlePolygonSelection(ModelSelection selection, Set<Integer> indices, boolean select) {
+    private static void handleTriangleSelection(ModelSelection selection, Set<Integer> indices, boolean select) {
         if (select) {
-            selection.clearPolygonSelection();
-            indices.forEach(selection::selectPolygon);
+            selection.clearTriangles();
+            indices.forEach(selection::addSelectedTriangle);
         } else {
             if (indices.isEmpty()) {
-                selection.clearPolygonSelection();
+                selection.clearTriangles();
             } else {
                 indices.forEach(index -> {
-                    if (selection.isPolygonSelected(index)) {
-                        selection.deselectPolygon(index);
+                    if (selection.getSelectedTriangles().contains(index)) {
+                        selection.removeSelectedTriangle(index);
                     }
                 });
             }

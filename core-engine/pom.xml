@@ -23,6 +23,7 @@
         <slf4j.version>2.0.9</slf4j.version>
         <logback.version>1.5.13</logback.version>
         <junit.jupiter.version>5.10.0</junit.jupiter.version>
+        <maven.assembly.plugin.version>3.6.0</maven.assembly.plugin.version>
     </properties>
 
     <dependencies>
@@ -69,13 +70,6 @@
         </dependency>
 
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.jupiter.version}</version>
@@ -101,4 +95,17 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly.plugin.version}</version>
+                <configuration>
+                    <skipAssembly>true</skipAssembly>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

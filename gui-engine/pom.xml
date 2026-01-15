@@ -29,6 +29,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <mockito.version>5.21.0</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.dependency.plugin.version>3.6.0</maven.dependency.plugin.version>
     </properties>
 
     <dependencies>
@@ -144,33 +145,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>${javafx.maven.plugin.version}</version>
-                <configuration>
-                    <mainClass>ru.vsu.cs.cg.App</mainClass>
-                    <options>
-                        <option>--add-modules</option>
-                        <option>javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.swing</option>
-                        <option>--add-opens</option>
-                        <option>javafx.graphics/com.sun.javafx.css=ALL-UNNAMED</option>
-                        <option>--add-opens</option>
-                        <option>javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</option>
-                        <option>--add-opens</option>
-                        <option>javafx.graphics/javafx.sceneManager=ALL-UNNAMED</option>
-                        <option>--add-opens</option>
-                        <option>javafx.controls/javafx.sceneManager.control=ALL-UNNAMED</option>
-                        <option>--add-opens</option>
-                        <option>javafx.base/javafx.collections=ALL-UNNAMED</option>
-                        <option>--add-opens</option>
-                        <option>javafx.graphics/javafx.sceneManager.layout=ALL-UNNAMED</option>
-                        <option>--add-exports</option>
-                        <option>javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</option>
-                    </options>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
@@ -199,6 +173,37 @@
                 <version>3.3.1</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven.dependency.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly.plugin.version}</version>
+                <configuration>
+                    <skipAssembly>true</skipAssembly>
                 </configuration>
             </plugin>
         </plugins>

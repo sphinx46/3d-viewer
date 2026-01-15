@@ -14,6 +14,7 @@ import ru.vsu.cs.cg.renderEngine.camera.Camera;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javafx.scene.paint.Color;
 import ru.vsu.cs.cg.rasterization.Texture;
@@ -245,22 +246,57 @@ public class RenderEngine {
      * @param mvp   Матрица Model-View-Projection
      * @param r     Растеризатор
      */
+    /**
+     * Рендерит выделение вершин и треугольников модели.
+     *
+     * @param pw    Писатель пикселей
+     * @param w     Ширина области рендеринга
+     * @param h     Высота области рендеринга
+     * @param model Модель с выделенными элементами
+     * @param mvp   Матрица Model-View-Projection
+     * @param r     Растеризатор
+     */
+    /**
+     * Рендерит выделение вершин и треугольников модели.
+     *
+     * @param pw    Писатель пикселей
+     * @param w     Ширина области рендеринга
+     * @param h     Высота области рендеринга
+     * @param model Модель с выделенными элементами
+     * @param mvp   Матрица Model-View-Projection
+     * @param r     Растеризатор
+     */
     private void renderSelection(PixelWriter pw, int w, int h, Model model, Matrix4x4 mvp, Rasterizer r) {
         ModelSelection sel = model.getSelection();
+
         if (sel.hasSelectedVertices()) {
-            for (Integer idx : sel.getSelectedVertices()) {
-                Vector4f v = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvp, model.getVertices().get(idx));
-                if (v.getW() > 0.1f) renderVertexPoint(pw, w, h, GraphicConveyor.vertexToPoint(v.toVector3Safe(), w, h), v.getW(), 8, Color.YELLOW, r);
+            for (Integer vertexIdx : sel.getSelectedVertices()) {
+                if (vertexIdx >= 0 && vertexIdx < model.getVertices().size()) {
+                    Vector4f v = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(
+                        mvp, model.getVertices().get(vertexIdx));
+                    if (v.getW() > 0.1f) {
+                        renderVertexPoint(pw, w, h,
+                            GraphicConveyor.vertexToPoint(v.toVector3Safe(), w, h),
+                            v.getW(), 8, Color.YELLOW, r);
+                    }
+                }
             }
         }
 
-        if (sel.hasSelectedPolygons()) {
-            for (Integer idx : sel.getSelectedPolygons()) {
-                Polygon poly = model.getPolygons().get(idx);
-                for (int i = 0; i < poly.getVertexIndices().size(); i++) {
-                    Vector3f v1 = model.getVertices().get(poly.getVertexIndices().get(i));
-                    Vector3f v2 = model.getVertices().get(poly.getVertexIndices().get((i + 1) % poly.getVertexIndices().size()));
-                    renderLine3D(pw, w, h, v1, v2, mvp, Color.CYAN, r, true);
+        if (sel.hasSelectedTriangles()) {
+            List<Polygon> triangles = model.getTriangulatedPolygonsCache();
+            Set<Integer> selectedTriangleIndices = sel.getSelectedTriangles();
+
+            for (Integer triangleIdx : selectedTriangleIndices) {
+                if (triangleIdx >= 0 && triangleIdx < triangles.size()) {
+                    Polygon triangle = triangles.get(triangleIdx);
+                    List<Integer> vIdx = triangle.getVertexIndices();
+
+                    for (int i = 0; i < 3; i++) {
+                        Vector3f v1 = model.getVertices().get(vIdx.get(i));
+                        Vector3f v2 = model.getVertices().get(vIdx.get((i + 1) % 3));
+                        renderLine3D(pw, w, h, v1, v2, mvp, Color.CYAN, r, true);
+                    }
                 }
             }
         }

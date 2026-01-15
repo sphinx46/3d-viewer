@@ -182,9 +182,9 @@ public class ModificationController extends BaseController {
                 vertexIndicesField.setText(IndexParser.formatIndices(vertices));
             }
 
-            if (selection.hasSelectedPolygons()) {
-                List<Integer> polygons = new ArrayList<>(selection.getSelectedPolygons());
-                polygonIndicesField.setText(IndexParser.formatIndices(polygons));
+            if (selection.hasSelectedTriangles()) {
+                List<Integer> triangles = new ArrayList<>(selection.getSelectedTriangles());
+                polygonIndicesField.setText(IndexParser.formatIndices(triangles));
             }
         });
     }

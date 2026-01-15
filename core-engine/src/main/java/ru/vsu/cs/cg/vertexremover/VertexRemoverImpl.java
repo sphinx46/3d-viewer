@@ -67,6 +67,11 @@ public final class VertexRemoverImpl implements VertexRemover {
         performCleanupAndReindex(model, allVerticesToRemove, textureIndicesToRemove,
                 normalIndicesToRemove, clearUnused);
 
+        if (model.isUseLighting() && !model.getNormals().isEmpty()) {
+            log.debug("VERTEX_REMOVAL_SERVICE_RECOMPUTE_NORMALS: пересчет нормалей после удаления вершин");
+            model.recomputeNormals();
+        }
+
         log.info("VERTEX_REMOVAL_SERVICE_REINDEX_MODEL_COMPLETE: " +
                         "модель переиндексирована, финальное количество вершин: {}, " +
                         "финальное количество полигонов: {}",

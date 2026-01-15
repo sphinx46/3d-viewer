@@ -1,7 +1,7 @@
 package ru.vsu.cs.cg.utils.dialog;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.*;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -149,6 +149,41 @@ public final class DialogManager {
         showDialog(Alert.AlertType.INFORMATION, title, message);
     }
 
+    public static void showHotkeysInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(title);
+        alert.initModality(Modality.APPLICATION_MODAL);
+        alert.setResizable(true);
+
+        // Создаем TextArea вместо Label
+        TextArea textArea = new TextArea(message);
+        textArea.setEditable(false);
+        textArea.setWrapText(true); // Перенос текста
+        textArea.setFont(Font.font("Monospaced", 12)); // Моноширинный шрифт для выравнивания
+
+        // Устанавливаем фиксированный размер, чтобы появился скролл
+        textArea.setPrefRowCount(30); // 30 строк
+        textArea.setPrefColumnCount(70); // 70 символов в строке
+        textArea.setPrefHeight(600);
+        textArea.setPrefWidth(700);
+
+        // Создаем ScrollPane (TextArea уже имеет встроенный скролл, но для надежности)
+        ScrollPane scrollPane = new ScrollPane(textArea);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setPrefHeight(600);
+        scrollPane.setPrefWidth(700);
+
+        // Устанавливаем ScrollPane в диалог
+        alert.getDialogPane().setContent(scrollPane);
+
+        // Увеличиваем размеры окна
+        alert.getDialogPane().setPrefWidth(720);
+        alert.getDialogPane().setPrefHeight(650);
+
+        alert.showAndWait();
+    }
+
     public static Optional<ButtonType> showConfirmation(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         setupDialog(alert, title, message);
@@ -170,6 +205,7 @@ public final class DialogManager {
 
     private static void showDialog(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
+        alert.setResizable(true);
         setupDialog(alert, title, message);
         alert.showAndWait();
     }
