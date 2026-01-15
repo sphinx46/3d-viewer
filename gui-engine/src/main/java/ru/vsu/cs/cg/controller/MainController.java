@@ -36,19 +36,16 @@ public class MainController {
     @FXML private AnchorPane anchorPane;
     @FXML private AnchorPane viewerContainer;
 
-    // Под-контроллеры
     @FXML private TransformController transformPanelController;
     @FXML private MaterialController materialPanelController;
     @FXML private CameraController cameraPanelController;
     @FXML private ModificationController modificationPanelController;
 
-    // Элементы UI
     @FXML private TreeView<SceneObject> sceneTreeView;
     @FXML private Button addObjectButton;
     @FXML private Button deleteObjectButton;
     @FXML private Button duplicateObjectButton;
 
-    // Меню
     @FXML private MenuItem menuThemeDark;
     @FXML private MenuItem menuThemeLight;
     @FXML private MenuItem menuFileOpen;
@@ -83,19 +80,16 @@ public class MainController {
     @FXML private Menu menuRecent;
     @FXML private MenuItem menuRecentClear;
 
-    // Инструменты
     @FXML private Button moveToolButton;
     @FXML private Button rotateToolButton;
     @FXML private Button scaleToolButton;
 
-    // Логика
     private final SceneController sceneController = new SceneController();
     private final RecentFilesCacheService recentFilesCacheService = new RecentFilesCacheServiceImpl();
     private HotkeyManager hotkeyManager;
     private CommandFactory commandFactory;
     private RenderController renderController;
 
-    // --- ИЗМЕНЕНИЕ 1: Добавлено поле ---
     private InputHandler inputHandler;
 
     @FXML
@@ -136,7 +130,6 @@ public class MainController {
             renderController.setSceneController(sceneController);
             sceneController.setRenderController(renderController);
 
-            // --- ИЗМЕНЕНИЕ 2: Связь для обновления цифр UI при полете ---
             renderController.setCameraController(cameraPanelController);
         }
 
@@ -160,7 +153,6 @@ public class MainController {
             hotkeyManager = new HotkeyManager();
             hotkeyManager.setCommandFactory(commandFactory);
 
-            // Блокировщик не нужен, так как клавиши переназначены
             hotkeyManager.registerGlobalHotkeys(anchorPane);
             initializeMenuCheckmarks();
         } catch (Exception e) {
@@ -175,7 +167,6 @@ public class MainController {
         }
         this.renderController = new RenderController(viewerContainer);
 
-        // --- ИЗМЕНЕНИЕ 3: Инициализация InputHandler ---
         this.inputHandler = new InputHandler(sceneController);
         this.renderController.setInputHandler(inputHandler);
 

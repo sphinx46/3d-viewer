@@ -16,7 +16,7 @@ import ru.vsu.cs.cg.service.impl.ModelServiceImpl;
 import ru.vsu.cs.cg.service.impl.SceneServiceImpl;
 import ru.vsu.cs.cg.utils.model.DefaultModelLoader;
 import ru.vsu.cs.cg.utils.scene.SceneUtils;
-
+import ru.vsu.cs.cg.renderEngine.camera.Camera;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -422,7 +422,7 @@ public class SceneController {
         return currentScene;
     }
 
-    public ru.vsu.cs.cg.renderEngine.camera.Camera getActiveCamera() {
+    public Camera getActiveCamera() {
         if (renderController != null && renderController.getSceneManager() != null) {
             return renderController.getSceneManager().getActiveCamera();
         }

@@ -33,6 +33,7 @@ public class HotkeysShowCommand implements Command {
             hotkeysText.append("  U               - ").append(descriptions.get("U")).append("\n");
             hotkeysText.append("  I               - ").append(descriptions.get("I")).append("\n");
             hotkeysText.append("  O               - ").append(descriptions.get("O")).append("\n");
+            hotkeysText.append("  LMB             - ").append(descriptions.get("LMB")).append("\n");
 
             hotkeysText.append("\nВид камеры:\n");
             hotkeysText.append("  Ctrl+1          - ").append(descriptions.get("Ctrl+1")).append("\n");
@@ -50,6 +51,14 @@ public class HotkeysShowCommand implements Command {
 
             hotkeysText.append("\nСправка:\n");
             hotkeysText.append("  F1              - ").append(descriptions.get("F1")).append("\n");
+
+            hotkeysText.append("\nУправление камерой:\n");
+            hotkeysText.append("  W/S              - ").append(descriptions.get("W/S")).append("\n");
+            hotkeysText.append("  A/D              - ").append(descriptions.get("A/D")).append("\n");
+            hotkeysText.append("  Space            - ").append(descriptions.get("Space")).append("\n");
+            hotkeysText.append("  Shift            - ").append(descriptions.get("Shift")).append("\n");
+            hotkeysText.append("  M wheel          - ").append(descriptions.get("M wheel")).append("\n");
+            hotkeysText.append("  RMB              - ").append(descriptions.get("RMB")).append("\n");
 
             DialogManager.showInfo("Горячие клавиши", hotkeysText.toString());
             LOG.info("Показан диалог горячих клавиш");

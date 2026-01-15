@@ -30,12 +30,9 @@ public class HotkeyManager {
     }
 
     private void initializeHotkeys() {
-        // --- Файловые операции ---
         registerCommand("Ctrl+N", "scene_new");
         registerCommand("Ctrl+O", "file_open");
         registerCommand("Ctrl+S", "scene_save");
-
-        // --- Операции с объектами ---
         registerCommand("Ctrl+C", "object_copy");
         registerCommand("Ctrl+V", "object_paste");
         registerCommand("Ctrl+D", "object_duplicate");
@@ -45,23 +42,17 @@ public class HotkeyManager {
 
         KeyCombination deleteShift = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.SHIFT_DOWN);
         hotkeyActions.put(deleteShift, () -> execute("object_delete"));
-
-
-        // --- ИНСТРУМЕНТЫ (1, 2, 3) ---
         registerCommand("U", "transform_mode_move");
         registerCommand("I", "transform_mode_rotate");
         registerCommand("O", "transform_mode_scale");
 
-        // --- ВИД ---
         registerCommand("G", "grid_toggle");
         registerCommand("X", "axis_toggle");
 
-        // --- Остальное ---
         registerCommand("Ctrl+P", "screenshot_take");
         registerCommand("F11", "fullscreen_toggle");
         registerCommand("F1", "hotkeys_show");
 
-        // Камеры
         registerCommand("Ctrl+1", "camera_front");
         registerCommand("Ctrl+2", "camera_top");
         registerCommand("Ctrl+3", "camera_right");
@@ -129,6 +120,7 @@ public class HotkeyManager {
         descriptions.put("I", "Инструмент: Вращение");
         descriptions.put("O", "Инструмент: Масштабирование");
         descriptions.put("X", "Вкл/Выкл Оси координат");
+        descriptions.put("LMB", "Применение трансформаций");
 
         descriptions.put("Ctrl+1", "Вид спереди");
         descriptions.put("Ctrl+2", "Вид сверху");
@@ -141,7 +133,12 @@ public class HotkeyManager {
         descriptions.put("Ctrl+P", "Скриншот");
         descriptions.put("F1", "Показать справку");
 
-        descriptions.put("WASD", "Свободный полет камерой");
+        descriptions.put("W/S", "Полет Вперед / Назад");
+        descriptions.put("A/D", "Полет Влево / Вправо");
+        descriptions.put("Space", "Взлет (Вверх)");
+        descriptions.put("Shift", "Спуск");
+        descriptions.put("M wheel", "Приближение / Отдаление");
+        descriptions.put("RMB", "Повороты камеры");
 
         return descriptions;
     }

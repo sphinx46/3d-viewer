@@ -205,20 +205,6 @@ public class Matrix4x4 {
         return true;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Matrix4:\n");
-        for (int i = 0; i < 4; i++) {
-            sb.append("[ ");
-            for (int j = 0; j < 4; j++) {
-                sb.append(String.format("%10.4f ", data[i][j]));
-            }
-            sb.append("]\n");
-        }
-        return sb.toString();
-    }
-
     public float determinant() {
 
         return data[0][0] * determinant3x3(1, 2, 3, 1, 2, 3) -
@@ -318,5 +304,21 @@ public class Matrix4x4 {
                 a12 * (a21 * a33 - a23 * a31) +
                 a13 * (a21 * a32 - a22 * a31);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Matrix4:\n");
+        for (int i = 0; i < 4; i++) {
+            sb.append("[ ");
+            for (int j = 0; j < 4; j++) {
+                sb.append(String.format("%10.4f ", data[i][j]));
+            }
+            sb.append("]\n");
+        }
+        return sb.toString();
+    }
+
+
 
 }

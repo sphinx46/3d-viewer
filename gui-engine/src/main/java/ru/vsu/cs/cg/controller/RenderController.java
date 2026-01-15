@@ -79,18 +79,15 @@ public class RenderController {
                 if (now - lastRenderTime >= TARGET_INTERVAL) {
                     lastRenderTime = now;
 
-                    // 1. Физика
                     if (inputHandler != null) {
                         inputHandler.update();
                     }
 
-                    // 2. UI
                     if (cameraController != null) {
                         Camera cam = sceneManager.getActiveCamera();
                         if (cam != null) cameraController.loadCameraToFields(cam);
                     }
 
-                    // 3. Рендер
                     render();
                 }
             }
@@ -133,7 +130,6 @@ public class RenderController {
 
             if (inputHandler != null) inputHandler.onMousePressed(event);
 
-            // Обработка трансформации объектов только на ЛКМ
             if (sceneController != null && sceneController.hasSelectedObject()) {
                 MouseTransformationHandler handler = sceneController.getMouseTransformationHandler();
                 if (handler != null && handler.getCurrentMode() != TransformationMode.NONE && event.isPrimaryButtonDown()) {

@@ -9,10 +9,12 @@ public class Camera {
     private Vector3f position;
     private Vector3f target;
     private Vector3f up;
+
     private float fov;
     private float aspectRatio;
     private float nearPlane;
     private float farPlane;
+
     private float yaw = -90.0f;
     private float pitch = 0.0f;
 
@@ -23,11 +25,13 @@ public class Camera {
         this.id = id;
         this.position = position;
         this.target = target;
-        this.up = new Vector3f(0, 1, 0);
+        this.up = new Vector3f(0, 1, 0); // World Up
         this.fov = (float) Math.toRadians(60);
         this.aspectRatio = 1.77f;
         this.nearPlane = 0.1f;
         this.farPlane = 100f;
+
+        recalculateAngles();
     }
 
     public Camera() {
@@ -51,7 +55,6 @@ public class Camera {
         yOffset *= mouseSensitivity;
 
         yaw += xOffset;
-
         pitch -= yOffset;
 
         if (pitch > 89.0f) pitch = 89.0f;
@@ -62,7 +65,9 @@ public class Camera {
 
     public void moveRelative(float forward, float right, float upAmount) {
         Vector3f front = calculateFrontVector();
+
         Vector3f rightVec = front.cross(new Vector3f(0, 1, 0)).normalizeSafe();
+
         Vector3f worldUp = new Vector3f(0, 1, 0);
 
         Vector3f moveDir = new Vector3f(0, 0, 0);
@@ -70,19 +75,21 @@ public class Camera {
         if (Math.abs(forward) > 1e-5) {
             moveDir = moveDir.add(front.multiply(forward));
         }
-
         if (Math.abs(right) > 1e-5) {
             moveDir = moveDir.subtract(rightVec.multiply(right));
         }
         if (Math.abs(upAmount) > 1e-5) {
             moveDir = moveDir.add(worldUp.multiply(upAmount));
         }
+
         if (moveDir.length() > 1e-5) {
             moveDir = moveDir.normalized().multiply(movementSpeed);
+
             this.position = this.position.add(moveDir);
             this.target = this.position.add(front);
         }
     }
+
 
     private Vector3f calculateFrontVector() {
         float x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
@@ -104,7 +111,17 @@ public class Camera {
 
     public void setTarget(Vector3f target) {
         this.target = target;
+        recalculateAngles();
     }
+
+    private void recalculateAngles() {
+        Vector3f direction = target.subtract(position).normalizeSafe();
+        if (direction.length() < 1e-5) return;
+
+        this.pitch = (float) Math.toDegrees(Math.asin(direction.getY()));
+        this.yaw = (float) Math.toDegrees(Math.atan2(direction.getZ(), direction.getX()));
+    }
+
     public String getId() { return id; }
     public Vector3f getPosition() { return position; }
     public Vector3f getTarget() { return target; }
@@ -113,6 +130,7 @@ public class Camera {
     public float getAspectRatio() { return aspectRatio; }
     public float getNearPlane() { return nearPlane; }
     public float getFarPlane() { return farPlane; }
+
     public void setUp(Vector3f up) { this.up = up; }
     public void setFov(float fov) { this.fov = fov; }
     public void setAspectRatio(float aspectRatio) { this.aspectRatio = aspectRatio; }

@@ -107,8 +107,18 @@ public class CameraController {
     public void loadCameraToFields(Camera cam) {
         if (cam == null) return;
 
+        if (cameraPosXField.isFocused() || cameraPosYField.isFocused() || cameraPosZField.isFocused() ||
+                cameraTargetXField.isFocused() || cameraTargetYField.isFocused() || cameraTargetZField.isFocused() ||
+                fovField.isFocused() || nearPlaneField.isFocused() || farPlaneField.isFocused() || aspectRatioField.isFocused()) {
+            return;
+        }
+
         double fovDeg = Math.toDegrees(cam.getFov());
-        fovSlider.setValue(fovDeg);
+
+        if (!fovSlider.isValueChanging()) {
+            fovSlider.setValue(fovDeg);
+        }
+
         fovField.setText(UiFieldUtils.formatDouble(fovDeg));
 
         aspectRatioField.setText(UiFieldUtils.formatDouble(cam.getAspectRatio()));
