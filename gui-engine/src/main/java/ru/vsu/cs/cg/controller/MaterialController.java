@@ -15,18 +15,19 @@ import ru.vsu.cs.cg.utils.tooltip.TooltipManager;
 import ru.vsu.cs.cg.utils.validation.InputValidator;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class MaterialController extends BaseController {
     private static final Logger LOG = LoggerFactory.getLogger(MaterialController.class);
-    private static final double DEFAULT_SHININESS = 0.5;
-    private static final double DEFAULT_REFLECTIVITY = 0.0;
-    private static final double DEFAULT_TRANSPARENCY = 0.0;
+    private static final double DEFAULT_LIGHT_INTENSITY = 1;
+    private static final double DEFAULT_AMBIENT = 0.3;
+    private static final double DEFAULT_DIFFUSE = 1;
 
     @FXML private ColorPicker colorPicker;
-    @FXML private TextField materialShininessField;
-    @FXML private TextField materialTransparencyField;
-    @FXML private TextField materialReflectivityField;
+    @FXML private TextField materialLightIntensityField;
+    @FXML private TextField materialDiffusionField;
+    @FXML private TextField materialAmbientField;
     @FXML private Button loadTextureButton;
     @FXML private Button clearTextureButton;
     @FXML private CheckBox showTextureCheckbox;
@@ -51,14 +52,14 @@ public class MaterialController extends BaseController {
         colorPicker.valueProperty().addListener((observable, oldValue, newValue) ->
             updateMaterial(m -> m.setColor(newValue)));
 
-        materialShininessField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateMaterial(m -> m.setShininess(parseAndClamp(newValue, DEFAULT_SHININESS))));
+        setupNumericField(materialLightIntensityField, 0.0, 5.0, val ->
+                updateMaterial(m -> m.setLightIntensity(val)));
 
-        materialTransparencyField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateMaterial(m -> m.setTransparency(parseAndClamp(newValue, DEFAULT_TRANSPARENCY))));
+        setupNumericField(materialDiffusionField, 0.0, 3.0, val ->
+                updateMaterial(m -> m.setAmbient(val)));
 
-        materialReflectivityField.textProperty().addListener((observable, oldValue, newValue) ->
-            updateMaterial(m -> m.setReflectivity(parseAndClamp(newValue, DEFAULT_REFLECTIVITY))));
+        setupNumericField(materialAmbientField, 0.0, 1.0, val ->
+                updateMaterial(m -> m.setDiffusion(val)));
 
         showTextureCheckbox.selectedProperty().addListener((observable, oldValue, newValue) ->
             updateRenderSettings(s -> s.setUseTexture(newValue)));
@@ -78,8 +79,44 @@ public class MaterialController extends BaseController {
         });
     }
 
+    private void setupNumericField(TextField field, double min, double max, Consumer<Double> valueSetter) {
+        Runnable applyValue = () -> {
+            if (!hasSelectedObject()) return;
+
+            String text = field.getText();
+            try {
+                text = text.replace(',', '.');
+
+                double val = Double.parseDouble(text);
+
+                if (val < min) val = min;
+                if (val > max) val = max;
+
+                valueSetter.accept(val);
+
+                field.setText(String.format(Locale.US, "%.2f", val));
+
+            } catch (NumberFormatException e) {
+                SceneObject obj = getSelectedObject();
+                if (obj != null) populateFields(obj);
+            }
+        };
+
+        field.setOnAction(event -> {
+            applyValue.run();
+            field.getParent().requestFocus();
+        });
+
+        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                applyValue.run();
+            }
+        });
+    }
+
+
     private double parseAndClamp(String value, double defaultValue) {
-        return InputValidator.clamp(InputValidator.parseDoubleSafe(value, defaultValue), 0.0, 1.0);
+        return InputValidator.clamp(InputValidator.parseDoubleSafe(value, defaultValue), 0.0, 5.0);
     }
 
     private void initializeButtonActions() {
@@ -112,9 +149,9 @@ public class MaterialController extends BaseController {
                     currentMaterial.getBlue(),
                     currentMaterial.getAlpha(),
                     selectedFile.getAbsolutePath(),
-                    currentMaterial.getShininess(),
-                    currentMaterial.getReflectivity(),
-                    currentMaterial.getTransparency()
+                    currentMaterial.getLightIntensity(),
+                    currentMaterial.getDiffusion(),
+                    currentMaterial.getAmbient()
                 ));
 
                 selectedObject.getRenderSettings().setUseTexture(true);
@@ -144,9 +181,9 @@ public class MaterialController extends BaseController {
             currentMaterial.getBlue(),
             currentMaterial.getAlpha(),
             null,
-            currentMaterial.getShininess(),
-            currentMaterial.getReflectivity(),
-            currentMaterial.getTransparency()
+            currentMaterial.getLightIntensity(),
+            currentMaterial.getDiffusion(),
+            currentMaterial.getAmbient()
         ));
 
         selectedObject.getRenderSettings().setUseTexture(false);
@@ -173,9 +210,9 @@ public class MaterialController extends BaseController {
     @Override
     protected void clearFields() {
         colorPicker.setValue(Color.WHITE);
-        materialShininessField.setText(UiFieldUtils.formatDouble(DEFAULT_SHININESS));
-        materialReflectivityField.setText(UiFieldUtils.formatDouble(DEFAULT_REFLECTIVITY));
-        materialTransparencyField.setText(UiFieldUtils.formatDouble(DEFAULT_TRANSPARENCY));
+        materialLightIntensityField.setText(UiFieldUtils.formatDouble(DEFAULT_LIGHT_INTENSITY));
+        materialAmbientField.setText(UiFieldUtils.formatDouble(DEFAULT_AMBIENT));
+        materialDiffusionField.setText(UiFieldUtils.formatDouble(DEFAULT_DIFFUSE));
         showTextureCheckbox.setSelected(false);
         showLightingCheckbox.setSelected(false);
         showPolygonalGridCheckbox.setSelected(false);
@@ -186,9 +223,10 @@ public class MaterialController extends BaseController {
         if (object == null) return;
 
         colorPicker.setValue(object.getMaterial().getColor());
-        materialShininessField.setText(UiFieldUtils.formatDouble(object.getMaterial().getShininess()));
-        materialReflectivityField.setText(UiFieldUtils.formatDouble(object.getMaterial().getReflectivity()));
-        materialTransparencyField.setText(UiFieldUtils.formatDouble(object.getMaterial().getTransparency()));
+
+        materialLightIntensityField.setText(String.format(Locale.US, "%.2f", object.getMaterial().getLightIntensity()));
+        materialAmbientField.setText(String.format(Locale.US, "%.2f", object.getMaterial().getDiffusion()));
+        materialDiffusionField.setText(String.format(Locale.US, "%.2f", object.getMaterial().getAmbient()));
 
         RasterizerSettings settings = object.getRenderSettings();
         showTextureCheckbox.setSelected(settings.isUseTexture());
@@ -200,7 +238,7 @@ public class MaterialController extends BaseController {
     protected void setFieldsEditable(boolean editable) {
         colorPicker.setDisable(!editable);
         UiFieldUtils.setTextFieldsEditable(editable,
-            materialShininessField, materialReflectivityField, materialTransparencyField);
+                materialLightIntensityField, materialAmbientField, materialDiffusionField);
         loadTextureButton.setDisable(!editable);
         clearTextureButton.setDisable(!editable);
         showTextureCheckbox.setDisable(!editable);

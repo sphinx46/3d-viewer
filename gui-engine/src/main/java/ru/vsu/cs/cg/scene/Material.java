@@ -20,9 +20,9 @@ public class Material {
     private double blue;
     private double alpha;
     private String texturePath;
-    private double shininess;
-    private double reflectivity;
-    private double transparency;
+    private double lightIntensity;
+    private double diffusion;
+    private double ambient;
 
     @JsonCreator
     public Material(
@@ -31,23 +31,23 @@ public class Material {
         @JsonProperty("blue") double blue,
         @JsonProperty("alpha") double alpha,
         @JsonProperty("texturePath") String texturePath,
-        @JsonProperty("shininess") double shininess,
-        @JsonProperty("reflectivity") double reflectivity,
-        @JsonProperty("transparency") double transparency) {
+        @JsonProperty("lightIntensity") double lightIntensity,
+        @JsonProperty("diffusion") double diffusion,
+        @JsonProperty("ambient") double ambient) {
         this.red = Math.max(0, Math.min(1, red));
         this.green = Math.max(0, Math.min(1, green));
         this.blue = Math.max(0, Math.min(1, blue));
         this.alpha = Math.max(0, Math.min(1, alpha));
         this.texturePath = texturePath;
-        this.shininess = Math.max(0, Math.min(1, shininess));
-        this.reflectivity = Math.max(0, Math.min(1, reflectivity));
-        this.transparency = Math.max(0, Math.min(1, transparency));
-        LOG.debug("Создан Material: color({}, {}, {}, {}), texture: {}, shininess: {}, reflectivity: {}, transparency: {}",
-            red, green, blue, alpha, texturePath, shininess, reflectivity, transparency);
+        this.lightIntensity = Math.max(0, Math.min(1, lightIntensity));
+        this.diffusion = Math.max(0, Math.min(1, diffusion));
+        this.ambient = Math.max(0, Math.min(1, ambient));
+        LOG.debug("Создан Material: color({}, {}, {}, {}), texture: {}, shininess: {}, diffusion: {}, transparency: {}",
+            red, green, blue, alpha, texturePath, lightIntensity, diffusion, ambient);
     }
 
     public Material() {
-        this(0.8, 0.8, 0.8, 1.0, null, 0.5, 0.2, 0.0);
+        this(0.8, 0.8, 0.8, 1.0, null, 1.0, 0.3, 1.0);
     }
 
     @JsonSerialize(using = ColorSerializer.class)
@@ -78,22 +78,22 @@ public class Material {
     public String getTexturePath() { return texturePath; }
     public void setTexturePath(String texturePath) { this.texturePath = texturePath; }
 
-    public double getShininess() { return shininess; }
-    public void setShininess(double shininess) { this.shininess = Math.max(0, Math.min(1, shininess)); }
+    public double getLightIntensity() { return lightIntensity; }
+    public void setLightIntensity(double lightIntensity) { this.lightIntensity = Math.max(0, Math.min(1, lightIntensity)); }
 
-    public double getReflectivity() { return reflectivity; }
-    public void setReflectivity(double reflectivity) { this.reflectivity = Math.max(0, Math.min(1, reflectivity)); }
+    public double getDiffusion() { return diffusion; }
+    public void setDiffusion(double diffusion) { this.diffusion = Math.max(0, Math.min(1, diffusion)); }
 
-    public double getTransparency() { return transparency; }
-    public void setTransparency(double transparency) { this.transparency = Math.max(0, Math.min(1, transparency)); }
+    public double getAmbient() { return ambient; }
+    public void setAmbient(double ambient) { this.ambient = Math.max(0, Math.min(1, ambient)); }
 
     public void reset() {
         red = green = blue = 0.8;
         alpha = 1.0;
         texturePath = null;
-        shininess = 0.5;
-        reflectivity = 0.2;
-        transparency = 0.0;
+        lightIntensity = 0.5;
+        diffusion = 0.2;
+        ambient = 0.0;
         LOG.debug("Material сброшен к значениям по умолчанию");
     }
 }
