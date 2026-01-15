@@ -49,6 +49,7 @@ public class MainController {
     @FXML private MenuItem menuThemeDark;
     @FXML private MenuItem menuThemeLight;
     @FXML private MenuItem menuFileOpen;
+    @FXML private MenuItem menuSceneNew;
     @FXML private MenuItem menuFileSaveScene;
     @FXML private MenuItem menuFileSaveModel;
     @FXML private MenuItem menuImport;
@@ -101,9 +102,10 @@ public class MainController {
         initializeTransformationButtons();
         loadRecentFiles();
 
-        initializeRender(); // Инициализация рендера и инпута
+        initializeRender();
 
         cameraPanelController.initialize();
+
         initializeDependencies();
 
         RecentFilesUpdateManager.getInstance().addListener(this::updateRecentFilesMenu);
@@ -338,6 +340,7 @@ public class MainController {
         menuThemeDark.setOnAction(event -> executeCommand("theme_тёмная"));
         menuThemeLight.setOnAction(event -> executeCommand("theme_светлая"));
         menuFileOpen.setOnAction(event -> executeCommand("file_open"));
+        menuSceneNew.setOnAction(event -> executeCommand("scene_new"));
         menuFileSaveScene.setOnAction(event -> executeCommand("scene_save"));
         menuFileSaveModel.setOnAction(event -> executeCommand("model_save"));
         menuImport.setOnAction(event -> executeCommand("scene_json_import"));
