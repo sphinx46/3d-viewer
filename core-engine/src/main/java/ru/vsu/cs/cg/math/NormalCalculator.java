@@ -13,8 +13,6 @@ public class NormalCalculator {
     /**
      * Высчитывает нормали вершин объекта
      * (при необходимости пересчитывает)
-     *
-     *
      */
     public static List<Vector3f> computeVertexNormals(List<Vector3f> vertices, List<Polygon> polygons) {
 
@@ -49,7 +47,7 @@ public class NormalCalculator {
             Vector3f normal = sumNormalsArray[i];
 
             if (normal.length() == 0) {
-                normals.add(new Vector3f(0, 0, 0));
+                normals.add(new Vector3f(0, 1, 0));
             } else {
                 normals.add(normal.normalized());
             }

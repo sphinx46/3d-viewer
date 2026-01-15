@@ -6,7 +6,8 @@ import ru.vsu.cs.cg.renderEngine.PixelWriter;
 import javafx.scene.paint.Color;
 
 /**
- * Класс растеризатора для преобразования 3D треугольников в 2D пиксели на экране
+ * Класс растеризатора для преобразования 3D треугольников в 2D пиксели на экране.
+ * Реализует алгоритм растеризации с использованием z-буфера для корректного отображения глубины.
  */
 public class Rasterizer {
     private final ZBuffer zBuffer;
@@ -16,6 +17,25 @@ public class Rasterizer {
         this.zBuffer = zBuffer;
     }
 
+    /**
+     * Отрисовывает треугольник с текстурированием, освещением и интерполяцией атрибутов.
+     *
+     * @param pixelWriter   Писатель пикселей в буфер кадра
+     * @param width         Ширина области рендеринга
+     * @param height        Высота области рендеринга
+     * @param vertex1       Первая вершина треугольника в экранных координатах (x, y, 1/z)
+     * @param vertex2       Вторая вершина треугольника в экранных координатах (x, y, 1/z)
+     * @param vertex3       Третья вершина треугольника в экранных координатах (x, y, 1/z)
+     * @param uv1           Текстурные координаты первой вершины
+     * @param uv2           Текстурные координаты второй вершины
+     * @param uv3           Текстурные координаты третьей вершины
+     * @param normal1       Нормаль первой вершины (в мировых координатах)
+     * @param normal2       Нормаль второй вершины (в мировых координатах)
+     * @param normal3       Нормаль третьей вершины (в мировых координатах)
+     * @param texture       Текстура для наложения (может быть null)
+     * @param lightDirection Направление света (нормализованный вектор)
+     * @param settings      Настройки рендеринга
+     */
     public void drawTriangle(
             PixelWriter pixelWriter,
             int width, int height,
@@ -72,6 +92,29 @@ public class Rasterizer {
         }
     }
 
+    /**
+     * Рендерит часть треугольника между двумя ребрами.
+     * Использует алгоритм сканирующей строки с интерполяцией 1/z для perspective-correct текстурных координат.
+     *
+     * @param pixelWriter    Писатель пикселей
+     * @param width          Ширина области рендеринга
+     * @param height         Высота области рендеринга
+     * @param edgeStartA     Начало первого ребра
+     * @param edgeEndA       Конец первого ребра
+     * @param edgeStartB     Начало второго ребра
+     * @param edgeEndB       Конец второго ребра
+     * @param uvStartA       UV-координаты начала первого ребра
+     * @param uvEndA         UV-координаты конца первого ребра
+     * @param uvStartB       UV-координаты начала второго ребра
+     * @param uvEndB         UV-координаты конца второго ребра
+     * @param normalStartA   Нормаль начала первого ребра
+     * @param normalEndA     Нормаль конца первого ребра
+     * @param normalStartB   Нормаль начала второго ребра
+     * @param normalEndB     Нормаль конца второго ребра
+     * @param texture        Текстура
+     * @param lightDirection Направление света
+     * @param settings       Настройки рендеринга
+     */
     private void drawScanlinePart(
             PixelWriter pixelWriter,
             int width, int height,
@@ -158,7 +201,7 @@ public class Rasterizer {
                     if (settings.isUseLighting() && normalOverDepthStart != null) {
                         Vector3f interpolatedNormalOverDepth = interpolate(normalOverDepthStart, normalOverDepthEnd, horizontalFactor);
                         Vector3f pixelNormal = interpolatedNormalOverDepth.multiply(currentPixelDepth);
-                        pixelNormal = pixelNormal.normalized();
+                        pixelNormal = pixelNormal.normalizeSafe();
                         float lightIntensity = Math.max(0, pixelNormal.dot(lightDirection));
                         finalPixelColor = applyLight(finalPixelColor, lightIntensity);
                     }
@@ -169,74 +212,89 @@ public class Rasterizer {
         }
     }
 
+    /**
+     * Отрисовывает 3D линию с использованием алгоритма Брезенхема и проверкой z-буфера.
+     *
+     * @param pixelWriter   Писатель пикселей
+     * @param width         Ширина области рендеринга
+     * @param height        Высота области рендеринга
+     * @param start         Начальная точка линии (x, y, 1/z)
+     * @param end           Конечная точка линии (x, y, 1/z)
+     * @param color         Цвет линии
+     * @param ignoreZBuffer Флаг игнорирования z-буфера (true для рисования поверх всего)
+     */
     public void drawLine(PixelWriter pixelWriter, int width, int height, Vector3f start, Vector3f end, Color color, boolean ignoreZBuffer) {
         float x1 = start.getX();
         float y1 = start.getY();
         float x2 = end.getX();
         float y2 = end.getY();
 
-        if ((x1 < 0 && x2 < 0) || (x1 > width && x2 > width) ||
-                (y1 < 0 && y2 < 0) || (y1 > height && y2 > height)) {
-            return;
-        }
+        if ((x1 < 0 && x2 < 0) || (x1 >= width && x2 >= width) || (y1 < 0 && y2 < 0) || (y1 >= height && y2 >= height)) return;
 
         float dx = x2 - x1;
         float dy = y2 - y1;
-        float steps = Math.max(Math.abs(dx), Math.abs(dy));
+        int steps = (int) Math.max(Math.abs(dx), Math.abs(dy));
 
         if (steps == 0) {
-            int px = Math.round(x1);
-            int py = Math.round(y1);
-            if (px >= 0 && px < width && py >= 0 && py < height) {
-                if (zBuffer.checkAndSet(px, py, 1.0f / Math.max(start.getZ(), EPSILON))) {
-                    pixelWriter.setPixel(px, py, color);
-                }
-            }
+            drawPixel(pixelWriter, (int)x1, (int)y1, start.getZ(), color);
             return;
         }
 
-        float xIncrement = dx / steps;
-        float yIncrement = dy / steps;
-
-        float zStart = Math.max(start.getZ(), EPSILON);
-        float zEnd = Math.max(end.getZ(), EPSILON);
-        float invZStart = 1.0f / zStart;
-        float invZEnd = 1.0f / zEnd;
-
-        float x = x1;
-        float y = y1;
+        float invWStart = 1.0f / Math.max(start.getZ(), EPSILON);
+        float invWEnd = 1.0f / Math.max(end.getZ(), EPSILON);
 
         for (int i = 0; i <= steps; i++) {
-            int pixelX = Math.round(x);
-            int pixelY = Math.round(y);
+            float t = (float) i / steps;
 
-            if (pixelX >= 0 && pixelX < width && pixelY >= 0 && pixelY < height) {
-                float t = (float) i / steps;
-                float currentInvZ = interpolate(invZStart, invZEnd, t);
-                float currentZ = 1.0f / currentInvZ;
+            int px = Math.round(x1 + dx * t);
+            int py = Math.round(y1 + dy * t);
 
-                float biasFactor = 0.0005f;
-                float biasAbsolute = 0.00002f;
-                float biasedZ = currentZ - (currentZ * biasFactor + biasAbsolute);
+            if (px >= 0 && px < width && py >= 0 && py < height) {
+                float currentInvW = invWStart + (invWEnd - invWStart) * t;
+                float currentW = 1.0f / currentInvW;
 
-                boolean isVisible = ignoreZBuffer || zBuffer.checkAndSet(pixelX, pixelY, biasedZ);
+                float biasedZ = currentW - 0.001f;
 
-                if (isVisible) {
-                    pixelWriter.setPixel(pixelX, pixelY, color);
+                if (ignoreZBuffer || zBuffer.checkAndSet(px, py, biasedZ)) {
+                    pixelWriter.setPixel(px, py, color);
                 }
             }
-
-            x += xIncrement;
-            y += yIncrement;
         }
     }
 
+    /**
+     * Перегрузка метода для автоматического использования z-буфера
+     */
     public void drawLine(PixelWriter pixelWriter, int width, int height, Vector3f start, Vector3f end, Color color) {
         drawLine(pixelWriter, width, height, start, end, color, false);
     }
 
+    /**
+     * Отрисовывает пиксель с проверкой глубины.
+     *
+     * @param pw     Писатель пикселей
+     * @param x      X-координата пикселя
+     * @param y      Y-координата пикселя
+     * @param depth  Глубина пикселя
+     * @param color  Цвет пикселя
+     */
+    public void drawPixel(PixelWriter pw, int x, int y, float depth, Color color) {
+        if (x >= 0 && x < zBuffer.getWidth() && y >= 0 && y < zBuffer.getHeight()) {
+            if (zBuffer.checkAndSet(x, y, depth)) {
+                pw.setPixel(x, y, color);
+            }
+        }
+    }
 
-        private Color applyLight(Color baseColor, float intensity) {
+    /**
+     * Применяет модель освещения к цвету пикселя.
+     * Использует комбинацию ambient и диффузного освещения.
+     *
+     * @param baseColor  Базовый цвет пикселя
+     * @param intensity  Интенсивность освещения (скалярное произведение нормали и направления света)
+     * @return Цвет с примененным освещением
+     */
+    private Color applyLight(Color baseColor, float intensity) {
         float ambientLight = 0.3f;
         double totalFactor = Math.min(1.0, ambientLight + intensity);
         return Color.color(
@@ -246,14 +304,23 @@ public class Rasterizer {
         );
     }
 
+    /**
+     * Линейная интерполяция между двумя значениями.
+     */
     private float interpolate(float start, float end, float factor) {
         return start + (end - start) * factor;
     }
 
+    /**
+     * Линейная интерполяция между двумя 2D векторами.
+     */
     private Vector2f interpolate(Vector2f start, Vector2f end, float factor) {
         return new Vector2f(interpolate(start.getX(), end.getX(), factor), interpolate(start.getY(), end.getY(), factor));
     }
 
+    /**
+     * Линейная интерполяция между двумя 3D векторами.
+     */
     private Vector3f interpolate(Vector3f start, Vector3f end, float factor) {
         return new Vector3f(interpolate(start.getX(), end.getX(), factor), interpolate(start.getY(), end.getY(), factor), interpolate(start.getZ(), end.getZ(), factor));
     }

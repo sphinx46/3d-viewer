@@ -218,4 +218,105 @@ public class Matrix4x4 {
         }
         return sb.toString();
     }
+
+    public float determinant() {
+
+        return data[0][0] * determinant3x3(1, 2, 3, 1, 2, 3) -
+                data[0][1] * determinant3x3(1, 2, 3, 0, 2, 3) +
+                data[0][2] * determinant3x3(1, 2, 3, 0, 1, 3) -
+                data[0][3] * determinant3x3(1, 2, 3, 0, 1, 2);
+    }
+
+    /**
+     * Вспомогательный метод для вычисления определителя матрицы 3x3.
+     * Использует формулу Саррюса.
+     *
+     * @param r1, r2, r3 Индексы строк в исходной матрице 4x4
+     * @param c1, c2, c3 Индексы столбцов в исходной матрице 4x4
+     * @return Определитель матрицы 3x3
+     */
+    private float determinant3x3(int r1, int r2, int r3, int c1, int c2, int c3) {
+        float a11 = data[r1][c1], a12 = data[r1][c2], a13 = data[r1][c3];
+        float a21 = data[r2][c1], a22 = data[r2][c2], a23 = data[r2][c3];
+        float a31 = data[r3][c1], a32 = data[r3][c2], a33 = data[r3][c3];
+
+        return a11 * (a22 * a33 - a23 * a32) -
+                a12 * (a21 * a33 - a23 * a31) +
+                a13 * (a21 * a32 - a22 * a31);
+    }
+
+    /**
+     * Вычисляет обратную матрицу.
+     * Используется метод алгебраических дополнений (adjugate).
+     * Для матрицы A: A⁻¹ = (1/det(A)) * adj(A)
+     * где adj(A) - присоединенная матрица (транспонированная матрица алгебраических дополнений)
+     *
+     * @return Обратная матрица.
+     * @throws ArithmeticException Если матрица вырожденная (определитель ≈ 0)
+     */
+    public Matrix4x4 inverse() {
+        float det = determinant();
+
+        if (Math.abs(det) < EPSILON) {
+            throw new ArithmeticException("Matrix is singular (determinant = " + det + "). Cannot compute inverse.");
+        }
+
+        float invDet = 1.0f / det;
+
+        float[][] cofactors = new float[4][4];
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                float minor = computeMinor(i, j);
+                cofactors[i][j] = ((i + j) % 2 == 0 ? 1 : -1) * minor;
+            }
+        }
+
+        float[][] adjugate = new float[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                adjugate[j][i] = cofactors[i][j];
+            }
+        }
+
+        float[][] result = new float[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                result[i][j] = adjugate[i][j] * invDet;
+            }
+        }
+
+        return new Matrix4x4(result);
+    }
+
+    /**
+     * Вычисляет минор матрицы (определитель подматрицы 3x3).
+     *
+     * @param row Строка для исключения
+     * @param col Столбец для исключения
+     * @return Определитель матрицы 3x3
+     */
+    private float computeMinor(int row, int col) {
+        int[] rows = new int[3];
+        int[] cols = new int[3];
+
+        int rIdx = 0;
+        for (int i = 0; i < 4; i++) {
+            if (i != row) rows[rIdx++] = i;
+        }
+
+        int cIdx = 0;
+        for (int j = 0; j < 4; j++) {
+            if (j != col) cols[cIdx++] = j;
+        }
+
+        float a11 = data[rows[0]][cols[0]], a12 = data[rows[0]][cols[1]], a13 = data[rows[0]][cols[2]];
+        float a21 = data[rows[1]][cols[0]], a22 = data[rows[1]][cols[1]], a23 = data[rows[1]][cols[2]];
+        float a31 = data[rows[2]][cols[0]], a32 = data[rows[2]][cols[1]], a33 = data[rows[2]][cols[2]];
+
+        return a11 * (a22 * a33 - a23 * a32) -
+                a12 * (a21 * a33 - a23 * a31) +
+                a13 * (a21 * a32 - a22 * a31);
+    }
+
 }

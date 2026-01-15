@@ -66,7 +66,7 @@ public class MouseTransformationHandler {
 
         switch (currentMode) {
             case MOVE:
-                handleMove(deltaX, deltaY, transform);
+                handleMove(deltaX, deltaY, transform, event.isShiftDown());
                 break;
             case ROTATE:
                 handleRotate(deltaX, deltaY, transform);
@@ -106,20 +106,22 @@ public class MouseTransformationHandler {
         }
     }
 
-    private void handleMove(double deltaX, double deltaY, Transform transform) {
-        double newX = transform.getPositionX() - deltaX * MOVE_SENSITIVITY;
-        double newY = transform.getPositionY() - deltaY * MOVE_SENSITIVITY;
+    private void handleMove(double deltaX, double deltaY, Transform transform, boolean isZMode) {
+        if (isZMode) {
+            double newZ = transform.getPositionZ() + deltaY * MOVE_SENSITIVITY;
+            transform.setPositionZ(newZ);
+        } else {
+            double newX = transform.getPositionX() - deltaX * MOVE_SENSITIVITY;
+            double newY = transform.getPositionY() - deltaY * MOVE_SENSITIVITY;
 
-        transform.setPositionX(newX);
-        transform.setPositionY(newY);
+            transform.setPositionX(newX);
+            transform.setPositionY(newY);
+        }
     }
 
     private void handleRotate(double deltaX, double deltaY, Transform transform) {
         double rotationX = transform.getRotationX() + deltaY * ROTATE_SENSITIVITY;
         double rotationY = transform.getRotationY() + deltaX * ROTATE_SENSITIVITY;
-
-        rotationX = normalizeAngle(rotationX);
-        rotationY = normalizeAngle(rotationY);
 
         transform.setRotationX(rotationX);
         transform.setRotationY(rotationY);
