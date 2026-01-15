@@ -6,7 +6,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.renderEngine.camera.Camera;
-
+import ru.vsu.cs.cg.controller.enums.TransformationMode;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,8 +22,6 @@ public class InputHandler {
         this.sceneController = sceneController;
     }
 
-    // --- Events ---
-
     public void onKeyPressed(KeyEvent e) {
         activeKeys.add(e.getCode());
     }
@@ -33,7 +31,6 @@ public class InputHandler {
     }
 
     public void onMousePressed(MouseEvent e) {
-        // ПКМ для обзора
         if (e.isSecondaryButtonDown()) {
             isRightMouseButtonDown = true;
             lastMouseX = e.getSceneX();
@@ -48,7 +45,6 @@ public class InputHandler {
     }
 
     public void onMouseDragged(MouseEvent e) {
-        // Вращаем голову только при зажатой ПКМ
         if (isRightMouseButtonDown) {
             Camera cam = sceneController.getActiveCamera();
             if (cam != null) {
@@ -69,15 +65,16 @@ public class InputHandler {
             cam.moveRelative(zoomDir, 0, 0);
         }
     }
-
-    // --- Update Loop ---
-
+    
     public void update() {
         handleCameraMovement();
     }
 
     private void handleCameraMovement() {
-        // WASD работает всегда
+        if (sceneController.getTransformationMode() != TransformationMode.NONE) {
+            return;
+        }
+
         Camera cam = sceneController.getActiveCamera();
         if (cam == null) return;
 
