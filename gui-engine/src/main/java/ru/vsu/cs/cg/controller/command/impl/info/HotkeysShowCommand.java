@@ -30,9 +30,9 @@ public class HotkeysShowCommand implements Command {
             hotkeysText.append("  Delete          - ").append(descriptions.get("Delete")).append("\n");
 
             hotkeysText.append("\nТрансформации:\n");
-            hotkeysText.append("  W               - ").append(descriptions.get("W")).append("\n");
-            hotkeysText.append("  E               - ").append(descriptions.get("E")).append("\n");
-            hotkeysText.append("  R               - ").append(descriptions.get("R")).append("\n");
+            hotkeysText.append("  U               - ").append(descriptions.get("U")).append("\n");
+            hotkeysText.append("  I               - ").append(descriptions.get("I")).append("\n");
+            hotkeysText.append("  O               - ").append(descriptions.get("O")).append("\n");
 
             hotkeysText.append("\nВид камеры:\n");
             hotkeysText.append("  Ctrl+1          - ").append(descriptions.get("Ctrl+1")).append("\n");
@@ -42,7 +42,7 @@ public class HotkeysShowCommand implements Command {
 
             hotkeysText.append("\nВизуализация:\n");
             hotkeysText.append("  G               - ").append(descriptions.get("G")).append("\n");
-            hotkeysText.append("  A               - ").append(descriptions.get("A")).append("\n");
+            hotkeysText.append("  X               - ").append(descriptions.get("X")).append("\n");
 
             hotkeysText.append("\nОкно и просмотр:\n");
             hotkeysText.append("  F11             - ").append(descriptions.get("F11")).append("\n");

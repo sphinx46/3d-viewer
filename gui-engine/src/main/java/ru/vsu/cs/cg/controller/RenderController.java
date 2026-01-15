@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.enums.TransformationMode;
+import ru.vsu.cs.cg.controller.handlers.InputHandler;
 import ru.vsu.cs.cg.controller.handlers.MouseTransformationHandler;
 import ru.vsu.cs.cg.renderEngine.camera.Camera;
 import ru.vsu.cs.cg.scene.Scene;

@@ -14,6 +14,7 @@ import ru.vsu.cs.cg.controller.command.CommandFactory;
 import ru.vsu.cs.cg.controller.command.impl.file.FileOpenCommand;
 import ru.vsu.cs.cg.controller.command.impl.scene.JsonSceneCommand;
 import ru.vsu.cs.cg.controller.enums.TransformationMode;
+import ru.vsu.cs.cg.controller.handlers.InputHandler;
 import ru.vsu.cs.cg.controller.hotkeys.HotkeyManager;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.service.RecentFilesCacheService;

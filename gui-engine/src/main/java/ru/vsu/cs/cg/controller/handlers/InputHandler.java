@@ -1,9 +1,10 @@
-package ru.vsu.cs.cg.controller;
+package ru.vsu.cs.cg.controller.handlers;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.renderEngine.camera.Camera;
 
 import java.util.HashSet;

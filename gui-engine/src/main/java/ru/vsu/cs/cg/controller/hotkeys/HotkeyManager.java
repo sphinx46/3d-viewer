@@ -46,18 +46,11 @@ public class HotkeyManager {
         KeyCombination deleteShift = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.SHIFT_DOWN);
         hotkeyActions.put(deleteShift, () -> execute("object_delete"));
 
-        KeyCombination backspace = new KeyCodeCombination(KeyCode.BACK_SPACE);
-        hotkeyActions.put(backspace, () -> execute("object_delete"));
-
-        if (isMac) {
-            KeyCombination cmdBack = new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.META_DOWN);
-            hotkeyActions.put(cmdBack, () -> execute("object_delete"));
-        }
 
         // --- ИНСТРУМЕНТЫ (1, 2, 3) ---
-        registerCommand("1", "transform_mode_move");
-        registerCommand("2", "transform_mode_rotate");
-        registerCommand("3", "transform_mode_scale");
+        registerCommand("U", "transform_mode_move");
+        registerCommand("I", "transform_mode_rotate");
+        registerCommand("O", "transform_mode_scale");
 
         // --- ВИД ---
         registerCommand("G", "grid_toggle");
@@ -132,15 +125,10 @@ public class HotkeyManager {
         descriptions.put("Ctrl+D", "Дублировать объект");
         descriptions.put("Delete", "Удалить объект");
 
-        // Заглушки для старых клавиш
-        descriptions.put("W", "См. клавишу 1 (Move)");
-        descriptions.put("E", "См. клавишу 2 (Rotate)");
-        descriptions.put("R", "См. клавишу 3 (Scale)");
-        descriptions.put("A", "См. клавишу X (Axis)");
-
-        descriptions.put("1", "Инструмент: Перемещение");
-        descriptions.put("2", "Инструмент: Вращение");
-        descriptions.put("3", "Инструмент: Масштабирование");
+        descriptions.put("U", "Инструмент: Перемещение");
+        descriptions.put("I", "Инструмент: Вращение");
+        descriptions.put("O", "Инструмент: Масштабирование");
+        descriptions.put("X", "Вкл/Выкл Оси координат");
 
         descriptions.put("Ctrl+1", "Вид спереди");
         descriptions.put("Ctrl+2", "Вид сверху");
@@ -148,7 +136,6 @@ public class HotkeyManager {
         descriptions.put("Ctrl+4", "Вид слева");
 
         descriptions.put("G", "Вкл/Выкл Сетка");
-        descriptions.put("X", "Вкл/Выкл Оси координат");
 
         descriptions.put("F11", "Полноэкранный режим");
         descriptions.put("Ctrl+P", "Скриншот");
