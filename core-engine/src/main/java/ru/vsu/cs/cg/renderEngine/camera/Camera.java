@@ -23,7 +23,7 @@ public class Camera {
         this.id = id;
         this.position = position;
         this.target = target;
-        this.up = new Vector3f(0, 1, 0); // World Up
+        this.up = new Vector3f(0, 1, 0);
         this.fov = (float) Math.toRadians(60);
         this.aspectRatio = 1.77f;
         this.nearPlane = 0.1f;
