@@ -1,7 +1,7 @@
 # 3D Viewer
 
-![](https://img.shields.io/badge/Java-17-orange)
-![](https://img.shields.io/badge/Maven-3.9.6-blue)
+![](https://img.shields.io/badge/Java-21-orange)
+![](https://img.shields.io/badge/Maven-4.0.0-blue)
 
 Финальный проект по курсу компьютерной графики Воронежского государственного университета.  
 **3D Viewer** — это настольное приложение с открытым исходным кодом, написанное на Java с использованием JavaFX. Оно позволяет загружать, просматривать, редактировать и сохранять 3D-модели и сцены.
