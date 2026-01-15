@@ -1,0 +1,217 @@
+package ru.vsu.cs.cg.math;
+
+public class Vector3f {
+    private static final float EPSILON = 1e-7f;
+    private float x;
+    private float y;
+    private float z;
+
+    /**
+     * Создает новый вектор с заданными координатами.
+     *
+     * @param x Координата по оси X.
+     * @param y Координата по оси Y.
+     * @param z Координата по оси Z.
+     */
+    public Vector3f(float x, float y, float z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    /**
+     * Создает нулевой вектор (0, 0, 0).
+     */
+    public Vector3f() {
+        this.x = 0.0f;
+        this.y = 0.0f;
+        this.z = 0.0f;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getZ() {
+        return z;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setZ(float z) {
+        this.z = z;
+    }
+
+    /**
+     * Складывает текущий вектор с другим вектором.
+     *
+     * @param other Вектор, который нужно прибавить.
+     * @return Новый вектор, являющийся суммой двух векторов.
+     */
+    public Vector3f add(Vector3f other) {
+        return new Vector3f(
+            this.x + other.x,
+            this.y + other.y,
+            this.z + other.z
+        );
+    }
+
+    /**
+     * Вычитает из текущего вектора другой вектор.
+     *
+     * @param other Вектор, который нужно вычесть.
+     * @return Новый вектор, являющийся разностью двух векторов.
+     */
+    public Vector3f subtract(Vector3f other) {
+        return new Vector3f(
+            this.x - other.x,
+            this.y - other.y,
+            this.z - other.z
+        );
+    }
+
+    /**
+     * Умножает вектор на скалярное значение.
+     *
+     * @param scalar Число, на которое умножается вектор.
+     * @return Новый вектор, масштабированный на заданное значение.
+     */
+    public Vector3f multiply(float scalar) {
+        return new Vector3f(
+            this.x * scalar,
+            this.y * scalar,
+            this.z * scalar
+        );
+    }
+
+    /**
+     * Выполняет покомпонентное умножение текущего вектора на другой вектор.
+     * (x1*x2, y1*y2, z1*z2).
+     *
+     * @param other Вектор, на который нужно умножить.
+     * @return Новый вектор, координаты которого являются произведением соответствующих координат.
+     */
+    public Vector3f multiply(Vector3f other) {
+        return new Vector3f(
+            x * other.x,
+            y * other.y,
+            z * other.z
+        );
+    }
+
+    /**
+     * Делит вектор на скалярное значение.
+     *
+     * @param scalar Число, на которое делится вектор.
+     * @return Новый вектор, являющийся результатом деления.
+     * @throws IllegalArgumentException Если переданный скаляр равен нулю (меньше EPSILON).
+     */
+    public Vector3f divide(float scalar) {
+        if (Math.abs(scalar) < EPSILON) {
+            throw new IllegalArgumentException("деление на ноль");
+        }
+
+        float invLen = 1.0f / scalar;
+        return new Vector3f(x * invLen, y * invLen, z * invLen);
+    }
+
+    /**
+     * Вычисляет длину вектора.
+     *
+     * @return Длина вектора.
+     */
+    public float length() {
+        return (float) Math.sqrt(x * x + y * y + z * z);
+    }
+
+    /**
+     * Возвращает нормализованный вектор.
+     *
+     * @return Новый нормализованный вектор.
+     * @throws IllegalArgumentException Если длина вектора равна нулю.
+     */
+    public Vector3f normalized() {
+        float len = length();
+        if (len < EPSILON) {
+            throw new IllegalArgumentException("Невозможно нормализовать нулевой вектор");
+        }
+
+        float invLen = 1.0f / len;
+        return new Vector3f(x * invLen, y * invLen, z * invLen);
+    }
+
+    /**
+     * Безопасно возвращает нормализованный вектор.
+     * Если длина вектора близка к нулю, возвращает текущий вектор (this) без изменений,
+     * вместо выбрасывания исключения.
+     *
+     * @return Новый нормализованный вектор или заготовленный, если длина равна 0.
+     */
+    public Vector3f normalizeSafe() {
+        float len = length();
+        if (len < EPSILON) {
+            return new Vector3f(0, 1, 0);
+        }
+
+        float invLen = 1.0f / len;
+        return new Vector3f(x * invLen, y * invLen, z * invLen);
+    }
+
+    /**
+     * Вычисляет скалярное произведение текущего вектора и другого вектора.
+     *
+     * @param other Вектор, с которым вычисляется произведение.
+     * @return Значение скалярного произведения.
+     */
+    public float dot(Vector3f other) {
+        return this.x * other.x + this.y * other.y + this.z * other.z;
+    }
+
+    /**
+     * Вычисляет векторное произведение текущего вектора и другого вектора.
+     * Результатом является вектор, перпендикулярный обоим исходным векторам.
+     *
+     * @param other Вектор, с которым вычисляется произведение.
+     * @return Новый вектор, являющийся векторным произведением.
+     */
+    public Vector3f cross(Vector3f other) {
+        return new Vector3f(
+            this.y * other.z - this.z * other.y,
+            this.z * other.x - this.x * other.z,
+            this.x * other.y - this.y * other.x
+        );
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Vector3f(%.4f, %.4f, %.4f)", x, y, z);
+    }
+
+    /**
+     * Проверяет равенство текущего вектора с другим объектом.
+     * Сравнение координат происходит с учетом погрешности EPSILON.
+     *
+     * @param obj Объект для сравнения.
+     * @return true, если объекты равны, иначе false.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Vector3f other = (Vector3f) obj;
+        return Math.abs(x - other.x) < EPSILON &&
+            Math.abs(y - other.y) < EPSILON &&
+            Math.abs(z - other.z) < EPSILON;
+    }
+}

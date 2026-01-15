@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<TitledPane xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ru.vsu.cs.cg.controller.ModificationController"
+            animated="false" collapsible="true" text="Модификация модели">
+    <graphic>
+        <HBox alignment="CENTER_LEFT" spacing="5">
+            <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
+                <Image url="@/static/images/icons/right-menu/modify.png" />
+            </ImageView>
+        </HBox>
+    </graphic>
+    <content>
+        <VBox spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/vector-square.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Вершины:" />
+            </HBox>
+
+            <GridPane hgap="8" vgap="5">
+                <Label text="Индексы:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="vertexIndicesField" promptText="0,1,2 или 5-10"
+                           prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Режим:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <HBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <CheckBox fx:id="cleanUnusedCheckbox" mnemonicParsing="false"
+                              text="Очистить неиспользуемое" />
+                </HBox>
+
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                    <RowConstraints />
+                </rowConstraints>
+            </GridPane>
+
+            <HBox spacing="8">
+                <Button fx:id="removeVerticesButton" mnemonicParsing="false"
+                        prefWidth="120.0" style="-fx-font-weight: bold;" text="Удалить вершины" />
+                <Button fx:id="selectVerticesButton" mnemonicParsing="false"
+                        prefWidth="80.0" style="-fx-font-weight: bold;" text="Выделить" />
+                <Button fx:id="deselectVerticesButton" mnemonicParsing="false"
+                        prefWidth="80.0" style="-fx-font-weight: bold;" text="Снять" />
+            </HBox>
+
+            <Separator prefWidth="200.0" />
+
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/polygon.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Полигоны:" />
+            </HBox>
+
+            <GridPane hgap="8" vgap="5">
+                <Label text="Индексы:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="polygonIndicesField" promptText="0,1,2 или 5-10"
+                           prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                </rowConstraints>
+            </GridPane>
+
+            <HBox spacing="8">
+                <Button fx:id="removePolygonsButton" mnemonicParsing="false"
+                        prefWidth="120.0" style="-fx-font-weight: bold;" text="Удалить полигоны" />
+                <Button fx:id="selectPolygonsButton" mnemonicParsing="false"
+                        prefWidth="80.0" style="-fx-font-weight: bold;" text="Выделить" />
+                <Button fx:id="deselectPolygonsButton" mnemonicParsing="false"
+                        prefWidth="80.0" style="-fx-font-weight: bold;" text="Снять" />
+            </HBox>
+
+            <Separator prefWidth="200.0" />
+
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/top-menu/documentation.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Статистика модели:" />
+            </HBox>
+
+            <GridPane hgap="8" vgap="5">
+                <Label text="Вершин:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label fx:id="vertexCountLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Полигонов:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label fx:id="polygonCountLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Текстур:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label fx:id="textureCountLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="Нормалей:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <Label fx:id="normalCountLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                </rowConstraints>
+            </GridPane>
+        </VBox>
+    </content>
+</TitledPane>

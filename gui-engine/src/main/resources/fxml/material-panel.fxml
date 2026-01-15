@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<TitledPane xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.MaterialController" animated="false" collapsible="true" text="Материал">
+    <graphic>
+        <HBox alignment="CENTER_LEFT" spacing="5">
+            <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
+                <Image url="@/static/images/icons/right-menu/material.png" />
+            </ImageView>
+        </HBox>
+    </graphic>
+    <content>
+        <VBox spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/palette.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Цвет:" />
+            </HBox>
+            <ColorPicker fx:id="colorPicker" prefWidth="150.0" />
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Сила освещения:" />
+                <TextField fx:id="materialLightIntensityField" text="0.5" prefWidth="50.0" />
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Сила диффузного освещения:" />
+                <TextField fx:id="materialDiffusionField" text="0.0" prefWidth="50.0" />
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Коэффициент диффузного освещения:" />
+                <TextField fx:id="materialAmbientField" text="0.0" prefWidth="50.0" />
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/texture.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Текстура:" />
+            </HBox>
+            <HBox spacing="8">
+                <Button fx:id="loadTextureButton" mnemonicParsing="false" prefWidth="100.0" style="-fx-font-weight: bold;" text="Загрузить" />
+                <Button fx:id="clearTextureButton" mnemonicParsing="false" prefWidth="100.0" style="-fx-font-weight: bold;" text="Очистить" />
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <HBox alignment="CENTER_LEFT" spacing="5">
+                <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                    <Image url="@/static/images/icons/right-menu/eye.png" />
+                </ImageView>
+                <Label style="-fx-font-weight: bold;" text="Отображение:" />
+            </HBox>
+            <GridPane hgap="8" vgap="5">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                </rowConstraints>
+
+                <HBox alignment="CENTER_LEFT" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                        <Image url="@/static/images/icons/right-menu/texture.png" />
+                    </ImageView>
+                    <Label text="Текстура:" />
+                </HBox>
+                <CheckBox fx:id="showTextureCheckbox" selected="true" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <HBox alignment="CENTER_LEFT" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                        <Image url="@/static/images/icons/right-menu/lightbulb.png" />
+                    </ImageView>
+                    <Label text="Освещение:" />
+                </HBox>
+                <CheckBox fx:id="showLightingCheckbox" selected="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <HBox alignment="CENTER_LEFT" spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                    <ImageView fitHeight="16" fitWidth="16" preserveRatio="true">
+                        <Image url="@/static/images/icons/right-menu/grid.png" />
+                    </ImageView>
+                    <Label text="Полигональная сетка:" />
+                </HBox>
+                <CheckBox fx:id="showPolygonalGridCheckbox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            </GridPane>
+        </VBox>
+    </content>
+</TitledPane>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<TitledPane xmlns="http://javafx.com/javafx/21.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.vsu.cs.cg.controller.TransformController" animated="false" collapsible="true" expanded="true" text="Трансформация">
+    <graphic>
+        <HBox alignment="CENTER_LEFT" spacing="5">
+            <ImageView fitHeight="18" fitWidth="18" preserveRatio="true">
+                <Image url="@/static/images/icons/right-menu/modify.png" />
+            </ImageView>
+        </HBox>
+    </graphic>
+    <content>
+        <VBox spacing="12">
+            <Label style="-fx-font-weight: bold;" text="Позиция:" />
+            <GridPane hgap="8" vgap="5">
+                <Label text="X:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="positionX" prefWidth="80.0" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <Label text="Y:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="positionY" prefWidth="80.0" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label text="Z:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="positionZ" prefWidth="80.0" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                </rowConstraints>
+            </GridPane>
+            <Label style="-fx-font-weight: bold;" text="Вращение:" />
+            <GridPane hgap="8" vgap="5">
+                <Label text="X:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="rotationX" prefWidth="80.0" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <Label text="Y:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="rotationY" prefWidth="80.0" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label text="Z:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="rotationZ" prefWidth="80.0" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                </rowConstraints>
+            </GridPane>
+            <Label style="-fx-font-weight: bold;" text="Масштаб:" />
+            <GridPane hgap="8" vgap="5">
+                <Label text="X:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="scaleX" prefWidth="80.0" text="1.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <Label text="Y:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="scaleY" prefWidth="80.0" text="1.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label text="Z:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="scaleZ" prefWidth="80.0" text="1.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                    <RowConstraints />
+                    <RowConstraints />
+                </rowConstraints>
+            </GridPane>
+            <HBox spacing="8">
+                <Button fx:id="applyTransformButton" mnemonicParsing="false" prefWidth="120.0" style="-fx-font-weight: bold;" text="Применить" />
+                <Button fx:id="resetTransformButton" mnemonicParsing="false" prefWidth="120.0" style="-fx-font-weight: bold;" text="Сбросить" />
+            </HBox>
+        </VBox>
+    </content>
+</TitledPane>
