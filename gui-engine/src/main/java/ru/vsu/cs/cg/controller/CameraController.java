@@ -104,7 +104,7 @@ public class CameraController {
         }
     }
 
-    private void loadCameraToFields(Camera cam) {
+    public void loadCameraToFields(Camera cam) {
         if (cam == null) return;
 
         double fovDeg = Math.toDegrees(cam.getFov());
