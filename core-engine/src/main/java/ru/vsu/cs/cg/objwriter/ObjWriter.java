@@ -18,6 +18,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public final class ObjWriter {
 
@@ -94,7 +95,7 @@ public final class ObjWriter {
                 try {
                     Path textureSourcePath = Paths.get(texturePath);
                     if (Files.exists(textureSourcePath)) {
-                        Path textureTargetPath = mtlDir.resolve(textureSourcePath.getFileName());
+                        Path textureTargetPath = Objects.requireNonNull(mtlDir).resolve(textureSourcePath.getFileName());
 
                         if (!Files.exists(textureTargetPath)) {
                             Files.copy(textureSourcePath, textureTargetPath);

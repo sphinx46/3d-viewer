@@ -400,7 +400,6 @@ public class MainController {
                     sceneTreeView.getSelectionModel().select(item);
                 }
             }
-
             sceneTreeView.setRoot(rootItem);
         });
     }

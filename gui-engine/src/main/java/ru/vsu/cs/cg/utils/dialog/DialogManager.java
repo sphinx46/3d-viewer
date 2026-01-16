@@ -155,29 +155,24 @@ public final class DialogManager {
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setResizable(true);
 
-        // Создаем TextArea вместо Label
         TextArea textArea = new TextArea(message);
         textArea.setEditable(false);
-        textArea.setWrapText(true); // Перенос текста
-        textArea.setFont(Font.font("Monospaced", 12)); // Моноширинный шрифт для выравнивания
+        textArea.setWrapText(true);
+        textArea.setFont(Font.font("Monospaced", 12));
 
-        // Устанавливаем фиксированный размер, чтобы появился скролл
-        textArea.setPrefRowCount(30); // 30 строк
-        textArea.setPrefColumnCount(70); // 70 символов в строке
+        textArea.setPrefRowCount(30);
+        textArea.setPrefColumnCount(70);
         textArea.setPrefHeight(600);
         textArea.setPrefWidth(700);
 
-        // Создаем ScrollPane (TextArea уже имеет встроенный скролл, но для надежности)
         ScrollPane scrollPane = new ScrollPane(textArea);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
         scrollPane.setPrefHeight(600);
         scrollPane.setPrefWidth(700);
 
-        // Устанавливаем ScrollPane в диалог
         alert.getDialogPane().setContent(scrollPane);
 
-        // Увеличиваем размеры окна
         alert.getDialogPane().setPrefWidth(720);
         alert.getDialogPane().setPrefHeight(650);
 

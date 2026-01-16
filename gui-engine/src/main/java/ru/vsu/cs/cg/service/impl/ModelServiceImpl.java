@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 public class ModelServiceImpl implements ModelService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ModelServiceImpl.class);
+    private static final String BASE_WRITE_EXTENSION = ".obj";
 
     @Override
     public Model loadDefaultModel(DefaultModelLoader.ModelType modelType) {
@@ -27,10 +28,12 @@ public class ModelServiceImpl implements ModelService {
         try {
             return DefaultModelLoader.loadModel(modelType);
         } catch (ModelLoadException e) {
-            LOG.error("Ошибка загрузки стандартной модели '{}': {}", modelType.getDisplayName(), e.getMessage());
+            LOG.error("Ошибка загрузки стандартной модели '{}': {}",
+                modelType.getDisplayName(), e.getMessage());
             throw e;
         } catch (Exception e) {
-            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}", modelType.getDisplayName(), e.getMessage());
+            LOG.error("Неожиданная ошибка при загрузке модели '{}': {}",
+                modelType.getDisplayName(), e.getMessage());
             throw new ModelLoadException(MessageConstants.MODEL_LOAD_ERROR, e);
         }
     }
@@ -73,7 +76,7 @@ public class ModelServiceImpl implements ModelService {
             InputValidator.validateNotEmpty(filePath, "Путь к файлу");
 
             String normalizedPath = PathManager.normalizePath(filePath);
-            normalizedPath = PathManager.ensureExtension(normalizedPath, ".obj");
+            normalizedPath = PathManager.ensureExtension(normalizedPath, BASE_WRITE_EXTENSION);
             PathManager.validatePathForSave(normalizedPath);
 
             ObjWriter.write(normalizedPath, model);
@@ -97,7 +100,8 @@ public class ModelServiceImpl implements ModelService {
             InputValidator.validateNotEmpty(materialName, "Имя материала");
 
             String normalizedPath = PathManager.normalizePath(filePath);
-            normalizedPath = PathManager.ensureExtension(normalizedPath, ".obj");
+            normalizedPath = PathManager.ensureExtension(normalizedPath, BASE_WRITE_EXTENSION);
+
             PathManager.validatePathForSave(normalizedPath);
 
             ObjWriter.write(normalizedPath, model, materialName, texturePath,

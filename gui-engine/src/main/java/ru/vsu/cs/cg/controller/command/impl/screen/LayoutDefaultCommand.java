@@ -1,4 +1,4 @@
-package ru.vsu.cs.cg.controller.command.impl.window;
+package ru.vsu.cs.cg.controller.command.impl.screen;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

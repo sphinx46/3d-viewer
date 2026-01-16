@@ -114,11 +114,6 @@ public class MaterialController extends BaseController {
         });
     }
 
-
-    private double parseAndClamp(String value, double defaultValue) {
-        return InputValidator.clamp(InputValidator.parseDoubleSafe(value, defaultValue), 0.0, 5.0);
-    }
-
     private void initializeButtonActions() {
         loadTextureButton.setOnAction(event -> loadTexture());
         clearTextureButton.setOnAction(event -> clearTexture());

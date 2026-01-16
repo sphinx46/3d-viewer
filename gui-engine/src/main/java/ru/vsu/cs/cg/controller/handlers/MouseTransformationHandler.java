@@ -3,15 +3,12 @@ package ru.vsu.cs.cg.controller.handlers;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.controller.enums.TransformationMode;
 import ru.vsu.cs.cg.scene.Transform;
 import ru.vsu.cs.cg.scene.SceneObject;
 
 public class MouseTransformationHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(MouseTransformationHandler.class);
 
     private final SceneController sceneController;
     private TransformationMode currentMode = TransformationMode.NONE;
@@ -46,8 +43,7 @@ public class MouseTransformationHandler {
             isDragging = true;
 
             Cursor cursorType = getCursorForMode(currentMode);
-            if (event.getSource() instanceof javafx.scene.Node) {
-                javafx.scene.Node node = (javafx.scene.Node) event.getSource();
+            if (event.getSource() instanceof javafx.scene.Node node) {
                 node.getScene().setCursor(cursorType);
             }
         }
@@ -86,24 +82,19 @@ public class MouseTransformationHandler {
     public void handleMouseReleased(MouseEvent event) {
         if (isDragging) {
             isDragging = false;
-            if (event.getSource() instanceof javafx.scene.Node) {
-                javafx.scene.Node node = (javafx.scene.Node) event.getSource();
+            if (event.getSource() instanceof javafx.scene.Node node) {
                 node.getScene().setCursor(Cursor.DEFAULT);
             }
         }
     }
 
     private Cursor getCursorForMode(TransformationMode mode) {
-        switch (mode) {
-            case MOVE:
-                return Cursor.MOVE;
-            case ROTATE:
-                return Cursor.HAND;
-            case SCALE:
-                return Cursor.V_RESIZE;
-            default:
-                return Cursor.DEFAULT;
-        }
+        return switch (mode) {
+            case MOVE -> Cursor.MOVE;
+            case ROTATE -> Cursor.HAND;
+            case SCALE -> Cursor.V_RESIZE;
+            default -> Cursor.DEFAULT;
+        };
     }
 
     private void handleMove(double deltaX, double deltaY, Transform transform, boolean isZMode) {
@@ -145,14 +136,6 @@ public class MouseTransformationHandler {
         transform.setScaleX(newScaleX);
         transform.setScaleY(newScaleY);
         transform.setScaleZ(newScaleZ);
-    }
-
-    private double normalizeAngle(double angle) {
-        angle = angle % 360;
-        if (angle < 0) {
-            angle += 360;
-        }
-        return angle;
     }
 
     public TransformationMode getCurrentMode() {

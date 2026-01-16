@@ -7,7 +7,7 @@ import ru.vsu.cs.cg.service.RecentFilesCacheService;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class RecentFilesCacheServiceImpl implements RecentFilesCacheService {
+public class  RecentFilesCacheServiceImpl implements RecentFilesCacheService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecentFilesCacheServiceImpl.class);
     private static final int MAX_RECENT_FILES = 10;

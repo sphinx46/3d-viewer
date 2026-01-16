@@ -33,6 +33,11 @@ import java.util.Map;
 public class CommandFactory {
     private static final Logger LOG = LoggerFactory.getLogger(CommandFactory.class);
 
+    private static final String PATH_DARK_THEME = "/static/css/theme-dark.css";
+    private static final String PATH_LIGHT_THEME = "/static/css/theme-light.css";
+    private static final String URL_DOCUMENTATION = "https://github.com/sphinx46/3d-viewer";
+    private static final String URL_TO_ISSUE = "https://github.com/sphinx46/3d-viewer/issues/new";
+
     private final Map<String, Command> commandRegistry = new HashMap<>();
 
     public CommandFactory(Stage stage, AnchorPane anchorPane,
@@ -44,8 +49,8 @@ public class CommandFactory {
     private void initializeCommands(Stage stage, AnchorPane anchorPane,
                                     SceneController sceneController,
                                     RecentFilesCacheService recentFilesService) {
-        registerCommand(new ThemeCommand(anchorPane, "/static/css/theme-dark.css", "Тёмная"));
-        registerCommand(new ThemeCommand(anchorPane, "/static/css/theme-light.css", "Светлая"));
+        registerCommand(new ThemeCommand(anchorPane, PATH_DARK_THEME, "Тёмная"));
+        registerCommand(new ThemeCommand(anchorPane, PATH_LIGHT_THEME, "Светлая"));
 
         registerCommand(new SceneSaveCommand(stage, sceneController, recentFilesService));
         registerCommand(new FileOpenCommand(stage, sceneController, recentFilesService));
@@ -79,19 +84,19 @@ public class CommandFactory {
         registerCommand(new JsonSceneCommand(stage, sceneController, recentFilesService, JsonSceneCommand.Mode.IMPORT));
         registerCommand(new JsonSceneCommand(stage, sceneController, recentFilesService, JsonSceneCommand.Mode.EXPORT));
 
-        registerCommand(new ru.vsu.cs.cg.controller.command.impl.window.WindowNewCommand());
-        registerCommand(new ru.vsu.cs.cg.controller.command.impl.window.LayoutDefaultCommand());
+        registerCommand(new ru.vsu.cs.cg.controller.command.impl.screen.WindowNewCommand());
+        registerCommand(new ru.vsu.cs.cg.controller.command.impl.screen.LayoutDefaultCommand());
         registerCommand(new ru.vsu.cs.cg.controller.command.impl.window.LayoutHorizontalCommand());
-        registerCommand(new ru.vsu.cs.cg.controller.command.impl.window.LayoutVerticalCommand());
-        registerCommand(new ru.vsu.cs.cg.controller.command.impl.window.LayoutCascadeCommand());
+        registerCommand(new ru.vsu.cs.cg.controller.command.impl.screen.LayoutVerticalCommand());
+        registerCommand(new ru.vsu.cs.cg.controller.command.impl.screen.LayoutCascadeCommand());
 
         registerCommand(new MenuCreateCameraCommand(sceneController, new Vector3f(5, 2, 0), "camera_left"));
         registerCommand(new MenuCreateCameraCommand(sceneController, new Vector3f(-5, 2, 0), "camera_right"));
         registerCommand(new MenuCreateCameraCommand(sceneController, new Vector3f(0, 6, 5), "camera_top"));
         registerCommand(new MenuCreateCameraCommand(sceneController, new Vector3f(0, 2, 5), "camera_front"));
 
-        registerCommand(new UrlOpenCommand("https://github.com/sphinx46/3d-viewer", "Открыть документацию"));
-        registerCommand(new UrlOpenCommand("https://github.com/sphinx46/3d-viewer/issues/new", "Сообщить об ошибке"));
+        registerCommand(new UrlOpenCommand(URL_DOCUMENTATION, "Открыть документацию"));
+        registerCommand(new UrlOpenCommand(URL_TO_ISSUE, "Сообщить об ошибке"));
 
         LOG.info("Фабрика команд инициализирована с {} командами", commandRegistry.size());
     }

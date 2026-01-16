@@ -31,7 +31,7 @@ public class SceneController {
     private MainController mainController;
     private RenderController renderController;
     private CameraController cameraController;
-    private MouseTransformationHandler mouseTransformationHandler;
+    private final MouseTransformationHandler mouseTransformationHandler;
     private Scene currentScene;
     private SceneObject clipboardObject;
     private boolean sceneModified = false;
@@ -69,7 +69,7 @@ public class SceneController {
             this.renderController.setScene(this.currentScene);
         }
     }
-    
+
     public void setTransformationMode(TransformationMode mode) {
         if (this.currentTransformationMode == mode && mode != TransformationMode.NONE) {
             mode = TransformationMode.NONE;
