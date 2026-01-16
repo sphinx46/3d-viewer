@@ -1,17 +1,27 @@
-# Указываем, что .java файлы - это Java (основной язык)
+# УКАЗЫВАЕМ ОСНОВНОЙ ЯЗЫК
 *.java linguist-language=Java
 
-# Исключаем 3D-модели и бинарные файлы из статистики GitHub
-*.obj linguist-vendored
-*.mtl linguist-vendored
-*.class linguist-vendored
-*.jar linguist-vendored
+# ВАЖНО: Исключаем .md файлы из статистики ЯЗЫКОВ
+*.md linguist-documentation
+CHANGELOG.md linguist-documentation
+README.md linguist-documentation
 
-# Другие исключения (опционально)
-*.png linguist-vendored
-*.jpg linguist-vendored
-*.jpeg linguist-vendored
-*.pack linguist-vendored
-*.idx linguist-vendored
-.git/** linguist-vendored
-*.DS_Store linguist-vendored
+# Исключаем другие не-кодовые файлы из статистики
+*.obj linguist-documentation
+*.mtl linguist-documentation
+*.png linguist-documentation
+*.jpg linguist-documentation
+*.jpeg linguist-documentation
+*.class linguist-documentation
+*.jar linguist-documentation
+*.xml linguist-documentation
+*.fxml linguist-documentation
+*.css linguist-documentation
+*.3dscene linguist-documentation
+*.pack linguist-documentation
+*.idx linguist-documentation
+
+# Служебные файлы (опционально)
+.gitattributes linguist-documentation
+.gitignore linguist-documentation
+*.DS_Store linguist-documentation
