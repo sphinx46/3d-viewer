@@ -14,7 +14,6 @@ import ru.vsu.cs.cg.utils.modification.ModificationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class ModificationController extends BaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ModificationController.class);
@@ -85,6 +84,8 @@ public class ModificationController extends BaseController {
             new ru.vsu.cs.cg.controller.command.impl.modification.RemovePolygonsCommand(
                 sceneController, indicesInput);
         command.execute();
+
+        Platform.runLater(() -> polygonIndicesField.clear());
 
         updateStatistics();
         LOG.debug("Команда удаления полигонов выполнена");
@@ -182,9 +183,9 @@ public class ModificationController extends BaseController {
                 vertexIndicesField.setText(IndexParser.formatIndices(vertices));
             }
 
-            if (selection.hasSelectedTriangles()) {
-                List<Integer> triangles = new ArrayList<>(selection.getSelectedTriangles());
-                polygonIndicesField.setText(IndexParser.formatIndices(triangles));
+            if (selection.hasSelectedPolygons()) {
+                List<Integer> polygons = new ArrayList<>(selection.getSelectedPolygons());
+                polygonIndicesField.setText(IndexParser.formatIndices(polygons));
             }
         });
     }

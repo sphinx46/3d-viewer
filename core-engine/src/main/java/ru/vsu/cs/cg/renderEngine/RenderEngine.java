@@ -12,9 +12,7 @@ import ru.vsu.cs.cg.rasterization.RasterizerSettings;
 import ru.vsu.cs.cg.renderEngine.camera.Camera;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import javafx.scene.paint.Color;
 import ru.vsu.cs.cg.rasterization.Texture;
@@ -41,14 +39,14 @@ public class RenderEngine {
      * @param baseSettings    Базовые настройки рендеринга
      */
     public void render(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            List<RenderEntity> entities,
-            List<Camera> cameras,
-            Camera activeCamera,
-            Rasterizer rasterizer,
-            RasterizerSettings baseSettings) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        List<RenderEntity> entities,
+        List<Camera> cameras,
+        Camera activeCamera,
+        Rasterizer rasterizer,
+        RasterizerSettings baseSettings) {
 
         if (activeCamera == null) return;
 
@@ -65,29 +63,29 @@ public class RenderEngine {
             RasterizerSettings objectSettings = entity.getSettings().copy();
 
             renderModel(
-                    pixelWriter, width, height,
-                    entity.getModel(),
-                    entity.getTranslation(), entity.getRotation(), entity.getScale(),
-                    viewProjectionMatrix, lightDirection,
-                    rasterizer, objectSettings, entity.getTexture()
+                pixelWriter, width, height,
+                entity.getModel(),
+                entity.getTranslation(), entity.getRotation(), entity.getScale(),
+                viewProjectionMatrix, lightDirection,
+                rasterizer, objectSettings, entity.getTexture()
             );
 
             if (objectSettings.isDrawAxisLines()){
                 renderObjectGizmo(
-                        pixelWriter, width, height,
-                        entity,
-                        viewProjectionMatrix,
-                        rasterizer);
+                    pixelWriter, width, height,
+                    entity,
+                    viewProjectionMatrix,
+                    rasterizer);
             }
         }
 
         if (cameras != null) {
             renderCameraGizmos(
-                    pixelWriter, width, height,
-                    cameras, activeCamera,
-                    viewProjectionMatrix,
-                    lightDirection,
-                    rasterizer);
+                pixelWriter, width, height,
+                cameras, activeCamera,
+                viewProjectionMatrix,
+                lightDirection,
+                rasterizer);
         }
 
     }
@@ -109,16 +107,16 @@ public class RenderEngine {
      * @param texture              Текстура модели (может быть null)
      */
     private void renderModel(
-            PixelWriter pixelWriter,
-            int width,
-            int height,
-            Model model,
-            Vector3f translation, Vector3f rotation, Vector3f scale,
-            Matrix4x4 viewProjectionMatrix,
-            Vector3f lightDirection,
-            Rasterizer rasterizer,
-            RasterizerSettings settings,
-            Texture texture) {
+        PixelWriter pixelWriter,
+        int width,
+        int height,
+        Model model,
+        Vector3f translation, Vector3f rotation, Vector3f scale,
+        Matrix4x4 viewProjectionMatrix,
+        Vector3f lightDirection,
+        Rasterizer rasterizer,
+        RasterizerSettings settings,
+        Texture texture) {
 
         Matrix4x4 modelMatrix = GraphicConveyor.rotateScaleTranslate(translation, rotation, scale);
         Matrix4x4 mvpMatrix = viewProjectionMatrix.multiply(modelMatrix);
@@ -157,16 +155,16 @@ public class RenderEngine {
             }
 
             rasterizer.drawTriangle(pixelWriter, width, height,
-                    screenV1, screenV2, screenV3,
-                    vt1, vt2, vt3,
-                    n1, n2, n3,
-                    texture, lightDirection,
-                    settings);
+                screenV1, screenV2, screenV3,
+                vt1, vt2, vt3,
+                n1, n2, n3,
+                texture, lightDirection,
+                settings);
         }
 
         renderSelection(pixelWriter, width, height,
-                model, mvpMatrix,
-                rasterizer);
+            model, mvpMatrix,
+            rasterizer);
     }
 
     /**
@@ -226,13 +224,13 @@ public class RenderEngine {
             Color colorZ = (z == 0) ? Color.WHITE : Color.GRAY;
 
             renderLine3D(pw, w, h,
-                    new Vector3f(x, 0, camZ - radius),
-                    new Vector3f(x, 0, camZ + radius),
-                    vp, colorX, r, false);
+                new Vector3f(x, 0, camZ - radius),
+                new Vector3f(x, 0, camZ + radius),
+                vp, colorX, r, false);
             renderLine3D(pw, w, h,
-                    new Vector3f(camX - radius, 0, z),
-                    new Vector3f(camX + radius, 0, z),
-                    vp, colorZ, r, false);
+                new Vector3f(camX - radius, 0, z),
+                new Vector3f(camX + radius, 0, z),
+                vp, colorZ, r, false);
         }
     }
 
@@ -246,57 +244,22 @@ public class RenderEngine {
      * @param mvp   Матрица Model-View-Projection
      * @param r     Растеризатор
      */
-    /**
-     * Рендерит выделение вершин и треугольников модели.
-     *
-     * @param pw    Писатель пикселей
-     * @param w     Ширина области рендеринга
-     * @param h     Высота области рендеринга
-     * @param model Модель с выделенными элементами
-     * @param mvp   Матрица Model-View-Projection
-     * @param r     Растеризатор
-     */
-    /**
-     * Рендерит выделение вершин и треугольников модели.
-     *
-     * @param pw    Писатель пикселей
-     * @param w     Ширина области рендеринга
-     * @param h     Высота области рендеринга
-     * @param model Модель с выделенными элементами
-     * @param mvp   Матрица Model-View-Projection
-     * @param r     Растеризатор
-     */
     private void renderSelection(PixelWriter pw, int w, int h, Model model, Matrix4x4 mvp, Rasterizer r) {
         ModelSelection sel = model.getSelection();
-
         if (sel.hasSelectedVertices()) {
-            for (Integer vertexIdx : sel.getSelectedVertices()) {
-                if (vertexIdx >= 0 && vertexIdx < model.getVertices().size()) {
-                    Vector4f v = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(
-                        mvp, model.getVertices().get(vertexIdx));
-                    if (v.getW() > 0.1f) {
-                        renderVertexPoint(pw, w, h,
-                            GraphicConveyor.vertexToPoint(v.toVector3Safe(), w, h),
-                            v.getW(), 8, Color.YELLOW, r);
-                    }
-                }
+            for (Integer idx : sel.getSelectedVertices()) {
+                Vector4f v = GraphicConveyor.multiplyMatrix4ByVector3ToVector4(mvp, model.getVertices().get(idx));
+                if (v.getW() > 0.1f) renderVertexPoint(pw, w, h, GraphicConveyor.vertexToPoint(v.toVector3Safe(), w, h), v.getW(), 8, Color.YELLOW, r);
             }
         }
 
-        if (sel.hasSelectedTriangles()) {
-            List<Polygon> triangles = model.getTriangulatedPolygonsCache();
-            Set<Integer> selectedTriangleIndices = sel.getSelectedTriangles();
-
-            for (Integer triangleIdx : selectedTriangleIndices) {
-                if (triangleIdx >= 0 && triangleIdx < triangles.size()) {
-                    Polygon triangle = triangles.get(triangleIdx);
-                    List<Integer> vIdx = triangle.getVertexIndices();
-
-                    for (int i = 0; i < 3; i++) {
-                        Vector3f v1 = model.getVertices().get(vIdx.get(i));
-                        Vector3f v2 = model.getVertices().get(vIdx.get((i + 1) % 3));
-                        renderLine3D(pw, w, h, v1, v2, mvp, Color.CYAN, r, true);
-                    }
+        if (sel.hasSelectedPolygons()) {
+            for (Integer idx : sel.getSelectedPolygons()) {
+                Polygon poly = model.getPolygons().get(idx);
+                for (int i = 0; i < poly.getVertexIndices().size(); i++) {
+                    Vector3f v1 = model.getVertices().get(poly.getVertexIndices().get(i));
+                    Vector3f v2 = model.getVertices().get(poly.getVertexIndices().get((i + 1) % poly.getVertexIndices().size()));
+                    renderLine3D(pw, w, h, v1, v2, mvp, Color.CYAN, r, true);
                 }
             }
         }
@@ -307,10 +270,10 @@ public class RenderEngine {
      */
     private Vector4f lerpVector4(Vector4f a, Vector4f b, float t) {
         return new Vector4f(
-                a.getX() + (b.getX() - a.getX()) * t,
-                a.getY() + (b.getY() - a.getY()) * t,
-                a.getZ() + (b.getZ() - a.getZ()) * t,
-                a.getW() + (b.getW() - a.getW()) * t);
+            a.getX() + (b.getX() - a.getX()) * t,
+            a.getY() + (b.getY() - a.getY()) * t,
+            a.getZ() + (b.getZ() - a.getZ()) * t,
+            a.getW() + (b.getW() - a.getW()) * t);
     }
 
     /**
@@ -347,11 +310,11 @@ public class RenderEngine {
         for (Camera c : cameras) {
             if (c == active) continue;
             renderModel(pw, w, h,
-                    gizmo, c.getPosition(),
-                    new Vector3f(0,0,0), new Vector3f(1,1,1),
-                    vp, light,
-                    r, s,
-                    null);
+                gizmo, c.getPosition(),
+                new Vector3f(0,0,0), new Vector3f(1,1,1),
+                vp, light,
+                r, s,
+                null);
         }
     }
 
@@ -400,12 +363,12 @@ public class RenderEngine {
             cameraGizmoModel.setNormals(ns);
 
             int[][] indices = {
-                    {0, 1, 2}, {0, 2, 3},
-                    {5, 4, 7}, {5, 7, 6},
-                    {3, 2, 6}, {3, 6, 7},
-                    {1, 0, 4}, {1, 4, 5},
-                    {4, 0, 3}, {4, 3, 7},
-                    {1, 5, 6}, {1, 6, 2}
+                {0, 1, 2}, {0, 2, 3},
+                {5, 4, 7}, {5, 7, 6},
+                {3, 2, 6}, {3, 6, 7},
+                {1, 0, 4}, {1, 4, 5},
+                {4, 0, 3}, {4, 3, 7},
+                {1, 5, 6}, {1, 6, 2}
             };
 
             for (int[] face : indices) {

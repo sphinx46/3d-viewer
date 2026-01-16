@@ -62,6 +62,7 @@ public final class RemovalUtils {
                 polygonIndices == null ? 0 : polygonIndices.size());
 
         removeElementsByIndices(model.getPolygonsMutable(), polygonIndices);
+        model.invalidateTriangulation();
     }
 
     /**

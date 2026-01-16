@@ -152,7 +152,7 @@ public final class Model {
         }
     }
 
-    private void invalidateTriangulation() {
+    public void invalidateTriangulation() {
         triangulatedPolygonsCache = null;
     }
 
