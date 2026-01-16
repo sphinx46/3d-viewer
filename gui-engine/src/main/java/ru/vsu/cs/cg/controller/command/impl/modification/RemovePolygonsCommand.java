@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.model.selection.ModelSelection;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.constants.MessageConstants;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
@@ -35,6 +36,7 @@ public class RemovePolygonsCommand implements Command {
 
             SceneObject selectedObject = sceneController.getSelectedObject();
             Model model = selectedObject.getModel();
+            ModelSelection selection = model.getSelection();
 
             Set<Integer> polygonIndices = IndexParser.parseIndices(polygonIndicesInput);
 
@@ -48,7 +50,11 @@ public class RemovePolygonsCommand implements Command {
                 return;
             }
 
-            removePolygonsFromModel(model, polygonIndices);
+            polygonIndices.forEach(selection::deselectPolygon);
+
+            ru.vsu.cs.cg.utils.RemovalUtils.removePolygonsFromModel(model, polygonIndices);
+
+            selection.adjustSelectionAfterPolygonRemoval(polygonIndices);
 
             sceneController.markModelModified();
             updateModelStatistics(selectedObject);
@@ -61,10 +67,6 @@ public class RemovePolygonsCommand implements Command {
             LOG.error("Ошибка при удалении полигонов: {}", e.getMessage());
             DialogManager.showError(MessageConstants.POLYGONS_REMOVE_ERROR);
         }
-    }
-
-    private void removePolygonsFromModel(Model model, Set<Integer> polygonIndices) {
-        ru.vsu.cs.cg.utils.RemovalUtils.removePolygonsFromModel(model, polygonIndices);
     }
 
     private void updateModelStatistics(SceneObject object) {

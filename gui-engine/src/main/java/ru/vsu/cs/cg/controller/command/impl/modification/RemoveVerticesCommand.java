@@ -6,6 +6,7 @@ import ru.vsu.cs.cg.controller.SceneController;
 import ru.vsu.cs.cg.controller.command.Command;
 import ru.vsu.cs.cg.exceptions.VertexRemoverException;
 import ru.vsu.cs.cg.model.Model;
+import ru.vsu.cs.cg.model.selection.ModelSelection;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.constants.MessageConstants;
 import ru.vsu.cs.cg.utils.dialog.DialogManager;
@@ -46,6 +47,7 @@ public class RemoveVerticesCommand implements Command {
 
             SceneObject selectedObject = sceneController.getSelectedObject();
             Model model = selectedObject.getModel();
+            ModelSelection selection = model.getSelection();
 
             Set<Integer> vertexIndices = IndexParser.parseIndices(vertexIndicesInput);
 
@@ -60,6 +62,8 @@ public class RemoveVerticesCommand implements Command {
             }
 
             VertexRemovalResult result = vertexRemover.removeVertices(model, vertexIndices, clearUnused);
+
+            selection.adjustSelectionAfterVertexRemoval(vertexIndices);
 
             sceneController.markModelModified();
             updateModelStatistics(selectedObject);

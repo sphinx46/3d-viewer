@@ -9,11 +9,13 @@ import ru.vsu.cs.cg.model.Model;
 import ru.vsu.cs.cg.model.selection.ModelSelection;
 import ru.vsu.cs.cg.scene.SceneObject;
 import ru.vsu.cs.cg.utils.controller.UiFieldUtils;
+import ru.vsu.cs.cg.utils.dialog.DialogManager;
 import ru.vsu.cs.cg.utils.parser.IndexParser;
 import ru.vsu.cs.cg.utils.modification.ModificationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ModificationController extends BaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ModificationController.class);
@@ -57,43 +59,98 @@ public class ModificationController extends BaseController {
     private void handleRemoveVertices() {
         if (!hasSelectedObject()) {
             LOG.warn("Попытка удалить вершины без выбранного объекта");
+            DialogManager.showError("Для удаления вершин необходимо выбрать объект");
             return;
         }
 
+        SceneObject selectedObject = getSelectedObject();
+        Model model = selectedObject.getModel();
         String indicesInput = vertexIndicesField.getText();
         boolean clearUnused = cleanUnusedCheckbox.isSelected();
 
-        ru.vsu.cs.cg.controller.command.Command command =
-            new ru.vsu.cs.cg.controller.command.impl.modification.RemoveVerticesCommand(
-                sceneController, indicesInput, clearUnused);
-        command.execute();
+        try {
+            Set<Integer> vertexIndices = IndexParser.parseIndices(indicesInput);
 
-        updateStatistics();
-        LOG.debug("Команда удаления вершин выполнена");
+            if (vertexIndices.isEmpty()) {
+                DialogManager.showError("Не указаны индексы вершин для удаления");
+                return;
+            }
+
+            if (!IndexParser.validateIndices(vertexIndices, model.getVertices().size())) {
+                DialogManager.showError(
+                    String.format("Один или несколько индексов вершин выходят за пределы допустимого диапазона (0-%d)",
+                        model.getVertices().size() - 1)
+                );
+                return;
+            }
+
+            ru.vsu.cs.cg.controller.command.Command command =
+                new ru.vsu.cs.cg.controller.command.impl.modification.RemoveVerticesCommand(
+                    sceneController, indicesInput, clearUnused);
+            command.execute();
+
+            updateStatistics();
+            LOG.debug("Команда удаления вершин выполнена");
+
+        } catch (IllegalArgumentException e) {
+            DialogManager.showError("Некорректный формат индексов вершин: " + e.getMessage());
+            LOG.error("Ошибка парсинга индексов вершин: {}", e.getMessage());
+        } catch (Exception e) {
+            DialogManager.showError("Ошибка при удалении вершин");
+            LOG.error("Неожиданная ошибка при удалении вершин: {}", e.getMessage());
+        }
     }
 
     private void handleRemovePolygons() {
         if (!hasSelectedObject()) {
             LOG.warn("Попытка удалить полигоны без выбранного объекта");
+            DialogManager.showError("Для удаления полигонов необходимо выбрать объект");
             return;
         }
 
+        SceneObject selectedObject = getSelectedObject();
+        Model model = selectedObject.getModel();
         String indicesInput = polygonIndicesField.getText();
 
-        ru.vsu.cs.cg.controller.command.Command command =
-            new ru.vsu.cs.cg.controller.command.impl.modification.RemovePolygonsCommand(
-                sceneController, indicesInput);
-        command.execute();
+        try {
+            Set<Integer> polygonIndices = IndexParser.parseIndices(indicesInput);
 
-        Platform.runLater(() -> polygonIndicesField.clear());
+            if (polygonIndices.isEmpty()) {
+                DialogManager.showError("Не указаны индексы полигонов для удаления");
+                return;
+            }
 
-        updateStatistics();
-        LOG.debug("Команда удаления полигонов выполнена");
+            if (!IndexParser.validateIndices(polygonIndices, model.getPolygons().size())) {
+                DialogManager.showError(
+                    String.format("Один или несколько индексов выходят за пределы допустимого диапазона (0-%d)",
+                        model.getPolygons().size() - 1)
+                );
+                return;
+            }
+
+            ru.vsu.cs.cg.controller.command.Command command =
+                new ru.vsu.cs.cg.controller.command.impl.modification.RemovePolygonsCommand(
+                    sceneController, indicesInput);
+            command.execute();
+
+            Platform.runLater(() -> polygonIndicesField.clear());
+
+            updateStatistics();
+            LOG.debug("Команда удаления полигонов выполнена");
+
+        } catch (IllegalArgumentException e) {
+            DialogManager.showError("Некорректный формат индексов: " + e.getMessage());
+            LOG.error("Ошибка парсинга индексов полигонов: {}", e.getMessage());
+        } catch (Exception e) {
+            DialogManager.showError("Ошибка при удалении полигонов");
+            LOG.error("Неожиданная ошибка при удалении полигонов: {}", e.getMessage());
+        }
     }
 
     private void handleSelectVertices() {
         if (!hasSelectedObject()) {
             LOG.warn("Попытка выделить вершины без выбранного объекта");
+            DialogManager.showError("Для выделения вершин необходимо выбрать объект");
             return;
         }
 
@@ -101,15 +158,35 @@ public class ModificationController extends BaseController {
         Model model = selectedObject.getModel();
         String indicesInput = vertexIndicesField.getText();
 
-        ModificationUtils.updateSelection(indicesInput, model, true, true);
-        updateSelectionFields();
-        sceneController.markModelModified();
-        sceneController.markSceneModified();
+        try {
+            Set<Integer> vertexIndices = IndexParser.parseIndices(indicesInput);
+
+            if (!vertexIndices.isEmpty() && !IndexParser.validateIndices(vertexIndices, model.getVertices().size())) {
+                DialogManager.showError(
+                    String.format("Один или несколько индексов вершин выходят за пределы допустимого диапазона (0-%d)",
+                        model.getVertices().size() - 1)
+                );
+                return;
+            }
+
+            ModificationUtils.updateSelection(indicesInput, model, true, true);
+            updateSelectionFields();
+            sceneController.markModelModified();
+            sceneController.markSceneModified();
+
+        } catch (IllegalArgumentException e) {
+            DialogManager.showError("Некорректный формат индексов вершин: " + e.getMessage());
+            LOG.error("Ошибка парсинга индексов вершин: {}", e.getMessage());
+        } catch (Exception e) {
+            DialogManager.showError("Ошибка при выделении вершин");
+            LOG.error("Неожиданная ошибка при выделении вершин: {}", e.getMessage());
+        }
     }
 
     private void handleSelectPolygons() {
         if (!hasSelectedObject()) {
             LOG.warn("Попытка выделить полигоны без выбранного объекта");
+            DialogManager.showError("Для выделения полигонов необходимо выбрать объект");
             return;
         }
 
@@ -117,15 +194,35 @@ public class ModificationController extends BaseController {
         Model model = selectedObject.getModel();
         String indicesInput = polygonIndicesField.getText();
 
-        ModificationUtils.updateSelection(indicesInput, model, false, true);
-        updateSelectionFields();
-        sceneController.markModelModified();
-        sceneController.markSceneModified();
+        try {
+            Set<Integer> polygonIndices = IndexParser.parseIndices(indicesInput);
+
+            if (!polygonIndices.isEmpty() && !IndexParser.validateIndices(polygonIndices, model.getPolygons().size())) {
+                DialogManager.showError(
+                    String.format("Один или несколько индексов полигонов выходят за пределы допустимого диапазона (0-%d)",
+                        model.getPolygons().size() - 1)
+                );
+                return;
+            }
+
+            ModificationUtils.updateSelection(indicesInput, model, false, true);
+            updateSelectionFields();
+            sceneController.markModelModified();
+            sceneController.markSceneModified();
+
+        } catch (IllegalArgumentException e) {
+            DialogManager.showError("Некорректный формат индексов полигонов: " + e.getMessage());
+            LOG.error("Ошибка парсинга индексов полигонов: {}", e.getMessage());
+        } catch (Exception e) {
+            DialogManager.showError("Ошибка при выделении полигонов");
+            LOG.error("Неожиданная ошибка при выделении полигонов: {}", e.getMessage());
+        }
     }
 
     private void handleDeselectVertices() {
         if (!hasSelectedObject()) {
             LOG.warn("Попытка снять выделение вершин без выбранного объекта");
+            DialogManager.showError("Для снятия выделения вершин необходимо выбрать объект");
             return;
         }
 
@@ -133,15 +230,35 @@ public class ModificationController extends BaseController {
         Model model = selectedObject.getModel();
         String indicesInput = vertexIndicesField.getText();
 
-        ModificationUtils.updateSelection(indicesInput, model, true, false);
-        updateSelectionFields();
-        sceneController.markModelModified();
-        sceneController.markSceneModified();
+        try {
+            Set<Integer> vertexIndices = IndexParser.parseIndices(indicesInput);
+
+            if (!vertexIndices.isEmpty() && !IndexParser.validateIndices(vertexIndices, model.getVertices().size())) {
+                DialogManager.showError(
+                    String.format("Один или несколько индексов вершин выходят за пределы допустимого диапазона (0-%d)",
+                        model.getVertices().size() - 1)
+                );
+                return;
+            }
+
+            ModificationUtils.updateSelection(indicesInput, model, true, false);
+            updateSelectionFields();
+            sceneController.markModelModified();
+            sceneController.markSceneModified();
+
+        } catch (IllegalArgumentException e) {
+            DialogManager.showError("Некорректный формат индексов вершин: " + e.getMessage());
+            LOG.error("Ошибка парсинга индексов вершин: {}", e.getMessage());
+        } catch (Exception e) {
+            DialogManager.showError("Ошибка при снятии выделения вершин");
+            LOG.error("Неожиданная ошибка при снятии выделения вершин: {}", e.getMessage());
+        }
     }
 
     private void handleDeselectPolygons() {
         if (!hasSelectedObject()) {
             LOG.warn("Попытка снять выделение полигонов без выбранного объекта");
+            DialogManager.showError("Для снятия выделения полигонов необходимо выбрать объект");
             return;
         }
 
@@ -149,10 +266,29 @@ public class ModificationController extends BaseController {
         Model model = selectedObject.getModel();
         String indicesInput = polygonIndicesField.getText();
 
-        ModificationUtils.updateSelection(indicesInput, model, false, false);
-        updateSelectionFields();
-        sceneController.markModelModified();
-        sceneController.markSceneModified();
+        try {
+            Set<Integer> polygonIndices = IndexParser.parseIndices(indicesInput);
+
+            if (!polygonIndices.isEmpty() && !IndexParser.validateIndices(polygonIndices, model.getPolygons().size())) {
+                DialogManager.showError(
+                    String.format("Один или несколько индексов полигонов выходят за пределы допустимого диапазона (0-%d)",
+                        model.getPolygons().size() - 1)
+                );
+                return;
+            }
+
+            ModificationUtils.updateSelection(indicesInput, model, false, false);
+            updateSelectionFields();
+            sceneController.markModelModified();
+            sceneController.markSceneModified();
+
+        } catch (IllegalArgumentException e) {
+            DialogManager.showError("Некорректный формат индексов полигонов: " + e.getMessage());
+            LOG.error("Ошибка парсинга индексов полигонов: {}", e.getMessage());
+        } catch (Exception e) {
+            DialogManager.showError("Ошибка при снятии выделения полигонов");
+            LOG.error("Неожиданная ошибка при снятии выделения полигонов: {}", e.getMessage());
+        }
     }
 
     @Override
