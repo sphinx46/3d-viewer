@@ -260,7 +260,7 @@ public class MainController {
 
         ContextMenu contextMenu = new ContextMenu();
         MenuItem renameItem = new MenuItem("Переименовать");
-        renameItem.setOnAction(event -> handleRenameObject());
+        renameItem.setOnAction(event -> executeCommand("object_rename"));
         contextMenu.getItems().add(renameItem);
 
         MenuItem duplicateItem = new MenuItem("Дублировать");
@@ -293,39 +293,6 @@ public class MainController {
                     }
                 }
         );
-    }
-
-    private void handleRenameObject() {
-        TreeItem<SceneObject> selectedItem = sceneTreeView.getSelectionModel().getSelectedItem();
-        if (selectedItem == null || selectedItem.getValue() == null) {
-            DialogManager.showError("Пожалуйста, выберите объект для переименования.");
-            return;
-        }
-
-        SceneObject selectedObject = selectedItem.getValue();
-        String currentName = selectedObject.getName();
-
-        TextInputDialog dialog = new TextInputDialog(currentName);
-        dialog.setTitle("Переименование объекта");
-        dialog.setHeaderText("Введите новое имя для объекта");
-        dialog.setContentText("Имя:");
-
-        Optional<String> result = dialog.showAndWait();
-
-        if (result.isPresent() && !result.get().trim().isEmpty()) {
-            String newName = result.get().trim();
-
-            if (newName.equals(currentName)) {
-                return;
-            }
-
-            if (sceneController.getCurrentScene().findObjectByName(newName).isPresent()) {
-                DialogManager.showError("Объект с именем '" + newName + "' уже существует в сцене.");
-                return;
-            }
-
-            sceneController.renameSelectedObject(newName);
-        }
     }
 
     private void handleToggleVisibility() {
