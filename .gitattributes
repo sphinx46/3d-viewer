@@ -1,0 +1,17 @@
+# Указываем, что .java файлы - это Java (основной язык)
+*.java linguist-language=Java
+
+# Исключаем 3D-модели и бинарные файлы из статистики GitHub
+*.obj linguist-vendored
+*.mtl linguist-vendored
+*.class linguist-vendored
+*.jar linguist-vendored
+
+# Другие исключения (опционально)
+*.png linguist-vendored
+*.jpg linguist-vendored
+*.jpeg linguist-vendored
+*.pack linguist-vendored
+*.idx linguist-vendored
+.git/** linguist-vendored
+*.DS_Store linguist-vendored
